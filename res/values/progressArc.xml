@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- model: content-box -->
+    <!-- TODO or border-box? -->
+    <declare-styleable name="progressArc">
+        <attr name="arcBackground" format="color" />
+        <attr name="arcForeground" format="color" />
+        <attr name="arcInnerRadius" format="dimension" />
+        <attr name="arcWidth" format="dimension" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderWidth" format="dimension" />
+        <attr name="degreeStart" format="float" />
+        <attr name="degreeTotal" format="float" />
+        <attr name="valueMin" format="float" />
+        <attr name="valueTotal" format="float" />
+        <attr name="valueNow" format="float" />
+    </declare-styleable>
+
+</resources>
+
+

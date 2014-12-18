@@ -48,7 +48,7 @@ public class PageHeader {
 
 	private Animator mOnGoingAnimation;
 
-	private VisibilityListener mExternalVisibilityListener;
+	private VisibilityListener mExtVisibilityListener;
 
 	private Handler mHandler;
 
@@ -74,8 +74,8 @@ public class PageHeader {
 
 					mFinallyVisible = false;
 
-					if (mExternalVisibilityListener != null) {
-						mExternalVisibilityListener.onHideStart();
+					if (mExtVisibilityListener != null) {
+						mExtVisibilityListener.onHideStart();
 					}
 				};
 			};
@@ -161,8 +161,8 @@ public class PageHeader {
 		if (isFinallyVisible()) {
 			mHeader.setVisibility(View.GONE);
 			mFinallyVisible = false;
-			if (mExternalVisibilityListener != null) {
-				mExternalVisibilityListener.onHideStart();
+			if (mExtVisibilityListener != null) {
+				mExtVisibilityListener.onHideStart();
 			}
 		}
 	}
@@ -232,7 +232,7 @@ public class PageHeader {
 	}
 
 	public void setVisibilityListener(VisibilityListener listener) {
-		mExternalVisibilityListener = listener;
+		mExtVisibilityListener = listener;
 	}
 
 	public void showImmediately() {

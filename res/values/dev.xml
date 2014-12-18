@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="dev_black">#000</color>
+    <color name="dev_blue">#00F</color>
+    <color name="dev_green">#0F0</color>
+    <color name="dev_cyan">#0FF</color>
+    <color name="dev_red">#F00</color>
+    <color name="dev_magenta">#F0F</color>
+    <color name="dev_yellow">#FF0</color>
+    <color name="dev_white">#FFF</color>
+    <color name="dev_gray3">#333</color>
+    <color name="dev_grayC">#CCC</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="dev_orange">#F77700</color>
+
+    <string name="dev_sample_text">Sample Text</string>
+
+</resources>

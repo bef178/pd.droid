@@ -10,6 +10,8 @@
     <color name="dev_yellow">#FF0</color>
     <color name="dev_white">#FFF</color>
     <color name="dev_gray3">#333</color>
+    <color name="dev_gray6">#666</color>
+    <color name="dev_gray9">#999</color>
     <color name="dev_grayC">#CCC</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="dev_orange">#F77700</color>

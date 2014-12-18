@@ -1,5 +1,6 @@
 package th.pd;
 
+import th.pageHeader.PageHeader;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,7 +9,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
+public class Main extends Activity {
 
 	private static final int HEADER_TIMEOUT = 3500;
 
@@ -17,7 +18,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.aaa);
+		setContentView(R.layout.main);
 
 		View button = findViewById(R.id.button);
 		button.setOnClickListener(new OnClickListener() {

@@ -1,5 +1,6 @@
-package th.pd;
+package th.pageHeader;
 
+import th.pd.R;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
@@ -116,12 +117,12 @@ public class PageHeader {
 			@Override
 			public void handleMessage(Message message) {
 				switch (message.what) {
-					case MSG_HIDE_WITH_ANIM: {
-						hideWithAnim();
-						break;
-					}
-					default:
-						throw new AssertionError(message.what);
+				case MSG_HIDE_WITH_ANIM: {
+					hideWithAnim();
+					break;
+				}
+				default:
+					throw new AssertionError(message.what);
 				}
 			}
 		};
@@ -188,9 +189,7 @@ public class PageHeader {
 		}
 
 		float endingY = -mHeader.getHeight();
-		int topLeft[] = {
-			0, 0
-		};
+		int topLeft[] = { 0, 0 };
 		mHeader.getLocationInWindow(topLeft);
 		endingY -= topLeft[1];
 
@@ -276,9 +275,7 @@ public class PageHeader {
 		mHeader.setVisibility(View.VISIBLE);
 
 		float startingY = -mHeader.getHeight();
-		int[] topLeft = {
-			0, 0
-		};
+		int[] topLeft = { 0, 0 };
 		mHeader.getLocationInWindow(topLeft);
 		startingY -= topLeft[1];
 		mHeader.setTranslationY(startingY);

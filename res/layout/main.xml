@@ -29,7 +29,7 @@
         <include
             android:layout_width="wrap_content"
             android:layout_height="160dp"
-            layout="@layout/mediaviewer_demo" />
+            layout="@layout/pageheader_demo" />
 
         <include
             android:id="@+id/intentSender"

@@ -6,4 +6,4 @@ gen
 libs
 proguard-project.txt
 project.properties
-
+res/drawable-hdpi/mime_*

@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 public class Main extends Activity {
 	private static final String LOG_TAG = "MainActivity";
@@ -52,8 +53,8 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		mHeaderDemo = new th.pageHeader.Demo(findViewById(R.id.pageHeader),
-				findViewById(R.id.button));
+		mHeaderDemo = new th.pageHeader.Demo(
+				findViewById(R.id.pageHeader), findViewById(R.id.btnHeaderDemo));
 		registerForContextMenu(findViewById(R.id.pageHeader));
 
 		setHeaderTitleAsync();

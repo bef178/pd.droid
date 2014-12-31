@@ -6,7 +6,6 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical|start</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:text">@string/dev_sample_text</item>
     </style>
 
 </resources>

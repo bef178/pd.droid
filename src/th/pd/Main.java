@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 public class Main extends Activity {
 	private static final String LOG_TAG = "MainActivity";

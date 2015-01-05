@@ -7,12 +7,14 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PageHeader {
@@ -39,6 +41,7 @@ public class PageHeader {
 
 	private View mHeader;
 	private View mHeaderBackButton;
+	private ImageView mHeaderLogo;
 	private TextView mHeaderTitle;
 	private TextView mHeaderSummary;
 	private ViewGroup mHeaderOptionContainer;
@@ -136,6 +139,7 @@ public class PageHeader {
 		mHeaderBackButton.setClickable(true);
 		mHeaderOptionContainer = (ViewGroup) mHeader
 				.findViewById(R.id.pageheader_option_container);
+		mHeaderLogo = (ImageView) mHeader.findViewById(R.id.pageheader_logo);
 		mHeaderTitle = (TextView) mHeader.findViewById(R.id.pageheader_title);
 		mHeaderSummary = (TextView) mHeader
 				.findViewById(R.id.pageheader_summary);
@@ -221,6 +225,15 @@ public class PageHeader {
 
 	public void setBackButtonClickListener(OnClickListener clickListener) {
 		mHeaderBackButton.setOnClickListener(clickListener);
+	}
+
+	public void setLogo(Drawable logo) {
+		mHeaderLogo.setImageDrawable(logo);
+		if (logo != null) {
+			mHeaderLogo.setVisibility(View.VISIBLE);
+		} else {
+			mHeaderLogo.setVisibility(View.GONE);
+		}
 	}
 
 	public void setSummary(CharSequence text) {

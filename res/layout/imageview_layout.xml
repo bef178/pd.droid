@@ -4,43 +4,43 @@
     android:layout_height="match_parent"
     android:background="@color/dev_gray9" >
 
-    <VideoView
-        android:id="@+id/videoView"
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:contentDescription="@null" />
 
     <include
         android:id="@+id/pageHeader"
         layout="@layout/pageheader_layout" />
 
     <LinearLayout
+        android:id="@+id/imageViewController"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="120dp"
         android:background="@color/transparent"
-        android:orientation="horizontal" >
+        android:orientation="vertical" >
 
         <Button
             android:id="@+id/btnToggleHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="120dp"
             android:text="toggle header"
             android:textSize="14sp" />
 
         <Button
-            android:id="@+id/btnVideoPlay"
+            android:id="@+id/btnNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="120dp"
-            android:text="play/pause"
+            android:text="next"
             android:textSize="14sp" />
 
         <Button
-            android:id="@+id/btnVideoStop"
+            android:id="@+id/btnPrev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="120dp"
-            android:text="stop"
+            android:text="prev"
             android:textSize="14sp" />
     </LinearLayout>
 

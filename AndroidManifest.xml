@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="th.mediaPlay.ImagePlayActivity"
+            android:name="th.mediaPlay.ImageActivity"
             android:label="Image Viewer"
             android:theme="@style/mediaPlayTheme" >
             <intent-filter>
@@ -49,7 +49,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="th.mediaPlay.VideoPlayActivity"
+            android:name="th.mediaPlay.VideoActivity"
             android:label="Video Player"
             android:theme="@style/mediaPlayTheme" >
             <intent-filter>

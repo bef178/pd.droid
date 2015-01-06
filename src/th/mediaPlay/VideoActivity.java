@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.VideoView;
 
-public class VideoPlayActivity extends MediaPlayActivity {
+public class VideoActivity extends MediaPlayActivity {
 
 	private static final int STARTING_DELAY = 1000;
 
@@ -22,7 +22,7 @@ public class VideoPlayActivity extends MediaPlayActivity {
 			finish();
 		}
 
-		onCreate(savedInstanceState, R.layout.mediaplay_layout);
+		onCreate(savedInstanceState, R.layout.video_main);
 
 		mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		setupPlayer(videoUri);

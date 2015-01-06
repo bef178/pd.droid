@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-public class ImagePlayActivity extends MediaPlayActivity {
+public class ImageActivity extends MediaPlayActivity {
 
 	ImageView mImageView;
 
@@ -17,7 +17,7 @@ public class ImagePlayActivity extends MediaPlayActivity {
 			finish();
 		}
 
-		onCreate(savedInstanceState, R.layout.imageview_layout);
+		onCreate(savedInstanceState, R.layout.image_main);
 		mImageView = (ImageView) findViewById(R.id.imageView);
 		setupController();
 		setupViewer(imageUri);

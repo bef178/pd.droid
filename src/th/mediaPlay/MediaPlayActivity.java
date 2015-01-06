@@ -24,7 +24,6 @@ import android.view.View.OnClickListener;
  * This make a control of page header.<br/>
  *
  * @author tanghao
- *
  */
 public abstract class MediaPlayActivity extends Activity {
 
@@ -75,6 +74,10 @@ public abstract class MediaPlayActivity extends Activity {
 		}
 	}
 
+	protected void setSummary(CharSequence summary) {
+		mPageHeader.setSummary(summary);
+	}
+
 	private void setTitle() {
 		String title = getIntent().getStringExtra(Intent.EXTRA_TITLE);
 		if (title != null) {
@@ -106,16 +109,16 @@ public abstract class MediaPlayActivity extends Activity {
 						}
 					}
 				};
-		handler.startQuery(
-				0, null, contentUri,
-				new String[] { OpenableColumns.DISPLAY_NAME }, null,
-				null, null);
+		handler.startQuery(0, null, contentUri,
+				new String[] {
+					OpenableColumns.DISPLAY_NAME
+				}, null, null, null);
 	}
 
 	/**
 	 * @return <code>true</code> iff title do be set by this method
 	 */
-	private boolean setTitleByUri(Uri uri) {
+	protected boolean setTitleByUri(Uri uri) {
 		if (mHasIntentTitle || uri == null) {
 			return false;
 		}
@@ -132,12 +135,14 @@ public abstract class MediaPlayActivity extends Activity {
 		}
 
 		String origUriScheme = uri.getScheme();
-		if (origUriScheme.equals("content")) {
-			setTitleByQuery(uri);
-			return true;
-		} else if (origUriScheme.equals("file")) {
-			mPageHeader.setTitle(new File(uri.toString()).getName());
-			return true;
+		if (origUriScheme != null) {
+			if (origUriScheme.equals("content")) {
+				setTitleByQuery(uri);
+				return true;
+			} else if (origUriScheme.equals("file")) {
+				mPageHeader.setTitle(new File(uri.toString()).getName());
+				return true;
+			}
 		}
 		return false;
 	}

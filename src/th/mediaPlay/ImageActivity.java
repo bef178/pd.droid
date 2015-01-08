@@ -4,10 +4,13 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import th.pd.Cache;
 import th.pd.R;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 public class ImageActivity extends MediaPlayActivity {
@@ -15,6 +18,29 @@ public class ImageActivity extends MediaPlayActivity {
 	ImageView mImageView;
 	Model mModel;
 	int mCurrentPos;
+	ImageSwitcher mImageSwitcher;
+	Cache<View> mCache;
+
+	private View createImageView(int pos) {
+		ImageView imageView = (ImageView) View.inflate(
+				this, R.layout.image_item, null);
+		Uri uri = mModel.getData(pos);
+		if (uri != null) {
+			imageView.setImageURI(uri);
+		} else {
+			imageView.setImageResource(android.R.color.holo_green_dark);
+		}
+		return imageView;
+	}
+
+	private View getImageView(int pos) {
+		View view = mCache.get(pos);
+		if (view != null) {
+			return view;
+		} else {
+			return createImageView(pos);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +50,9 @@ public class ImageActivity extends MediaPlayActivity {
 		}
 
 		onCreate(savedInstanceState, R.layout.image_main);
-		mImageView = (ImageView) findViewById(R.id.imageView);
 
 		setupModel(imageUri);
-		setupView();
+		setupImageSwitcher();
 		setupController();
 	}
 
@@ -36,7 +61,7 @@ public class ImageActivity extends MediaPlayActivity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						switchOffset(1);
+						switchBy(1);
 					}
 				});
 
@@ -44,9 +69,25 @@ public class ImageActivity extends MediaPlayActivity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						switchOffset(-1);
+						switchBy(-1);
 					}
 				});
+	}
+
+	private void setupImageSwitcher() {
+		mImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
+
+//		mImageFlipper.setGestureDetector(new GestureDetector(this,
+//				new MediaGestureListener(
+//						new MediaGestureListener.Callback() {
+//							@Override
+//							public void flingBy(int offset) {
+//								switchBy(offset);
+//							}
+//						})));
+
+		mCache = new Cache<View>();
+		switchBy(0);
 	}
 
 	private void setupModel(Uri seedUri) {
@@ -55,21 +96,44 @@ public class ImageActivity extends MediaPlayActivity {
 		mCurrentPos = mModel.indexOf(seedUri);
 	}
 
-	private void setupView() {
-		// TODO add animation
-		Uri uri = mModel.getData(mCurrentPos);
-		if (uri != null) {
-			mImageView.setImageURI(uri);
-			setTitleByUri(uri);
-			setSummary(String.format("%d / %d", mCurrentPos + 1,
-					mModel.getCount()));
+	private void switchBy(int offset) {
+		Animation animEnter = null;
+		Animation animLeave = null;
+		if (offset > 0) {
+			animEnter = AnimationUtils.loadAnimation(this,
+					R.anim.enter_scale_from_center);
+			animLeave = AnimationUtils.loadAnimation(this,
+					R.anim.leave_trans_to_left);
+		} else if (offset < 0) {
+			animEnter = AnimationUtils.loadAnimation(this,
+					R.anim.enter_trans_from_left);
+			animLeave = AnimationUtils.loadAnimation(this,
+					R.anim.leave_scale_to_center);
+		}
+
+		int pos = mCurrentPos + offset;
+		if (mModel.hasIndex(pos)) {
+			View nextView = getImageView(pos);
+			mImageSwitcher.switchTo(nextView, animEnter, animLeave);
+			mCurrentPos = pos;
+			setTitleByUri(mModel.getData(pos));
+			setSummary(String.format("%d / %d", pos + 1, mModel.getCount()));
+			updateCache(pos, nextView);
 		}
 	}
 
-	private void switchOffset(int offset) {
-		if (mModel.hasIndex(mCurrentPos + offset)) {
-			mCurrentPos += offset;
-			setupView();
+	private void updateCache(int pos, View view) {
+		// TODO this should be in another thread
+		mCache.update(pos, view);
+		for (int i = 1; i <= Cache.RADIUS; ++i) {
+			if (mCache.get(pos + i) == null) {
+				view = createImageView(pos + i);
+				mCache.set(pos + i, view);
+			}
+			if (mCache.get(pos - i) == null) {
+				view = createImageView(pos - i);
+				mCache.set(pos - i, view);
+			}
 		}
 	}
 }
@@ -99,6 +163,10 @@ class Model {
 			return dataList.get(i);
 		}
 		return null;
+	}
+
+	public boolean hasIndex(int i) {
+		return i >= 0 && i < dataList.size();
 	}
 
 	public int indexOf(Uri uri) {
@@ -149,9 +217,5 @@ class Model {
 		} else if (seedFile.isDirectory()) {
 			initializeByDirectory(seedFile);
 		}
-	}
-
-	public boolean hasIndex(int i) {
-		return i >= 0 && i < dataList.size();
 	}
 }

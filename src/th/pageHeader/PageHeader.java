@@ -116,7 +116,6 @@ public class PageHeader {
 		findViews(headerView);
 
 		mHandler = new Handler(mContext.getMainLooper()) {
-
 			@Override
 			public void handleMessage(Message message) {
 				switch (message.what) {

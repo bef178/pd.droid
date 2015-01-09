@@ -8,6 +8,7 @@ import th.pd.Cache;
 import th.pd.R;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -15,11 +16,11 @@ import android.widget.ImageView;
 
 public class ImageActivity extends MediaPlayActivity {
 
-	ImageView mImageView;
 	Model mModel;
 	int mCurrentPos;
 	ImageSwitcher mImageSwitcher;
 	Cache<View> mCache;
+	MediaGestureDetector mGestureDetector;
 
 	private View createImageView(int pos) {
 		ImageView imageView = (ImageView) View.inflate(
@@ -52,11 +53,34 @@ public class ImageActivity extends MediaPlayActivity {
 		onCreate(savedInstanceState, R.layout.image_main);
 
 		setupModel(imageUri);
-		setupImageSwitcher();
+		setupSwitcher();
 		setupController();
 	}
 
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		return mGestureDetector.onTouchEvent(event);
+	}
+
 	private void setupController() {
+		mGestureDetector = new MediaGestureDetector(this,
+				new MediaGestureListener.Callback() {
+					@Override
+					public boolean onFlingTo(int trend) {
+						switch (trend) {
+							case 6:
+								switchBy(-1);
+								return true;
+							case 4:
+								switchBy(1);
+								return true;
+							default:
+								break;
+						}
+						return false;
+					}
+				});
+
 		findViewById(R.id.btnNext).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
@@ -74,28 +98,24 @@ public class ImageActivity extends MediaPlayActivity {
 				});
 	}
 
-	private void setupImageSwitcher() {
-		mImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
-
-//		mImageFlipper.setGestureDetector(new GestureDetector(this,
-//				new MediaGestureListener(
-//						new MediaGestureListener.Callback() {
-//							@Override
-//							public void flingBy(int offset) {
-//								switchBy(offset);
-//							}
-//						})));
-
-		mCache = new Cache<View>();
-		switchBy(0);
-	}
-
 	private void setupModel(Uri seedUri) {
 		mModel = new Model();
 		mModel.initializeByUri(seedUri);
 		mCurrentPos = mModel.indexOf(seedUri);
 	}
 
+	private void setupSwitcher() {
+		mImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
+
+		mCache = new Cache<View>();
+
+		switchBy(0);
+	}
+
+	/**
+	 * @param offset
+	 *            switch to next if positive, to prev if negative
+	 */
 	private void switchBy(int offset) {
 		Animation animEnter = null;
 		Animation animLeave = null;

@@ -7,7 +7,8 @@ public class MediaGestureListener extends
 		GestureDetector.SimpleOnGestureListener {
 
 	static interface Callback {
-		void flingBy(int offset);
+
+		boolean onFlingTo(int trend);
 	}
 
 	private Callback mCallback;
@@ -48,21 +49,13 @@ public class MediaGestureListener extends
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2,
 			float velocityX, float velocityY) {
-		if (mCallback == null) {
-			return super.onFling(e1, e2, velocityX, velocityY);
-		}
-
-		float dx = e2.getX() - e1.getX();
-		float dy = e2.getY() - e2.getY();
-		switch (getMoveTrend(dx, dy, velocityX, velocityY)) {
-			case 6:
-				mCallback.flingBy(1);
+		if (mCallback != null) {
+			float dx = e2.getX() - e1.getX();
+			float dy = e2.getY() - e1.getY();
+			if (mCallback.onFlingTo(
+					getMoveTrend(dx, dy, velocityX, velocityY))) {
 				return true;
-			case 4:
-				mCallback.flingBy(-1);
-				return true;
-			default:
-				break;
+			}
 		}
 		return super.onFling(e1, e2, velocityX, velocityY);
 	}

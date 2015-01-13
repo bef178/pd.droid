@@ -15,7 +15,7 @@
         layout="@layout/pageheader_layout" />
 
     <LinearLayout
-        android:id="@+id/imageController"
+        android:id="@+id/controlPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="120dp"

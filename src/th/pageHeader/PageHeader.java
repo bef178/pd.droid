@@ -13,7 +13,8 @@ import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -200,8 +201,7 @@ public class PageHeader {
 				mHeader, View.TRANSLATION_Y, endingY);
 		a.addUpdateListener(mAnimUpdateListener);
 
-		a.setInterpolator(AnimationUtils.loadInterpolator(mContext,
-				R.interpolator.accelerate_cubic));
+		a.setInterpolator(new AccelerateInterpolator(1.5f));
 		a.setDuration(animDuration);
 		a.addListener(mAnimHideListener);
 		a.start();
@@ -296,8 +296,7 @@ public class PageHeader {
 				mHeader, View.TRANSLATION_Y, 0);
 		a.addUpdateListener(mAnimUpdateListener);
 
-		a.setInterpolator(AnimationUtils.loadInterpolator(mContext,
-				R.interpolator.decelerate_cubic));
+		a.setInterpolator(new DecelerateInterpolator(1.5f));
 		a.setDuration(animDuration);
 		a.addListener(mAnimShowListener);
 		a.start();

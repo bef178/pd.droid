@@ -50,8 +50,7 @@ public class ImageSwitcher extends View {
             this.dy = dy;
         }
 
-        public void reset(Bitmap bitmap) {
-            this.bitmap = bitmap;
+        public void reset() {
             this.alpha = 0xFF;
 
             rect.left = 0;
@@ -67,6 +66,11 @@ public class ImageSwitcher extends View {
             dy = 0;
         }
 
+        public void reset(Bitmap bitmap) {
+            this.bitmap = bitmap;
+            reset();
+        }
+
         public void scale(float scale) {
             int w = bitmap.getWidth();
             int h = bitmap.getHeight();
@@ -75,15 +79,40 @@ public class ImageSwitcher extends View {
         }
     }
 
-    static ValueAnimator getAnimator(Context context, int flags) {
-        final int DURATION = 2500;
+    private static ValueAnimator getAnimator(Context context,
+            boolean isEnter, float fraction) {
+        final int DURATION = 500;
 
         ValueAnimator a = ValueAnimator.ofFloat(0f, 1f);
         a.setDuration(DURATION);
-        a.setInterpolator((flags & FLAG_ENTER) != 0
+        a.setInterpolator(isEnter
                 ? new AccelerateDecelerateInterpolator()
                 : new AccelerateInterpolator(0.5f));
+
+        final int playedTime = (int) (fraction * DURATION);
+        a.addListener(new SimpleAnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                if (animator instanceof ValueAnimator) {
+                    ValueAnimator a = (ValueAnimator) animator;
+                    a.setCurrentPlayTime(playedTime);
+                }
+            }
+        });
+
         return a;
+    }
+
+    private static int getFlagsForAnim(boolean isEnter, boolean isForward) {
+        if (isEnter) {
+            return isForward
+                    ? ANIM_FLAGS_ENTER_SCALE_FROM_CENTER
+                    : ANIM_FLAGS_ENTER_TRANS_FROM_LEFT;
+        } else {
+            return isForward
+                    ? ANIM_FLAGS_LEAVE_TRANS_TO_LEFT
+                    : ANIM_FLAGS_LEAVE_SCALE_TO_CENTER;
+        }
     }
 
     private static final int FLAG_ENTER = 0x1;
@@ -91,24 +120,24 @@ public class ImageSwitcher extends View {
     private static final int FLAG_ALPHA = 0x20;
     private static final int FLAG_TRANS = 0x40;
 
-    static final int FLAG_TRANS_TO_LEFT = 0x400;
-    static final int FLAG_TRANS_TO_RIGHT = 0x600;
-    static final int FLAG_TRANS_TO_TOP = 0x800;
-    static final int FLAG_TRANS_TO_BOTTOM = 0x200;
+    private static final int FLAG_TRANS_TO_LEFT = 0x400;
+    private static final int FLAG_TRANS_TO_RIGHT = 0x600;
+    private static final int FLAG_TRANS_TO_TOP = 0x800;
+    private static final int FLAG_TRANS_TO_BOTTOM = 0x200;
 
-    public static final int ANIM_ENTER_SCALE_FROM_CENTER =
+    private static final int ANIM_FLAGS_ENTER_SCALE_FROM_CENTER =
             FLAG_ENTER | FLAG_SCALE | FLAG_ALPHA;
-    public static final int ANIM_LEAVE_SCALE_TO_CENTER =
+    private static final int ANIM_FLAGS_LEAVE_SCALE_TO_CENTER =
             FLAG_SCALE | FLAG_ALPHA;
 
-    public static final int ANIM_ENTER_TRANS_FROM_LEFT =
+    private static final int ANIM_FLAGS_ENTER_TRANS_FROM_LEFT =
             FLAG_ENTER | FLAG_TRANS | FLAG_TRANS_TO_RIGHT;
-    public static final int ANIM_LEAVE_TRANS_TO_LEFT =
+    private static final int ANIM_FLAGS_LEAVE_TRANS_TO_LEFT =
             FLAG_TRANS | FLAG_TRANS_TO_LEFT;
 
     private AnimatorSet mAnimatorSet = null;
-
     private ImageAttribute mThisImage;
+
     private ImageAttribute mNextImage;
 
     private Paint mPaint;
@@ -120,6 +149,18 @@ public class ImageSwitcher extends View {
         mThisImage = new ImageAttribute();
         mNextImage = new ImageAttribute();
         mPaint = new Paint();
+    }
+
+    public void goFinalState() {
+        if (mAnimatorSet.isRunning()) {
+            mAnimatorSet.end();
+        } else {
+            reset();
+        }
+    }
+
+    public boolean isSwitching() {
+        return mAnimatorSet.isRunning();
     }
 
     @Override
@@ -142,31 +183,64 @@ public class ImageSwitcher extends View {
         }
     }
 
-    public void switchTo(Bitmap nextBitmap, boolean isForward) {
-        this.mIsForward = isForward;
-        final int flagsForEnter = isForward
-                ? ANIM_ENTER_SCALE_FROM_CENTER
-                : ANIM_ENTER_TRANS_FROM_LEFT;
-        final int flagsForLeave = isForward
-                ? ANIM_LEAVE_TRANS_TO_LEFT
-                : ANIM_LEAVE_SCALE_TO_CENTER;
+    public void reset() {
+        mThisImage.reset();
+        mNextImage.reset(null);
+        mIsForward = true;
+        invalidate();
+    }
 
-        ValueAnimator enterAnimator = getAnimator(getContext(), flagsForEnter);
+    /**
+     * Will trigger half way switch animation<br/>
+     * Note this is totally different from View.scrollTo()<br/>
+     */
+    public void scrollTo(float fraction) {
+        if (fraction < 0.000001f) {
+            goFinalState();
+        } else {
+            updateImageAttribute(mThisImage,
+                    getFlagsForAnim(false, mIsForward), fraction);
+            updateImageAttribute(mNextImage,
+                    getFlagsForAnim(true, mIsForward), fraction);
+            invalidate();
+        }
+    }
+
+    public void setFutureImage(Bitmap futureBitmap, boolean isForward) {
+        if (mAnimatorSet != null && mAnimatorSet.isRunning()) {
+            return;
+        }
+        mNextImage.reset(futureBitmap);
+        mIsForward = isForward;
+    }
+
+    /**
+     * switch to given image
+     */
+    public void switchTo(Bitmap futureBitmap, boolean isForward,
+            final float intialFraction) {
+        ValueAnimator enterAnimator = getAnimator(
+                getContext(), true, intialFraction);
         enterAnimator.addUpdateListener(new AnimatorUpdateListener() {
             @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float fraction = animation.getAnimatedFraction();
-                updateImageAttribute(mNextImage, flagsForEnter, fraction);
+            public void onAnimationUpdate(ValueAnimator animator) {
+                float animatedFraction = animator.getAnimatedFraction();
+                updateImageAttribute(mNextImage,
+                        getFlagsForAnim(true, mIsForward),
+                        animatedFraction);
                 invalidate();
             }
         });
 
-        ValueAnimator leaveAnimator = getAnimator(getContext(), flagsForLeave);
+        ValueAnimator leaveAnimator = getAnimator(
+                getContext(), false, intialFraction);
         leaveAnimator.addUpdateListener(new AnimatorUpdateListener() {
             @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float fraction = animation.getAnimatedFraction();
-                updateImageAttribute(mThisImage, flagsForLeave, fraction);
+            public void onAnimationUpdate(ValueAnimator animator) {
+                float animatedFraction = animator.getAnimatedFraction();
+                updateImageAttribute(mThisImage,
+                        getFlagsForAnim(false, mIsForward),
+                        animatedFraction);
                 // we call invalidate() in enterAnimator
             }
         });
@@ -176,28 +250,16 @@ public class ImageSwitcher extends View {
         }
 
         mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.addListener(new AnimatorListener() {
+        mAnimatorSet.addListener(new SimpleAnimatorListener() {
             @Override
-            public void onAnimationCancel(Animator animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(Animator animator) {
                 mThisImage.reset(mNextImage.bitmap);
                 mNextImage.reset(null);
                 invalidate();
             }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-            }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-            }
         });
 
-        mNextImage.reset(nextBitmap);
+        setFutureImage(futureBitmap, isForward);
 
         mAnimatorSet.playTogether(enterAnimator, leaveAnimator);
         mAnimatorSet.start();
@@ -227,11 +289,11 @@ public class ImageSwitcher extends View {
             int offsetY = 0;
             switch (flags & 0xF00) {
                 case FLAG_TRANS_TO_LEFT: {
-                    int wTotal = imageAttr.bitmap.getWidth();
+                    int wBitmap = imageAttr.bitmap.getWidth();
                     if (isEnter) {
-                        offsetX = (int) (wTotal * (1 - fraction));
+                        offsetX = (int) (wBitmap * (1 - fraction));
                     } else {
-                        offsetX = (int) (wTotal * -fraction);
+                        offsetX = (int) (wBitmap * -fraction);
                     }
                     break;
                 }
@@ -261,11 +323,33 @@ public class ImageSwitcher extends View {
                     ? (SCALE_FINAL - SCALE_START) * fraction + SCALE_START
                     : (SCALE_START - SCALE_FINAL) * fraction + SCALE_FINAL);
 
-            int wTotal = getWidth();
-            int hTotal = getHeight();
+            int wView = getWidth();
+            int hView = getHeight();
             int w = imageAttr.rect.width();
             int h = imageAttr.rect.height();
-            imageAttr.offset((wTotal - w) / 2, (hTotal - h) / 2);
+            imageAttr.offset((wView - w) / 2, (hView - h) / 2);
         }
+    }
+}
+
+/**
+ * a code sugar to be overridden
+ */
+class SimpleAnimatorListener implements AnimatorListener {
+
+    @Override
+    public void onAnimationCancel(Animator animator) {
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animator) {
+    }
+
+    @Override
+    public void onAnimationRepeat(Animator animator) {
+    }
+
+    @Override
+    public void onAnimationStart(Animator animator) {
     }
 }

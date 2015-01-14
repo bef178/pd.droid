@@ -10,17 +10,51 @@ import th.pd.R;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class ImageActivity extends MediaPlayActivity {
 
-    Model mModel;
-    int mCurrentPos;
-    ImageSwitcher mImageSwitcher;
-    Cache<Bitmap> mCache;
-    MediaGestureDetector mGestureDetector;
+    private class UpdateCacheTask extends
+            AsyncTask<UpdateCacheTaskArgument, Void, Void> {
+
+        @Override
+        protected Void doInBackground(UpdateCacheTaskArgument... params) {
+            UpdateCacheTaskArgument a = params[0];
+            updateCache(a.pos, a.bitmap);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            mUpdateCacheTask = null;
+        }
+    }
+
+    private class UpdateCacheTaskArgument {
+        private int pos;
+        private Bitmap bitmap;
+
+        void set(int pos, Bitmap bitmap) {
+            this.pos = pos;
+            this.bitmap = bitmap;
+        }
+    }
+
+    private Model mModel;
+    private int mCurrentPos;
+    private ImageSwitcher mImageSwitcher;
+
+    private Cache<Bitmap> mCache;
+    private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
+    private UpdateCacheTask mUpdateCacheTask;
+
+    private MediaGestureDetector mGestureDetector;
+
+    private int mScrolledX;
 
     private Bitmap createBitmap(int pos) {
         Uri uri = mModel.getData(pos);
@@ -39,6 +73,19 @@ public class ImageActivity extends MediaPlayActivity {
         }
     }
 
+    private float getScrolledFraction(int scrolledX) {
+        if (scrolledX < 0) {
+            scrolledX = -scrolledX;
+        }
+        float fraction = 1f * scrolledX / mImageSwitcher.getWidth();
+        if (fraction < 0f) {
+            fraction = 0f;
+        } else if (fraction > 1f) {
+            fraction = 1f;
+        }
+        return fraction;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Uri imageUri = getIntent().getData();
@@ -51,11 +98,24 @@ public class ImageActivity extends MediaPlayActivity {
         setupModel(imageUri);
         setupSwitcher();
         setupController();
+        switchBy(0);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
+        if (mGestureDetector.onTouchEvent(event)) {
+            return true;
+        }
+
+        if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
+            resetScroll();
+        }
+        return false;
+    }
+
+    private void resetScroll() {
+        mScrolledX = 0;
+        mImageSwitcher.goFinalState();
     }
 
     private void setupController() {
@@ -74,6 +134,28 @@ public class ImageActivity extends MediaPlayActivity {
                                 break;
                         }
                         return false;
+                    }
+
+                    @Override
+                    public boolean onScrollBy(int dx, int dy) {
+                        if (dx < 0) {
+                            if (mScrolledX >= 0) {
+                                Bitmap futureBitmap = getBitmap(mCurrentPos + 1);
+                                mImageSwitcher.setFutureImage(
+                                        futureBitmap, true);
+                            }
+                        } else if (dx > 0) {
+                            if (mScrolledX <= 0) {
+                                Bitmap futureBitmap = getBitmap(mCurrentPos - 1);
+                                mImageSwitcher.setFutureImage(
+                                        futureBitmap, false);
+                            }
+                        }
+
+                        mImageSwitcher.scrollTo(getScrolledFraction(dx));
+                        mScrolledX = dx;
+
+                        return true;
                     }
                 });
 
@@ -103,32 +185,45 @@ public class ImageActivity extends MediaPlayActivity {
     private void setupSwitcher() {
         mImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
         mCache = new Cache<Bitmap>();
-        switchBy(0);
+        mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
+    }
+
+    private void startUpdateCacheTask(int pos, Bitmap bitmap) {
+        mUpdateCacheTaskArgument.set(pos, bitmap);
+        if (mUpdateCacheTask != null) {
+            mUpdateCacheTask.cancel(false);
+        }
+        mUpdateCacheTask = new UpdateCacheTask();
+        mUpdateCacheTask.execute(mUpdateCacheTaskArgument);
     }
 
     /**
+     * switch next/prev item with animation
+     *
      * @param offset
      *            switch to next if positive, to prev if negative
      */
     private void switchBy(int offset) {
         int pos = mCurrentPos + offset;
         if (mModel.hasIndex(pos)) {
-            Bitmap nextBitmap = getBitmap(pos);
-            mImageSwitcher.switchTo(nextBitmap, offset >= 0);
+            Bitmap futureBitmap = getBitmap(pos);
+            mImageSwitcher.switchTo(futureBitmap, offset >= 0,
+                    getScrolledFraction(mScrolledX));
 
+            mScrolledX = 0;
             mCurrentPos = pos;
 
             setTitleByUri(mModel.getData(pos));
             setSummary(String.format("%d / %d", pos + 1, mModel.getCount()));
 
-            updateCache(pos, nextBitmap);
+            startUpdateCacheTask(pos, futureBitmap);
         } else {
-            // TODO prompt user the request is out of range
+            // TODO play fallback animation to tell there's no more image
+            resetScroll();
         }
     }
 
     private void updateCache(int pos, Bitmap bitmap) {
-        // TODO should be in another thread
         mCache.update(pos, bitmap);
         for (int i = 1; i <= Cache.RADIUS; ++i) {
             if (mCache.get(pos + i) == null) {

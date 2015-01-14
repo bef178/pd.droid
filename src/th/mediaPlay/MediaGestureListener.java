@@ -9,6 +9,8 @@ public class MediaGestureListener extends
 	static interface Callback {
 
 		boolean onFlingTo(int trend);
+
+		boolean onScrollBy(int dx, int dy);
 	}
 
 	private Callback mCallback;
@@ -58,5 +60,18 @@ public class MediaGestureListener extends
 			}
 		}
 		return super.onFling(e1, e2, velocityX, velocityY);
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		if (mCallback != null) {
+			if (mCallback.onScrollBy(
+					(int) (e2.getRawX() - e1.getRawX()),
+					(int) (e2.getRawY() - e1.getRawY()))) {
+				return true;
+			}
+		}
+		return super.onScroll(e1, e2, distanceX, distanceY);
 	}
 }

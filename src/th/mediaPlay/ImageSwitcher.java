@@ -151,12 +151,21 @@ public class ImageSwitcher extends View {
         mPaint = new Paint();
     }
 
-    public void goFinalState() {
+    public void doneSwitching() {
         if (mAnimatorSet.isRunning()) {
             mAnimatorSet.end();
-        } else {
-            reset();
         }
+    }
+
+    /**
+     * @param isForward
+     *            <code>true</code> if the next image is required
+     */
+    public void fallbackSwitching(boolean isForward, float initialFraction) {
+        ImageAttribute t = mNextImage;
+        mNextImage = mThisImage;
+        mThisImage = t;
+        switchTo(mNextImage.bitmap, isForward, initialFraction);
     }
 
     public boolean isSwitching() {
@@ -194,16 +203,12 @@ public class ImageSwitcher extends View {
      * Will trigger half way switch animation<br/>
      * Note this is totally different from View.scrollTo()<br/>
      */
-    public void scrollTo(float fraction) {
-        if (fraction < 0.000001f) {
-            goFinalState();
-        } else {
-            updateImageAttribute(mThisImage,
-                    getFlagsForAnim(false, mIsForward), fraction);
-            updateImageAttribute(mNextImage,
-                    getFlagsForAnim(true, mIsForward), fraction);
-            invalidate();
-        }
+    public void scrollTo(float initialFraction) {
+        updateImageAttribute(mThisImage,
+                getFlagsForAnim(false, mIsForward), initialFraction);
+        updateImageAttribute(mNextImage,
+                getFlagsForAnim(true, mIsForward), initialFraction);
+        invalidate();
     }
 
     public void setFutureImage(Bitmap futureBitmap, boolean isForward) {
@@ -216,6 +221,9 @@ public class ImageSwitcher extends View {
 
     /**
      * switch to given image
+     *
+     * @param isForward
+     *            <code>true</code> if the next image is required
      */
     public void switchTo(Bitmap futureBitmap, boolean isForward,
             final float intialFraction) {
@@ -275,7 +283,7 @@ public class ImageSwitcher extends View {
         boolean isEnter = (flags & FLAG_ENTER) != 0;
 
         if ((flags & FLAG_ALPHA) != 0) {
-            final float ALPHA_START = 0.0f;
+            final float ALPHA_START = 0.4f;
             final float ALPHA_FINAL = 1.0f;
             imageAttr.alpha(isEnter
                     ? (ALPHA_FINAL - ALPHA_START) * fraction + ALPHA_START
@@ -291,7 +299,7 @@ public class ImageSwitcher extends View {
                 case FLAG_TRANS_TO_LEFT: {
                     int wBitmap = imageAttr.bitmap.getWidth();
                     if (isEnter) {
-                        offsetX = (int) (wBitmap * (1 - fraction));
+                        offsetX = (int) (wBitmap * (1f - fraction));
                     } else {
                         offsetX = (int) (wBitmap * -fraction);
                     }
@@ -300,7 +308,7 @@ public class ImageSwitcher extends View {
                 case FLAG_TRANS_TO_RIGHT: {
                     int wTotal = imageAttr.bitmap.getWidth();
                     if (isEnter) {
-                        offsetX = (int) (wTotal * (fraction - 1));
+                        offsetX = (int) (wTotal * (fraction - 1f));
                     } else {
                         offsetX = (int) (wTotal * fraction);
                     }

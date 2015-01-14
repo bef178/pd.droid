@@ -78,9 +78,7 @@ public class ImageActivity extends MediaPlayActivity {
             scrolledX = -scrolledX;
         }
         float fraction = 1f * scrolledX / mImageSwitcher.getWidth();
-        if (fraction < 0f) {
-            fraction = 0f;
-        } else if (fraction > 1f) {
+        if (fraction > 1f) {
             fraction = 1f;
         }
         return fraction;
@@ -108,14 +106,24 @@ public class ImageActivity extends MediaPlayActivity {
         }
 
         if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
-            resetScroll();
+            if (getScrolledFraction(mScrolledX) > 0.5f) {
+                if (mScrolledX > 0) {
+                    switchBy(-1);
+                } else {
+                    switchBy(1);
+                }
+            } else {
+                fallbackSwitching();
+            }
         }
         return false;
     }
 
-    private void resetScroll() {
+    private void fallbackSwitching() {
+        mImageSwitcher.doneSwitching();
+        mImageSwitcher.fallbackSwitching(mScrolledX >= 0,
+                1 - getScrolledFraction(mScrolledX));
         mScrolledX = 0;
-        mImageSwitcher.goFinalState();
     }
 
     private void setupController() {
@@ -218,8 +226,7 @@ public class ImageActivity extends MediaPlayActivity {
 
             startUpdateCacheTask(pos, futureBitmap);
         } else {
-            // TODO play fallback animation to tell there's no more image
-            resetScroll();
+            fallbackSwitching();
         }
     }
 

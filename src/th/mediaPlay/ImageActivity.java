@@ -149,13 +149,13 @@ public class ImageActivity extends MediaPlayActivity {
                         if (dx < 0) {
                             if (mScrolledX >= 0) {
                                 Bitmap futureBitmap = getBitmap(mCurrentPos + 1);
-                                mImageSwitcher.setFutureImage(
+                                mImageSwitcher.setComingImage(
                                         futureBitmap, true);
                             }
                         } else if (dx > 0) {
                             if (mScrolledX <= 0) {
                                 Bitmap futureBitmap = getBitmap(mCurrentPos - 1);
-                                mImageSwitcher.setFutureImage(
+                                mImageSwitcher.setComingImage(
                                         futureBitmap, false);
                             }
                         }

@@ -28,13 +28,30 @@ public class Cache<E> {
 		}
 	}
 
-	private static final int CAPACITY = 5;
-	public static final int RADIUS = 1;
+	private static final int DEFAULT_CAPACITY = 15;
+	private static final int DEFAULT_RADIUS = 3;
+
+	public final int CAPACITY;
+	public final int RADIUS;
 
 	List<Entry<E>> cache;
 
 	public Cache() {
+		this(DEFAULT_CAPACITY, DEFAULT_RADIUS);
+	}
+
+	public Cache(int capcity, int radius) {
+		CAPACITY = capcity | 0x01;
+		RADIUS = radius | 0x01;
 		refresh(0);
+	}
+
+	public E get(int id) {
+		Entry<E> entry = getEntry(id);
+		if (entry != null) {
+			return entry.getV();
+		}
+		return null;
 	}
 
 	public int getCount() {
@@ -52,23 +69,6 @@ public class Cache<E> {
 		return null;
 	}
 
-	public E get(int id) {
-		Entry<E> entry = getEntry(id);
-		if (entry != null) {
-			return entry.getV();
-		}
-		return null;
-	}
-
-	public boolean set(int id, E element) {
-		Entry<E> entry = getEntry(id);
-		if (entry != null) {
-			entry.setV(element);
-			return true;
-		}
-		return false;
-	}
-
 	private void refresh(int id) {
 		id -= CAPACITY / 2;
 		if (cache == null) {
@@ -81,6 +81,15 @@ public class Cache<E> {
 				entry.setK(id++).setV(null);
 			}
 		}
+	}
+
+	public boolean set(int id, E element) {
+		Entry<E> entry = getEntry(id);
+		if (entry != null) {
+			entry.setV(element);
+			return true;
+		}
+		return false;
 	}
 
 	// update the center of cache as pivot

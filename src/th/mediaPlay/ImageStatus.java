@@ -43,8 +43,10 @@ public class ImageStatus {
     public void initialize(Bitmap bitmap) {
         clear();
         this.bitmap = bitmap;
-        this.rect.right = bitmap.getWidth();
-        this.rect.bottom = bitmap.getHeight();
+        if (this.bitmap != null) {
+            this.rect.right = bitmap.getWidth();
+            this.rect.bottom = bitmap.getHeight();
+        }
     }
 
     public boolean isValid() {

@@ -64,6 +64,18 @@ public class ImageActivity extends MediaPlayActivity {
         return null;
     }
 
+    private void fallbackSwitching() {
+        mImageSwitcher.fallbackSwitching(getScrolledFraction(mScrolledX));
+        mScrolledX = 0;
+    }
+
+    // TODO play animation 'forward' and 'backward'
+    private void fallbackSwitchingForKey() {
+        float fraction = 0.85f;
+        mImageSwitcher.fallbackSwitching(fraction);
+        mScrolledX = 0;
+    }
+
     private Bitmap getBitmap(int pos) {
         Bitmap bitmap = mCache.get(pos);
         if (bitmap != null) {
@@ -106,24 +118,17 @@ public class ImageActivity extends MediaPlayActivity {
         }
 
         if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
-            if (getScrolledFraction(mScrolledX) > 0.5f) {
-                if (mScrolledX > 0) {
-                    switchBy(-1);
-                } else {
-                    switchBy(1);
-                }
-            } else {
+            if (getScrolledFraction(mScrolledX) < 0.5f) {
                 fallbackSwitching();
+            } else {
+                if (mScrolledX > 0) {
+                    switchOrFallback(-1);
+                } else {
+                    switchOrFallback(1);
+                }
             }
         }
         return false;
-    }
-
-    private void fallbackSwitching() {
-        mImageSwitcher.doneSwitching();
-        mImageSwitcher.fallbackSwitching(mScrolledX >= 0,
-                1 - getScrolledFraction(mScrolledX));
-        mScrolledX = 0;
     }
 
     private void setupController() {
@@ -133,10 +138,10 @@ public class ImageActivity extends MediaPlayActivity {
                     public boolean onFlingTo(int trend) {
                         switch (trend) {
                             case 6:
-                                switchBy(-1);
+                                switchOrFallback(-1);
                                 return true;
                             case 4:
-                                switchBy(1);
+                                switchOrFallback(1);
                                 return true;
                             default:
                                 break;
@@ -169,7 +174,7 @@ public class ImageActivity extends MediaPlayActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        switchBy(1);
+                        switchOrFallbackForKey(1);
                     }
                 });
 
@@ -177,7 +182,7 @@ public class ImageActivity extends MediaPlayActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        switchBy(-1);
+                        switchOrFallbackForKey(-1);
                     }
                 });
     }
@@ -204,33 +209,52 @@ public class ImageActivity extends MediaPlayActivity {
     }
 
     /**
-     * switch next/prev item with animation
+     * switch next/prev item with animation<br/>
      *
      * @param offset
      *            switch to next if positive, to prev if negative
+     * @return <code>true</code> if will successfully switch
      */
-    private void switchBy(int offset) {
+    private boolean switchBy(int offset) {
         int pos = mCurrentPos + offset;
-        if (mModel.hasIndex(pos)) {
-            Bitmap bitmap = getBitmap(pos);
-            mImageSwitcher.switchTo(bitmap, offset >= 0,
-                    getScrolledFraction(mScrolledX));
+        if (!mModel.hasIndex(pos)) {
+            return false;
+        }
 
-            mScrolledX = 0;
-            mCurrentPos = pos;
+        if (mImageSwitcher.isSwitching()) {
+            mImageSwitcher.doneSwitching();
+        }
 
-            setTitleByUri(mModel.getData(pos));
-            setSummary(String.format("%d / %d", pos + 1, mModel.getCount()));
+        Bitmap bitmap = getBitmap(pos);
+        mImageSwitcher.setComingImage(bitmap, offset >= 0);
+        mImageSwitcher.switchTo(getScrolledFraction(mScrolledX));
 
-            startUpdateCacheTask(pos, bitmap);
-        } else {
+        mScrolledX = 0;
+        mCurrentPos = pos;
+
+        setTitleByUri(mModel.getData(pos));
+        setSummary(String.format("%d / %d", pos + 1, mModel.getCount()));
+
+        startUpdateCacheTask(pos, bitmap);
+
+        return true;
+    }
+
+    private void switchOrFallback(int offset) {
+        if (!switchBy(offset)) {
             fallbackSwitching();
+        }
+    }
+
+    private void switchOrFallbackForKey(int offset) {
+        if (!switchBy(offset)) {
+            fallbackSwitchingForKey();
         }
     }
 
     private void updateCache(int pos, Bitmap bitmap) {
         mCache.update(pos, bitmap);
-        for (int i = 1; i <= Cache.RADIUS; ++i) {
+        for (int i = 1; i <= mCache.RADIUS; ++i) {
             if (mCache.get(pos + i) == null) {
                 bitmap = createBitmap(pos + i);
                 mCache.set(pos + i, bitmap);

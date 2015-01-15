@@ -108,7 +108,8 @@ public class ImageActivity extends MediaPlayActivity {
         setupModel(imageUri);
         setupSwitcher();
         setupController();
-        switchBy(0);
+
+        startInitializeTask();
     }
 
     @Override
@@ -199,6 +200,26 @@ public class ImageActivity extends MediaPlayActivity {
         mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
     }
 
+    private void startInitializeTask() {
+        mUpdateCacheTaskArgument.set(mCurrentPos, null);
+
+        new UpdateCacheTask() {
+            @Override
+            protected Void doInBackground(UpdateCacheTaskArgument... params) {
+                UpdateCacheTaskArgument a = params[0];
+                a.bitmap = createBitmap(a.pos);
+                mCache.update(a.pos, a.bitmap);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                super.onPostExecute(result);
+                switchBy(0);
+            }
+        }.execute(mUpdateCacheTaskArgument);
+    }
+
     private void startUpdateCacheTask(int pos, Bitmap bitmap) {
         mUpdateCacheTaskArgument.set(pos, bitmap);
         if (mUpdateCacheTask != null) {
@@ -253,6 +274,9 @@ public class ImageActivity extends MediaPlayActivity {
     }
 
     private void updateCache(int pos, Bitmap bitmap) {
+        if (bitmap == null) {
+            bitmap = createBitmap(pos);
+        }
         mCache.update(pos, bitmap);
         for (int i = 1; i <= mCache.RADIUS; ++i) {
             if (mCache.get(pos + i) == null) {

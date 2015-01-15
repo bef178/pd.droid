@@ -2,7 +2,6 @@ package th.mediaPlay;
 
 import th.pd.R;
 import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -78,9 +77,9 @@ public class ImageSwitcher extends View {
     private ImageStatus mImage;
     private ImageStatus mComingImage;
 
-    private Paint mPaint;
+    private boolean mAsNext = true;
 
-    private boolean mIsForward = true;
+    private Paint mPaint;
 
     public ImageSwitcher(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -113,7 +112,7 @@ public class ImageSwitcher extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(getResources().getColor(R.color.dev_gray9));
-        if (mIsForward) {
+        if (mAsNext) {
             onDrawImage(canvas, mPaint, mComingImage);
             onDrawImage(canvas, mPaint, mImage);
         } else {
@@ -131,9 +130,9 @@ public class ImageSwitcher extends View {
     }
 
     public void reset() {
-        mImage.reset();
-        mComingImage.reset(null);
-        mIsForward = true;
+        mImage.restore();
+        mComingImage.clear();
+        mAsNext = true;
         invalidate();
     }
 
@@ -143,27 +142,27 @@ public class ImageSwitcher extends View {
      */
     public void scrollTo(float initialFraction) {
         updateImageStatus(mImage,
-                getFlagsForAnim(false, mIsForward), initialFraction);
+                getFlagsForAnim(false, mAsNext), initialFraction);
         updateImageStatus(mComingImage,
-                getFlagsForAnim(true, mIsForward), initialFraction);
+                getFlagsForAnim(true, mAsNext), initialFraction);
         invalidate();
     }
 
-    public void setComingImage(Bitmap futureBitmap, boolean isForward) {
+    public void setComingImage(Bitmap bitmap, boolean asNext) {
         if (mAnimatorSet != null && mAnimatorSet.isRunning()) {
             return;
         }
-        mComingImage.reset(futureBitmap);
-        mIsForward = isForward;
+        mComingImage.initialize(bitmap);
+        mAsNext = asNext;
     }
 
     /**
      * switch to given image
      *
-     * @param isForward
+     * @param asNext
      *            <code>true</code> if the next image is required
      */
-    public void switchTo(Bitmap futureBitmap, boolean isForward,
+    public void switchTo(Bitmap bitmap, boolean asNext,
             final float intialFraction) {
         ValueAnimator enterAnimator = getAnimator(
                 getContext(), true, intialFraction);
@@ -172,7 +171,7 @@ public class ImageSwitcher extends View {
             public void onAnimationUpdate(ValueAnimator animator) {
                 float animatedFraction = animator.getAnimatedFraction();
                 updateImageStatus(mComingImage,
-                        getFlagsForAnim(true, mIsForward),
+                        getFlagsForAnim(true, mAsNext),
                         animatedFraction);
                 invalidate();
             }
@@ -185,9 +184,9 @@ public class ImageSwitcher extends View {
             public void onAnimationUpdate(ValueAnimator animator) {
                 float animatedFraction = animator.getAnimatedFraction();
                 updateImageStatus(mImage,
-                        getFlagsForAnim(false, mIsForward),
+                        getFlagsForAnim(false, mAsNext),
                         animatedFraction);
-                // we call invalidate() in enterAnimator
+                // we has called invalidate() in enterAnimator
             }
         });
 
@@ -199,13 +198,13 @@ public class ImageSwitcher extends View {
         mAnimatorSet.addListener(new SimpleAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animator) {
-                mImage.reset(mComingImage.bitmap);
-                mComingImage.reset(null);
+                mImage.initialize(mComingImage.bitmap);
+                mComingImage.clear();
                 invalidate();
             }
         });
 
-        setComingImage(futureBitmap, isForward);
+        setComingImage(bitmap, asNext);
 
         mAnimatorSet.playTogether(enterAnimator, leaveAnimator);
         mAnimatorSet.start();
@@ -275,27 +274,5 @@ public class ImageSwitcher extends View {
             int h = imageStatus.rect.height();
             imageStatus.offset((wView - w) / 2, (hView - h) / 2);
         }
-    }
-}
-
-/**
- * a code sugar to be overridden
- */
-class SimpleAnimatorListener implements AnimatorListener {
-
-    @Override
-    public void onAnimationCancel(Animator animator) {
-    }
-
-    @Override
-    public void onAnimationEnd(Animator animator) {
-    }
-
-    @Override
-    public void onAnimationRepeat(Animator animator) {
-    }
-
-    @Override
-    public void onAnimationStart(Animator animator) {
     }
 }

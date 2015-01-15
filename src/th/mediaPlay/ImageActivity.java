@@ -148,15 +148,13 @@ public class ImageActivity extends MediaPlayActivity {
                     public boolean onScrollBy(int dx, int dy) {
                         if (dx < 0) {
                             if (mScrolledX >= 0) {
-                                Bitmap futureBitmap = getBitmap(mCurrentPos + 1);
-                                mImageSwitcher.setComingImage(
-                                        futureBitmap, true);
+                                Bitmap bitmap = getBitmap(mCurrentPos + 1);
+                                mImageSwitcher.setComingImage(bitmap, true);
                             }
                         } else if (dx > 0) {
                             if (mScrolledX <= 0) {
-                                Bitmap futureBitmap = getBitmap(mCurrentPos - 1);
-                                mImageSwitcher.setComingImage(
-                                        futureBitmap, false);
+                                Bitmap bitmap = getBitmap(mCurrentPos - 1);
+                                mImageSwitcher.setComingImage(bitmap, false);
                             }
                         }
 
@@ -214,8 +212,8 @@ public class ImageActivity extends MediaPlayActivity {
     private void switchBy(int offset) {
         int pos = mCurrentPos + offset;
         if (mModel.hasIndex(pos)) {
-            Bitmap futureBitmap = getBitmap(pos);
-            mImageSwitcher.switchTo(futureBitmap, offset >= 0,
+            Bitmap bitmap = getBitmap(pos);
+            mImageSwitcher.switchTo(bitmap, offset >= 0,
                     getScrolledFraction(mScrolledX));
 
             mScrolledX = 0;
@@ -224,7 +222,7 @@ public class ImageActivity extends MediaPlayActivity {
             setTitleByUri(mModel.getData(pos));
             setSummary(String.format("%d / %d", pos + 1, mModel.getCount()));
 
-            startUpdateCacheTask(pos, futureBitmap);
+            startUpdateCacheTask(pos, bitmap);
         } else {
             fallbackSwitching();
         }

@@ -65,14 +65,33 @@ public class ImageActivity extends MediaPlayActivity {
     }
 
     private void fallbackSwitching() {
-        mImageSwitcher.fallbackSwitching(getScrolledFraction(mScrolledX));
+        if (mScrolledX > 0) {
+            mImageSwitcher.switchAsNext(getBitmap(mCurrentPos - 1),
+                    getBitmap(mCurrentPos),
+                    1 - getScrolledFraction(mScrolledX));
+        } else if (mScrolledX < 0) {
+            mImageSwitcher.switchAsPrev(getBitmap(mCurrentPos + 1),
+                    getBitmap(mCurrentPos),
+                    1 - getScrolledFraction(mScrolledX));
+        }
         mScrolledX = 0;
     }
 
-    // TODO play animation 'forward' and 'backward'
-    private void fallbackSwitchingForKey() {
-        float fraction = 0.85f;
-        mImageSwitcher.fallbackSwitching(fraction);
+    /**
+     * for key triggered fallback, we don't have scrolledX, so play a
+     * forth-and-back animation to tell no more images
+     */
+    private void fallbackSwitchingForKey(int offset) {
+        final float turnFraction = 0.15f;
+        if (offset > 0) {
+            mImageSwitcher.switchAndFallbackAsNext(getBitmap(mCurrentPos),
+                    getBitmap(mCurrentPos + 1),
+                    turnFraction);
+        } else if (offset < 0) {
+            mImageSwitcher.switchAndFallbackAsPrev(getBitmap(mCurrentPos),
+                    getBitmap(mCurrentPos - 1),
+                    turnFraction);
+        }
         mScrolledX = 0;
     }
 
@@ -153,18 +172,16 @@ public class ImageActivity extends MediaPlayActivity {
                     @Override
                     public boolean onScrollBy(int dx, int dy) {
                         if (dx < 0) {
-                            if (mScrolledX >= 0) {
-                                Bitmap bitmap = getBitmap(mCurrentPos + 1);
-                                mImageSwitcher.setComingImage(bitmap, true);
-                            }
+                            mImageSwitcher.scrollAsNext(
+                                    getBitmap(mCurrentPos),
+                                    getBitmap(mCurrentPos + 1),
+                                    getScrolledFraction(dx));
                         } else if (dx > 0) {
-                            if (mScrolledX <= 0) {
-                                Bitmap bitmap = getBitmap(mCurrentPos - 1);
-                                mImageSwitcher.setComingImage(bitmap, false);
-                            }
+                            mImageSwitcher.scrollAsPrev(
+                                    getBitmap(mCurrentPos),
+                                    getBitmap(mCurrentPos - 1),
+                                    getScrolledFraction(dx));
                         }
-
-                        mImageSwitcher.scrollTo(getScrolledFraction(dx));
                         mScrolledX = dx;
 
                         return true;
@@ -209,6 +226,7 @@ public class ImageActivity extends MediaPlayActivity {
                 UpdateCacheTaskArgument a = params[0];
                 a.bitmap = createBitmap(a.pos);
                 mCache.update(a.pos, a.bitmap);
+                mCache.set(a.pos, a.bitmap);
                 return null;
             }
 
@@ -247,8 +265,16 @@ public class ImageActivity extends MediaPlayActivity {
         }
 
         Bitmap bitmap = getBitmap(pos);
-        mImageSwitcher.setComingImage(bitmap, offset >= 0);
-        mImageSwitcher.switchTo(getScrolledFraction(mScrolledX));
+        if (offset == 0) {
+            mImageSwitcher.switchAsNext(null, bitmap,
+                    getScrolledFraction(mScrolledX));
+        } else if (offset > 0) {
+            mImageSwitcher.switchAsNext(getBitmap(mCurrentPos), bitmap,
+                    getScrolledFraction(mScrolledX));
+        } else {
+            mImageSwitcher.switchAsPrev(getBitmap(mCurrentPos), bitmap,
+                    getScrolledFraction(mScrolledX));
+        }
 
         mScrolledX = 0;
         mCurrentPos = pos;
@@ -269,7 +295,7 @@ public class ImageActivity extends MediaPlayActivity {
 
     private void switchOrFallbackForKey(int offset) {
         if (!switchBy(offset)) {
-            fallbackSwitchingForKey();
+            fallbackSwitchingForKey(offset);
         }
     }
 
@@ -278,6 +304,7 @@ public class ImageActivity extends MediaPlayActivity {
             bitmap = createBitmap(pos);
         }
         mCache.update(pos, bitmap);
+        mCache.set(pos, bitmap);
         for (int i = 1; i <= mCache.RADIUS; ++i) {
             if (mCache.get(pos + i) == null) {
                 bitmap = createBitmap(pos + i);

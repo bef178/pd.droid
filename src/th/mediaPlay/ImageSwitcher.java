@@ -14,8 +14,7 @@ import android.view.View;
 
 public class ImageSwitcher extends View {
 
-    private static ValueAnimator getAnimator(Context context, boolean asNext,
-            float interpolated) {
+    private static ValueAnimator getAnimator(float interpolated) {
         final int DURATION = 500;
 
         ValueAnimator a = ValueAnimator.ofFloat(0f, 1f);
@@ -92,16 +91,118 @@ public class ImageSwitcher extends View {
         }
     }
 
-    public void fallbackSwitching(float currentFraction) {
+    private void doScrolling(Bitmap bitmap, Bitmap comingBitmap,
+            boolean asNext, float startAnimatedFraction) {
         if (isSwitching()) {
             return;
         }
 
-        // swap bitmap and do animate
-        Bitmap bitmap = mImage.bitmap;
-        mImage.initialize(mComingImage.bitmap);
-        setComingImage(bitmap, !mComingAsNext);
-        switchTo(1f - currentFraction);
+        mImage.initialize(bitmap);
+        mComingImage.initialize(comingBitmap);
+        mComingAsNext = asNext;
+
+        updateImageStatus(mImage,
+                getFlagsForAnim(false, mComingAsNext), startAnimatedFraction);
+        updateImageStatus(mComingImage,
+                getFlagsForAnim(true, mComingAsNext), startAnimatedFraction);
+        invalidate();
+    }
+
+    private void doSwitchAndFallback(Bitmap bitmap, Bitmap comingBitmap,
+            boolean asNext, final float turnAnimatedFraction) {
+        if (isSwitching()) {
+            return;
+        }
+
+        mImage.initialize(bitmap);
+        mComingImage.initialize(comingBitmap);
+        mComingAsNext = asNext;
+
+        ValueAnimator animator = getAnimator(0f);
+        animator.addUpdateListener(new AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float animatedFraction = valueAnimator.getAnimatedFraction();
+
+                if (animatedFraction >= turnAnimatedFraction) {
+                    valueAnimator.cancel();
+                }
+
+                updateImageStatus(mComingImage,
+                        getFlagsForAnim(true, mComingAsNext),
+                        animatedFraction);
+                updateImageStatus(mImage,
+                        getFlagsForAnim(false, mComingAsNext),
+                        animatedFraction);
+                invalidate();
+            }
+        });
+
+        ValueAnimator fallbackAnimator = getAnimator(1 - turnAnimatedFraction);
+        fallbackAnimator.addUpdateListener(new AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float animatedFraction = valueAnimator.getAnimatedFraction();
+
+                updateImageStatus(mComingImage,
+                        getFlagsForAnim(false, !mComingAsNext),
+                        animatedFraction);
+                updateImageStatus(mImage,
+                        getFlagsForAnim(true, !mComingAsNext),
+                        animatedFraction);
+                invalidate();
+            }
+        });
+
+        mAnimatorSet = new AnimatorSet();
+        mAnimatorSet.playSequentially(animator, fallbackAnimator);
+        mAnimatorSet.start();
+    }
+
+    private void doSwitching(Bitmap bitmap, Bitmap comingBitmap,
+            boolean asNext, float startAnimatedFraction,
+            final float endAnimatedFraction) {
+
+        if (isSwitching()) {
+            return;
+        }
+
+        mImage.initialize(bitmap);
+        mComingImage.initialize(comingBitmap);
+        mComingAsNext = asNext;
+
+        ValueAnimator animator = getAnimator(startAnimatedFraction);
+        animator.addUpdateListener(new AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                float animatedFraction = valueAnimator.getAnimatedFraction();
+
+                if (animatedFraction >= endAnimatedFraction) {
+                    mAnimatorSet.cancel();
+                }
+
+                updateImageStatus(mComingImage,
+                        getFlagsForAnim(true, mComingAsNext),
+                        animatedFraction);
+                updateImageStatus(mImage,
+                        getFlagsForAnim(false, mComingAsNext),
+                        animatedFraction);
+                invalidate();
+            }
+        });
+
+        mAnimatorSet = new AnimatorSet();
+        mAnimatorSet.addListener(new SimpleAnimatorListener() {
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                mImage.initialize(mComingImage.bitmap);
+                mComingImage.clear();
+                invalidate();
+            }
+        });
+
+        mAnimatorSet.playTogether(animator);
+        mAnimatorSet.start();
     }
 
     public boolean isSwitching() {
@@ -135,80 +236,48 @@ public class ImageSwitcher extends View {
         invalidate();
     }
 
-    /**
-     * Will trigger half way switch animation<br/>
-     * Note this is totally different from View.scrollTo()<br/>
-     */
-    public void scrollTo(float animatedFraction) {
-        if (isSwitching()) {
-            return;
-        }
-
-        updateImageStatus(mImage,
-                getFlagsForAnim(false, mComingAsNext), animatedFraction);
-        updateImageStatus(mComingImage,
-                getFlagsForAnim(true, mComingAsNext), animatedFraction);
-        invalidate();
+    public void scrollAsNext(Bitmap bitmap, Bitmap comingBitmap,
+            float startAnimatedFraction) {
+        doScrolling(bitmap, comingBitmap, true, startAnimatedFraction);
     }
 
-    public void setComingImage(Bitmap bitmap, boolean asNext) {
-        if (isSwitching()) {
-            return;
-        }
-
-        mComingImage.initialize(bitmap);
-        mComingAsNext = asNext;
+    public void scrollAsPrev(Bitmap bitmap, Bitmap comingBitmap,
+            float startAnimatedFraction) {
+        doScrolling(bitmap, comingBitmap, false, startAnimatedFraction);
     }
 
-    /**
-     * switch to given image
-     *
-     * @param asNext
-     *            <code>true</code> if the next image is required
-     */
-    public void switchTo(float animatedFraction) {
-        if (isSwitching()) {
-            return;
-        }
+    public void switchAndFallbackAsNext(Bitmap bitmap, Bitmap comingBitmap,
+            final float turnAnimatedFraction) {
+        doSwitchAndFallback(bitmap, comingBitmap, true, turnAnimatedFraction);
+    }
 
-        ValueAnimator enterAnimator = getAnimator(
-                getContext(), true, animatedFraction);
-        enterAnimator.addUpdateListener(new AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                float animatedFraction = animator.getAnimatedFraction();
-                updateImageStatus(mComingImage,
-                        getFlagsForAnim(true, mComingAsNext),
-                        animatedFraction);
-                invalidate();
-            }
-        });
+    public void switchAndFallbackAsPrev(Bitmap bitmap, Bitmap comingBitmap,
+            final float turnAnimatedFraction) {
+        doSwitchAndFallback(bitmap, comingBitmap, false, turnAnimatedFraction);
+    }
 
-        ValueAnimator leaveAnimator = getAnimator(
-                getContext(), false, animatedFraction);
-        leaveAnimator.addUpdateListener(new AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                float animatedFraction = animator.getAnimatedFraction();
-                updateImageStatus(mImage,
-                        getFlagsForAnim(false, mComingAsNext),
-                        animatedFraction);
-                // we has called invalidate() in enterAnimator
-            }
-        });
+    public void switchAsNext(Bitmap bitmap, Bitmap comingBitmap,
+            float startAnimatedFraction) {
+        doSwitching(bitmap, comingBitmap, true,
+                startAnimatedFraction, 7749f);
+    }
 
-        mAnimatorSet = new AnimatorSet();
-        mAnimatorSet.addListener(new SimpleAnimatorListener() {
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                mImage.initialize(mComingImage.bitmap);
-                mComingImage.clear();
-                invalidate();
-            }
-        });
+    public void switchAsNext(Bitmap bitmap, Bitmap comingBitmap,
+            float startAnimatedFraction, float endAnimatedFraction) {
+        doSwitching(bitmap, comingBitmap, true,
+                startAnimatedFraction, endAnimatedFraction);
+    }
 
-        mAnimatorSet.playTogether(enterAnimator, leaveAnimator);
-        mAnimatorSet.start();
+    public void switchAsPrev(Bitmap bitmap, Bitmap comingBitmap,
+            float startAnimatedFraction) {
+        doSwitching(bitmap, comingBitmap, false,
+                startAnimatedFraction, 7749f);
+    }
+
+    public void switchAsPrev(Bitmap bitmap, Bitmap comingBitmap,
+            float startAnimatedFraction, float endAnimatedFraction) {
+        doSwitching(bitmap, comingBitmap, false,
+                startAnimatedFraction, endAnimatedFraction);
     }
 
     private void updateImageStatus(ImageStatus imageStatus, int flags,

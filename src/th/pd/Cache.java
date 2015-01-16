@@ -97,7 +97,6 @@ public class Cache<E> {
 		Entry<E> entry = getEntry(id);
 		if (entry == null) {
 			refresh(id);
-			set(id, element);
 		} else {
 			// partial in range
 			int newStart = id - RADIUS;

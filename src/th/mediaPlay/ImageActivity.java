@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import th.mediaPlay.MediaGesturePipeline.Callback;
 import th.pd.Cache;
 import th.pd.MimeUtil;
 import th.pd.R;
@@ -52,7 +53,7 @@ public class ImageActivity extends MediaPlayActivity {
     private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
     private UpdateCacheTask mUpdateCacheTask;
 
-    private MediaGestureDetector mGestureDetector;
+    private MediaGesturePipeline mGesturePipeline;
 
     private int mScrolledX;
 
@@ -133,7 +134,7 @@ public class ImageActivity extends MediaPlayActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mGestureDetector.onTouchEvent(event)) {
+        if (mGesturePipeline.onTouchEvent(event)) {
             return true;
         }
 
@@ -152,41 +153,40 @@ public class ImageActivity extends MediaPlayActivity {
     }
 
     private void setupController() {
-        mGestureDetector = new MediaGestureDetector(this,
-                new MediaGestureListener.Callback() {
-                    @Override
-                    public boolean onFlingTo(int trend) {
-                        switch (trend) {
-                            case 6:
-                                switchOrFallback(-1);
-                                return true;
-                            case 4:
-                                switchOrFallback(1);
-                                return true;
-                            default:
-                                break;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onScrollBy(int dx, int dy) {
-                        if (dx < 0) {
-                            mImageSwitcher.scrollAsNext(
-                                    getBitmap(mCurrentPos),
-                                    getBitmap(mCurrentPos + 1),
-                                    getScrolledFraction(dx));
-                        } else if (dx > 0) {
-                            mImageSwitcher.scrollAsPrev(
-                                    getBitmap(mCurrentPos),
-                                    getBitmap(mCurrentPos - 1),
-                                    getScrolledFraction(dx));
-                        }
-                        mScrolledX = dx;
-
+        mGesturePipeline = new MediaGesturePipeline(this, new Callback() {
+            @Override
+            public boolean onFlingTo(int trend) {
+                switch (trend) {
+                    case 6:
+                        switchOrFallback(-1);
                         return true;
-                    }
-                });
+                    case 4:
+                        switchOrFallback(1);
+                        return true;
+                    default:
+                        break;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onScrollBy(int dx, int dy) {
+                if (dx < 0) {
+                    mImageSwitcher.scrollAsNext(
+                            getBitmap(mCurrentPos),
+                            getBitmap(mCurrentPos + 1),
+                            getScrolledFraction(dx));
+                } else if (dx > 0) {
+                    mImageSwitcher.scrollAsPrev(
+                            getBitmap(mCurrentPos),
+                            getBitmap(mCurrentPos - 1),
+                            getScrolledFraction(dx));
+                }
+                mScrolledX = dx;
+
+                return true;
+            }
+        });
 
         findViewById(R.id.btnNext).setOnClickListener(
                 new View.OnClickListener() {

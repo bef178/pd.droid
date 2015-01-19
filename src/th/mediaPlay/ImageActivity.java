@@ -158,6 +158,14 @@ public class ImageActivity extends MediaPlayActivity {
             }
 
             @Override
+            public boolean onScaleTo(float scale) {
+                mImageSwitcher.setScaleX(scale);
+                mImageSwitcher.setScaleY(scale);
+                mImageSwitcher.invalidate();
+                return true;
+            }
+
+            @Override
             public boolean onScrollBy(int dx) {
                 if (dx < 0) {
                     mImageSwitcher.scrollAsNext(
@@ -177,6 +185,7 @@ public class ImageActivity extends MediaPlayActivity {
 
             @Override
             public boolean onTapUp() {
+                onScaleTo(1f);
                 if (getScrolledFraction(mScrolledX) < 0.5f) {
                     fallbackSwitching();
                 } else {

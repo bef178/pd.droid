@@ -61,10 +61,15 @@ class ElementalGestureDetector {
     }
 }
 
+/**
+ * all-in-one motion listener, to filter/reclassify the gesture
+ */
 class MediaGestureListener implements OnGestureListener,
         OnDoubleTapListener, OnScaleGestureListener, OnTapListener {
 
     private Callback mCallback;
+
+    private float mScaleFactor;
 
     public MediaGestureListener(Callback callback) {
         mCallback = callback;
@@ -153,6 +158,11 @@ class MediaGestureListener implements OnGestureListener,
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2,
             float velocityX, float velocityY) {
+        if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
+            return false;
+        }
+
+        resetStatus();
         if (mCallback != null) {
             float dx = e2.getX() - e1.getX();
             float dy = e2.getY() - e1.getY();
@@ -171,12 +181,24 @@ class MediaGestureListener implements OnGestureListener,
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
-        return false;
+        if (mCallback != null) {
+            mScaleFactor *= detector.getScaleFactor();
+            mCallback.onScaleTo(mScaleFactor);
+        }
+        return true;
+    }
+
+    private void resetStatus() {
+        mScaleFactor = 1f;
+        if (mCallback != null) {
+            mCallback.onScaleTo(mScaleFactor);
+        }
     }
 
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {
-        return false;
+        mScaleFactor = 1f;
+        return true;
     }
 
     @Override
@@ -186,6 +208,10 @@ class MediaGestureListener implements OnGestureListener,
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
             float distanceY) {
+        if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
+            return false;
+        }
+        resetStatus();
         if (mCallback != null) {
             int dx = (int) (e2.getRawX() - e1.getRawX());
             int trend = getMoveTrendWithDistanceCheck(
@@ -234,6 +260,8 @@ public class MediaGesturePipeline {
     static interface Callback {
 
         boolean onFlingTo(int trend);
+
+        boolean onScaleTo(float scale);
 
         boolean onScrollBy(int dx);
 

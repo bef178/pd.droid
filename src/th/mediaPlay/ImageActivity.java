@@ -137,18 +137,6 @@ public class ImageActivity extends MediaPlayActivity {
         if (mGesturePipeline.onTouchEvent(event)) {
             return true;
         }
-
-        if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
-            if (getScrolledFraction(mScrolledX) < 0.5f) {
-                fallbackSwitching();
-            } else {
-                if (mScrolledX > 0) {
-                    switchOrFallback(-1);
-                } else {
-                    switchOrFallback(1);
-                }
-            }
-        }
         return false;
     }
 
@@ -170,7 +158,7 @@ public class ImageActivity extends MediaPlayActivity {
             }
 
             @Override
-            public boolean onScrollBy(int dx, int dy) {
+            public boolean onScrollBy(int dx) {
                 if (dx < 0) {
                     mImageSwitcher.scrollAsNext(
                             getBitmap(mCurrentPos),
@@ -185,6 +173,20 @@ public class ImageActivity extends MediaPlayActivity {
                 mScrolledX = dx;
 
                 return true;
+            }
+
+            @Override
+            public boolean onTapUp() {
+                if (getScrolledFraction(mScrolledX) < 0.5f) {
+                    fallbackSwitching();
+                } else {
+                    if (mScrolledX > 0) {
+                        switchOrFallback(-1);
+                    } else {
+                        switchOrFallback(1);
+                    }
+                }
+                return false;
             }
         });
 

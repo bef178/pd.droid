@@ -1,4 +1,11 @@
-package th.pd;
+package th.common;
+
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.provider.DocumentsContract.Document;
+import android.util.SparseIntArray;
+
+import libcore.net.MimeUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -7,46 +14,96 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.webkit.MimeTypeMap;
-
 public class MimeUtil {
 
-    public static Drawable drawableByMimeType(Context context, String mimeType) {
-        return context.getResources().getDrawable(resIdByMime(mimeType));
+    private static Map<String, Integer> mime2res = null;
+
+    private static List<Map.Entry<String, Integer>> mimeListSorted = null;
+
+    private static SparseIntArray res2large = null;
+
+    private static final String TAG_ALL = "*";
+
+    private static final String TAG_UNKNOWN = "unknown";
+
+    static {
+        mime2res = new HashMap<String, Integer>();
+        initMimeMapCompressed(mime2res);
+        initMimeMapAudio(mime2res);
+        initMimeMapImage(mime2res);
+        initMimeMapVideo(mime2res);
+        initMimeMapDocument(mime2res);
+        initMimeMapGeneric(mime2res);
+
+        res2large = new SparseIntArray();
+        initIconMapLarge(res2large);
     }
 
-    private static String[] getMimeTuple(String mime) {
-        if (mime != null) {
-            int i = mime.indexOf('/');
-            if (i > 0 && i < mime.length() - 1) {
-                return new String[] {
-                        mime.substring(0, i),
-                        mime.substring(i + 1)
-                };
-            }
-        }
-        return new String[] {
-                TAG_UNKNOWN, TAG_UNKNOWN
+    public static Drawable drawableByMimeType(Context context, String mimeType) {
+        return context.getResources().getDrawable(resIdByMimeType(mimeType));
+    }
+
+    public static Drawable drawableLargeByMimeType(Context context,
+            String mimeType) {
+        int resId = resIdByMimeType(mimeType);
+        return context.getResources().getDrawable(res2large.get(resId));
+    }
+
+    private static void initIconMapLarge(SparseIntArray map) {
+        int[] mapped = {
+                R.drawable.mime_apk, R.drawable.mime_apk_156,
+                R.drawable.mime_generic_audio,
+                R.drawable.mime_generic_audio_156,
+                R.drawable.mime_certificate, R.drawable.mime_certificate_156,
+                R.drawable.mime_generic_code,
+                R.drawable.mime_generic_code_156,
+                R.drawable.mime_contact, R.drawable.mime_contact_156,
+                R.drawable.mime_doc, R.drawable.mime_doc_156,
+                R.drawable.mime_document, R.drawable.mime_document_156,
+                R.drawable.mime_event, R.drawable.mime_event_156,
+                R.drawable.mime_generic_file,
+                R.drawable.mime_generic_file_156,
+                R.drawable.mime_generic_image,
+                R.drawable.mime_generic_image_156,
+                R.drawable.mime_log, R.drawable.mime_log_156,
+                R.drawable.mime_m4v, R.drawable.mime_m4v_156,
+                R.drawable.mime_mov, R.drawable.mime_mov_156,
+                R.drawable.mime_mp3, R.drawable.mime_mp3_156,
+                R.drawable.mime_mp4, R.drawable.mime_mp4_156,
+                R.drawable.mime_mpg, R.drawable.mime_mpg_156,
+                R.drawable.mime_ogg, R.drawable.mime_ogg_156,
+                R.drawable.mime_pdf, R.drawable.mime_pdf_156,
+                R.drawable.mime_ppt, R.drawable.mime_ppt_156,
+                R.drawable.mime_rar, R.drawable.mime_rar_156,
+                R.drawable.mime_rtf, R.drawable.mime_rtf_156,
+                R.drawable.mime_txt, R.drawable.mime_txt_156,
+                R.drawable.mime_generic_video,
+                R.drawable.mime_generic_video_156,
+                R.drawable.mime_wav, R.drawable.mime_wav_156,
+                R.drawable.mime_wma, R.drawable.mime_wma_156,
+                R.drawable.mime_xls, R.drawable.mime_xls_156,
+                R.drawable.mime_zip, R.drawable.mime_zip_156,
+
         };
+        for (int i = 0; i < mapped.length; i += 2) {
+            map.put(mapped[i], mapped[i + 1]);
+        }
     }
 
     private static void initMimeMapAudio(Map<String, Integer> map) {
         Object[] mapped = {
                 "application/ogg", R.drawable.mime_ogg,
-                "application/x-flac", R.drawable.mime_audio,
-                "audio/*", R.drawable.mime_audio,
+                "application/x-flac", R.drawable.mime_generic_audio,
+                "audio/*", R.drawable.mime_generic_audio,
                 "audio/mpeg", R.drawable.mime_mp3,
                 "audio/mpeg3", R.drawable.mime_mp3,
                 "audio/ogg", R.drawable.mime_ogg,
-                "audio/x-ms-wma", R.drawable.mime_wma,
                 "audio/x-mpeg-3", R.drawable.mime_mp3,
+                "audio/x-ms-wma", R.drawable.mime_wma,
                 "audio/x-wav", R.drawable.mime_wav,
         };
         putToMap(map, mapped);
@@ -176,34 +233,34 @@ public class MimeUtil {
                 // R.drawable.mime_certificate,
 
                 // source code
-                // "application/rdf+xml", R.drawable.mime_src,
-                // "application/rss+xml", R.drawable.mime_src,
-                // "application/x-object", R.drawable.mime_src,
-                // "application/xhtml+xml", R.drawable.mime_src,
-                // "text/css", R.drawable.mime_src,
-                // "text/html", R.drawable.mime_src,
-                // "text/xml", R.drawable.mime_src,
-                // "text/x-c++hdr", R.drawable.mime_src,
-                // "text/x-c++src", R.drawable.mime_src,
-                // "text/x-chdr", R.drawable.mime_src,
-                // "text/x-csrc", R.drawable.mime_src,
-                // "text/x-dsrc", R.drawable.mime_src,
-                // "text/x-csh", R.drawable.mime_src,
-                // "text/x-haskell", R.drawable.mime_src,
-                // "text/x-java", R.drawable.mime_src,
-                // "text/x-literate-haskell", R.drawable.mime_src,
-                // "text/x-pascal", R.drawable.mime_src,
-                // "text/x-tcl", R.drawable.mime_src,
-                // "text/x-tex", R.drawable.mime_src,
-                // "application/x-latex", R.drawable.mime_src,
-                // "application/x-texinfo", R.drawable.mime_src,
-                // "application/atom+xml", R.drawable.mime_src,
-                // "application/ecmascript", R.drawable.mime_src,
-                // "application/json", R.drawable.mime_src,
-                // "application/javascript", R.drawable.mime_src,
-                // "application/xml", R.drawable.mime_src,
-                // "text/javascript", R.drawable.mime_src,
-                // "application/x-javascript", R.drawable.mime_src,
+                "application/rdf+xml", R.drawable.mime_generic_code,
+                "application/rss+xml", R.drawable.mime_generic_code,
+                "application/x-object", R.drawable.mime_generic_code,
+                "application/xhtml+xml", R.drawable.mime_generic_code,
+                "text/css", R.drawable.mime_generic_code,
+                "text/html", R.drawable.mime_generic_code,
+                "text/xml", R.drawable.mime_generic_code,
+                "text/x-c++hdr", R.drawable.mime_generic_code,
+                "text/x-c++src", R.drawable.mime_generic_code,
+                "text/x-chdr", R.drawable.mime_generic_code,
+                "text/x-csrc", R.drawable.mime_generic_code,
+                "text/x-dsrc", R.drawable.mime_generic_code,
+                "text/x-csh", R.drawable.mime_generic_code,
+                "text/x-haskell", R.drawable.mime_generic_code,
+                "text/x-java", R.drawable.mime_generic_code,
+                "text/x-literate-haskell", R.drawable.mime_generic_code,
+                "text/x-pascal", R.drawable.mime_generic_code,
+                "text/x-tcl", R.drawable.mime_generic_code,
+                "text/x-tex", R.drawable.mime_generic_code,
+                "application/x-latex", R.drawable.mime_generic_code,
+                "application/x-texinfo", R.drawable.mime_generic_code,
+                "application/atom+xml", R.drawable.mime_generic_code,
+                "application/ecmascript", R.drawable.mime_generic_code,
+                "application/json", R.drawable.mime_generic_code,
+                "application/javascript", R.drawable.mime_generic_code,
+                "application/xml", R.drawable.mime_generic_code,
+                "text/javascript", R.drawable.mime_generic_code,
+                "application/x-javascript", R.drawable.mime_generic_code,
 
                 // contact
                 // "text/x-vcard", R.drawable.mime_contact;
@@ -225,7 +282,7 @@ public class MimeUtil {
 
                 // generic
                 "*/*",
-                R.drawable.mime_file,
+                R.drawable.mime_generic_file,
         };
         putToMap(map, mapped);
     }
@@ -233,19 +290,19 @@ public class MimeUtil {
     private static void initMimeMapImage(Map<String, Integer> map) {
         Object[] mapped = {
                 "image/*",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
                 "application/vnd.oasis.opendocument.graphics",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
                 "application/vnd.oasis.opendocument.graphics-template",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
                 "application/vnd.oasis.opendocument.image",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
                 "application/vnd.stardivision.draw",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
                 "application/vnd.sun.xml.draw",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
                 "application/vnd.sun.xml.draw.template",
-                R.drawable.mime_image,
+                R.drawable.mime_generic_image,
         };
         putToMap(map, mapped);
     }
@@ -253,7 +310,7 @@ public class MimeUtil {
     private static void initMimeMapVideo(Map<String, Integer> map) {
         Object[] mapped = {
                 "video/*",
-                R.drawable.mime_video,
+                R.drawable.mime_generic_video,
                 "video/mp4",
                 R.drawable.mime_mp4,
                 "video/quicktime",
@@ -261,23 +318,23 @@ public class MimeUtil {
                 "video/mpeg",
                 R.drawable.mime_mpg,
                 "application/x-quicktimeplayer",
-                R.drawable.mime_video,
+                R.drawable.mime_generic_video,
                 "application/x-shockwave-flash",
-                R.drawable.mime_video,
+                R.drawable.mime_generic_video,
         };
         putToMap(map, mapped);
     }
 
     public static boolean isAudio(String mime) {
-        return getMimeTuple(mime)[0].equals("audio");
-    }
-
-    public static boolean isImage(String mime) {
-        return getMimeTuple(mime)[0].equals("image");
+        return mime2Tuple(mime)[0].equals("audio");
     }
 
     public static boolean isImage(File file) {
-        return isImage(mimeByPath(file.getPath()));
+        return isImage(mimeTypeByPath(file.getPath()));
+    }
+
+    public static boolean isImage(String mime) {
+        return mime2Tuple(mime)[0].equals("image");
     }
 
     public static boolean isMedia(String mime) {
@@ -285,33 +342,35 @@ public class MimeUtil {
     }
 
     public static boolean isVideo(String mime) {
-        return getMimeTuple(mime)[0].equals("video");
+        return mime2Tuple(mime)[0].equals("video");
     }
 
-    public static String mimeByExt(String ext) {
-        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
-    }
-
-    public static String mimeByPath(String path) {
-        int dot = path.lastIndexOf('.');
-        if (dot >= 0) {
-            String ext = path.substring(dot + 1).toLowerCase(Locale.US);
-            return mimeByExt(ext);
+    private static String[] mime2Tuple(String mime) {
+        if (mime != null) {
+            int i = mime.indexOf('/');
+            if (i > 0 && i < mime.length() - 1) {
+                return new String[] {
+                        mime.substring(0, i),
+                        mime.substring(i + 1)
+                };
+            }
         }
-        return null;
+        return new String[] {
+                TAG_UNKNOWN, TAG_UNKNOWN
+        };
     }
 
     public static List<Map.Entry<String, Integer>> mimeListSorted() {
-        if (sortedMimeList == null) {
-            sortedMimeList = new ArrayList<Map.Entry<String, Integer>>(
-                    mimeMap.size());
-            Set<Map.Entry<String, Integer>> entrySet = mimeMap.entrySet();
+        if (mimeListSorted == null) {
+            mimeListSorted = new ArrayList<Map.Entry<String, Integer>>(
+                    mime2res.size());
+            Set<Map.Entry<String, Integer>> entrySet = mime2res.entrySet();
             Iterator<Map.Entry<String, Integer>> it = entrySet.iterator();
             while (it.hasNext()) {
                 Map.Entry<String, Integer> entry = it.next();
-                sortedMimeList.add(entry);
+                mimeListSorted.add(entry);
             }
-            Collections.sort(sortedMimeList,
+            Collections.sort(mimeListSorted,
                     new Comparator<Map.Entry<String, Integer>>() {
                         @Override
                         public int compare(Entry<String, Integer> lhs,
@@ -320,11 +379,7 @@ public class MimeUtil {
                         }
                     });
         }
-        return sortedMimeList;
-    }
-
-    public static Map<String, Integer> mimeMap() {
-        return mimeMap;
+        return mimeListSorted;
     }
 
     public static boolean mimeMatches(String acceptable, String test) {
@@ -337,8 +392,8 @@ public class MimeUtil {
             return false;
         }
 
-        String[] acceptableTuple = getMimeTuple(acceptable);
-        String[] testTuple = getMimeTuple(test);
+        String[] acceptableTuple = mime2Tuple(acceptable);
+        String[] testTuple = mime2Tuple(test);
         return mimeTagMatches(acceptableTuple[0], testTuple[0])
                 && mimeTagMatches(acceptableTuple[1], testTuple[1]);
     }
@@ -375,44 +430,45 @@ public class MimeUtil {
                 || acceptableTag.equalsIgnoreCase(testTag);
     }
 
+    public static String mimeTypeByFile(File file) {
+        if (file.isDirectory()) {
+            // "vnd.android.document/directory"
+            return Document.MIME_TYPE_DIR;
+        } else {
+            return mimeTypeByPath(file.getName());
+        }
+    }
+
+    private static String mimeTypeByPath(String path) {
+        int dot = path.lastIndexOf('.');
+        if (dot >= 0) {
+            String ext = path.substring(dot + 1).toLowerCase();
+            return MimeUtils.guessMimeTypeFromExtension(ext);
+        }
+        return null;
+    }
+
     private static void putToMap(Map<String, Integer> map, Object[] mapped) {
         for (int i = 0; i < mapped.length; i += 2) {
             map.put((String) mapped[i], (Integer) mapped[i + 1]);
         }
     }
 
-    private static int resIdByMime(String mimeType) {
+    public static int resIdByMimeType(String mimeType) {
         if (mimeType == null) {
-            return mimeMap.get("*/*");
+            return mime2res.get("*/*");
         }
 
-        Integer resId = mimeMap.get(mimeType);
+        Integer resId = mime2res.get(mimeType);
         if (resId != null) {
             return resId;
         }
 
         final String type = mimeType.split("/")[0];
-        resId = mimeMap.get(type + "/*");
+        resId = mime2res.get(type + "/*");
         if (resId != null) {
             return resId;
         }
-        return mimeMap.get("*/*");
-    }
-
-    private static final String TAG_ALL = "*";
-
-    private static final String TAG_UNKNOWN = "unknown";
-
-    private static Map<String, Integer> mimeMap = null;
-    private static List<Map.Entry<String, Integer>> sortedMimeList = null;
-
-    static {
-        mimeMap = new HashMap<String, Integer>();
-        initMimeMapCompressed(mimeMap);
-        initMimeMapAudio(mimeMap);
-        initMimeMapImage(mimeMap);
-        initMimeMapVideo(mimeMap);
-        initMimeMapDocument(mimeMap);
-        initMimeMapGeneric(mimeMap);
+        return mime2res.get("*/*");
     }
 }

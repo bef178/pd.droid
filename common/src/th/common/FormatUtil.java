@@ -1,4 +1,4 @@
-package th.pd;
+package th.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,7 +18,7 @@ public class FormatUtil {
         }
 
         if (suffix == 0) {
-            return number + units[suffix];
+            return (int) number + units[suffix];
         }
 
         if (number > 100f) {

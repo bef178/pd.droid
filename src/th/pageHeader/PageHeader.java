@@ -30,6 +30,8 @@ public class PageHeader {
 		}
 	}
 
+	public static final int DEFAULT_DISPLAY_TIMEOUT = 2000;
+
 	private static final int MSG_HIDE_WITH_ANIM = 7749;
 
 	// same value as that in ActionBarImpl.
@@ -205,6 +207,10 @@ public class PageHeader {
 		a.setDuration(animDuration);
 		a.addListener(mAnimHideListener);
 		a.start();
+	}
+
+	public void hideWithDelay() {
+	    hideWithDelay(DEFAULT_DISPLAY_TIMEOUT);
 	}
 
 	/**

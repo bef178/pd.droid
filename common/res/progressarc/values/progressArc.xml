@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- model: content-box -->
-    <!-- TODO or border-box? -->
+    <!-- TODO if border-box better? -->
     <declare-styleable name="progressArc">
         <attr name="arcBackground" format="color" />
         <attr name="arcForeground" format="color" />
@@ -16,7 +15,4 @@
         <attr name="valueTotal" format="float" />
         <attr name="valueNow" format="float" />
     </declare-styleable>
-
 </resources>
-
-

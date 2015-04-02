@@ -1,10 +1,5 @@
 package th.intentSender;
 
-import java.util.List;
-import java.util.Map;
-
-import th.pd.MimeUtil;
-import th.pd.R;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +7,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import th.common.MimeUtil;
+import th.pd.R;
+
+import java.util.List;
+import java.util.Map;
 
 public class IntentTypeAdapter extends BaseAdapter {
 	Context mContext;

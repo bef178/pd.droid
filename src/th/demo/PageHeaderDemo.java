@@ -1,16 +1,16 @@
-package th.pageHeader;
+package th.demo;
 
-import th.pd.SystemUiUtil;
+import th.common.SystemUiUtil;
+import th.common.widget.PageHeader;
+
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class Demo {
-
-	private static final int HEADER_DISPLAY_TIMEOUT = 3000;
+public class PageHeaderDemo {
 
 	private PageHeader mHeader;
 
-	public Demo(View headerView, View demoButton) {
+	public PageHeaderDemo(View headerView, View demoButton) {
 		mHeader = new PageHeader(headerView);
 		demoButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -20,7 +20,7 @@ public class Demo {
 					showOptions();
 				} else {
 					mHeader.showWithAnim();
-					mHeader.hideWithDelay(HEADER_DISPLAY_TIMEOUT);
+					mHeader.hideWithDelay();
 				}
 			}
 		});
@@ -33,7 +33,7 @@ public class Demo {
 	public void onResume() {
 		hideSystemUi();
 		mHeader.showWithAnim();
-		mHeader.hideWithDelay(HEADER_DISPLAY_TIMEOUT);
+		mHeader.hideWithDelay();
 	}
 
 	public void setTitle(CharSequence title) {

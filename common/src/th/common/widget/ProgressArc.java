@@ -1,6 +1,5 @@
 package th.common.widget;
 
-import th.pd.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;

@@ -1,9 +1,6 @@
-####
-# till now:
-#  can package multiple res with aapt -S
-#  can generate resources.arsc with aapt -F
-#  don't know how to generate META-INF with aapt
-#  can generate META-INF with jar
+########
+# Due to aapt id-generating mechanism, apk is likely to have a same R id as that in jar.
+# So provide res and jar ... and also package res in jar.
 
 define all-typef
 	`find -L $(2) -type f -name "$(strip $(1))"`

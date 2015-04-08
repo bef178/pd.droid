@@ -9,6 +9,8 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
+import th.common.R;
+
 public class ProgressArc extends View {
 
 	public interface ProgressChangeListener {

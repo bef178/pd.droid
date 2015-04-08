@@ -17,6 +17,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import th.common.R;
+
 public class PageHeader {
 
 	/**

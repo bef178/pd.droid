@@ -1,7 +1,12 @@
 ####
+# till now:
+#  can package multiple res with aapt -S
+#  can generate resources.arsc with aapt -F
+#  don't know how to generate META-INF with aapt
+#  can generate META-INF with jar
 
-define all-typef-with-ext
-	`find -L $(2) -type f -name "*.$(strip $(1))"`
+define all-typef
+	`find -L $(2) -type f -name "$(strip $(1))"`
 endef
 
 AAPT := $(ADT_HOME)/build-tools/19.0.0/aapt
@@ -19,9 +24,12 @@ TARGET := th-common.jar
 
 AAPT += package	\
 	--auto-add-overlay	\
-	-f -m -J $(GEN_SRC)	\
+	-f	\
 	-I $(AJAR)	\
-	-M ./AndroidManifest.xml
+	-M ./AndroidManifest.xml	\
+	-S $(RES_PATH)/mime	\
+	-S $(RES_PATH)/pageheader	\
+	-S $(RES_PATH)/progressarc
 
 .PHONY: all clean
 
@@ -31,23 +39,22 @@ R:
 	@-mkdir -p $(GEN_SRC)
 	@echo "Making common.R ..."
 	@$(AAPT) --custom-package "th.common"	\
-		-S $(RES_PATH)/mime
-	@echo "Making common.widget.R ..."
-	@$(AAPT) --custom-package "th.common.widget"	\
-		-S $(RES_PATH)/pageheader	\
-		-S $(RES_PATH)/progressarc
+		-m -J $(GEN_SRC)
 
 dot_class: R
 	@-mkdir -p $(GEN_BIN)
 	@echo "Compiling ..."
-	@javac $(call all-typef-with-ext, java, $(SRC_PATH)) $(call all-typef-with-ext, java, $(GEN_SRC))	\
+	@javac $(call all-typef, *.java, $(SRC_PATH)) $(call all-typef, *.java, $(GEN_SRC))	\
 		-sourcepath $(SRC_PATH):$(GEN_SRC)	\
 		-classpath $(AJAR)	\
 		-d $(GEN_BIN)
 
 $(TARGET): dot_class
 	@echo "Packaging ..."
-	@cd $(GEN_BIN) && jar -cf ../$@ $(subst $(GEN_BIN)/, , $(call all-typef-with-ext, class))
+	@$(AAPT)	\
+		-F $(GEN_PATH)/$@	\
+		$(GEN_BIN)
+# generate res to be included in apk
 	@echo "Generating res ..."
 	@-mkdir -p $(GEN_RES)
 	@cp -r $(RES_PATH)/*/* $(GEN_RES)

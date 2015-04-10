@@ -1,50 +1,42 @@
 package th.pd;
 
-import th.intentSender.IntentSender;
-import th.progressArc.ProgressArc;
 import android.app.Activity;
-import android.content.AsyncQueryHandler;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.view.View.OnClickListener;
+
+import th.demo.Demo;
+import th.mock.MockFileManager;
 
 public class Main extends Activity {
-	private static final String LOG_TAG = "MainActivity";
 
-	private th.pageHeader.Demo mHeaderDemo;
-	private IntentSender mIntentSender;
-
-	private boolean onAction(int itemId) {
+	private boolean onAction(int actionId) {
+		switch (actionId) {
+			case R.id.action_startDemo: {
+				Intent intent = new Intent();
+				intent.setClass(Main.this, Demo.class);
+				startActivity(intent);
+				return true;
+			}
+			case R.id.action_startMockFileManager: {
+				Intent intent = new Intent();
+				intent.setClass(Main.this, MockFileManager.class);
+				startActivity(intent);
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		mIntentSender.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		if (onAction(item.getItemId())) {
-			return true;
-		}
-		return super.onContextItemSelected(item);
-	}
-
-	@Override
-	public void onContextMenuClosed(Menu menu) {
-		super.onContextMenuClosed(menu);
-		mHeaderDemo.hideSystemUi();
+		return onAction(item.getItemId())
+				|| super.onContextItemSelected(item);
 	}
 
 	@Override
@@ -52,17 +44,22 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		mHeaderDemo = new th.pageHeader.Demo(
-				findViewById(R.id.pageHeader), findViewById(R.id.btnHeaderDemo));
-		registerForContextMenu(findViewById(R.id.pageHeader));
+		OnClickListener clickListener = new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				switch (v.getId()) {
+					case R.id.action_startDemo:
+					case R.id.action_startMockFileManager:
+						onAction(v.getId());
+						break;
+				}
+			}
+		};
 
-		setHeaderTitleAsync();
-
-		mIntentSender = new IntentSender(findViewById(R.id.intentSender),
-				(TextView) findViewById(R.id.textLog));
-
-		new th.progressArc.Demo(
-				(ProgressArc) findViewById(R.id.progressArc_demo)).start();
+		findViewById(R.id.action_startDemo).setOnClickListener(
+				clickListener);
+		findViewById(R.id.action_startMockFileManager).setOnClickListener(
+				clickListener);
 	}
 
 	@Override
@@ -85,51 +82,4 @@ public class Main extends Activity {
 		return onAction(item.getItemId())
 				|| super.onOptionsItemSelected(item);
 	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mHeaderDemo.onResume();
-	}
-
-	private void setHeaderTitleAsync() {
-		Intent intent = getIntent();
-
-		String title = intent.getStringExtra(Intent.EXTRA_TITLE);
-		if (title != null) {
-			mHeaderDemo.setTitle(title);
-			return;
-		}
-
-		Uri uri = intent.getData();
-		if (uri == null) {
-			mHeaderDemo.setTitle(null);
-			return;
-		}
-
-		AsyncQueryHandler aqh = new AsyncQueryHandler(
-				getContentResolver()) {
-			@Override
-			protected void onQueryComplete(int token, Object cookie,
-					Cursor cursor) {
-				try {
-					if (cursor != null && cursor.moveToFirst()) {
-						mHeaderDemo.setTitle(cursor.getString(0));
-					}
-				} finally {
-					try {
-						if (cursor != null) {
-							cursor.close();
-						}
-					} catch (Throwable t) {
-						Log.w(LOG_TAG, "fail to close", t);
-					}
-				}
-			}
-		};
-		aqh.startQuery(0, null, uri,
-				new String[] { OpenableColumns.DISPLAY_NAME }, null, null,
-				null);
-	}
-
 }

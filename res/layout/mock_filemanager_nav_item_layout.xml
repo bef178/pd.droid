@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/mock_item_selector" >
+
+    <TextView
+        android:id="@+id/headerLabel"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="top"
+        android:orientation="horizontal" />
+
+    <TextView
+        android:id="@+id/actionLabel"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal" />
+
+</FrameLayout>

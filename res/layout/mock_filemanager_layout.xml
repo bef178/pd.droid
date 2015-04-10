@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/item_pressed"
+            android:text="@string/item_pressed" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/item_focused"
+            android:text="@string/item_focused" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/item_selected"
+            android:text="@string/item_selected" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/item_default"
+            android:text="@string/item_default" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:background="@color/file_manager"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/dev_light_blue"
+            android:gravity="center"
+            android:text="@string/file_manager" />
+
+        <FrameLayout
+            android:id="@+id/navFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="400dp"
+        android:layout_height="match_parent"
+        android:background="@color/dev_grayC"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:background="@color/dev_light_green"
+                android:gravity="center"
+                android:text="@string/file_manager" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/contentFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <th.mock.StateListView
+        android:id="@+id/listLeft"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:background="@color/dev_gray6"
+        android:cacheColorHint="@android:color/transparent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <th.mock.StateListView
+            android:id="@+id/listRight"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:background="@color/dev_grayC"
+            android:cacheColorHint="@android:color/transparent" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listDefLeft"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:background="@color/dev_gray6" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/listDefRight"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:background="@color/dev_grayC" />
+    </LinearLayout>
+
+</LinearLayout>

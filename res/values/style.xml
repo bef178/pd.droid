@@ -1,7 +1,8 @@
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Holo.Light">
-        <item name="android:windowFullscreen">true</item>
+    <style name="AppTheme" parent="android:Theme.Holo.Light"></style>
+
+    <style name="melodyTheme" parent="@style/AppTheme">
         <item name="android:windowNoTitle">true</item>
     </style>
 
@@ -10,6 +11,8 @@
         <item name="android:activityOpenExitAnimation">@null</item>
         <item name="android:activityCloseEnterAnimation">@null</item>
         <item name="android:activityCloseExitAnimation">@null</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

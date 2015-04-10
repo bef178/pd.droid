@@ -2,14 +2,13 @@ package th.pd;
 
 import java.util.Arrays;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
 import android.view.View;
 
 /**
  * Provide api to change View state appearance without modifying the data.<br/>
- * May require the hosted view to break-and-rejoin the state/appearance chain.
+ * May require the hosted view to break-and-rejoin the state/appearance call
+ * chain.
  *
  * @author tanghao
  */
@@ -67,10 +66,10 @@ public class ViewStateController {
 
     public void setStateFlags(int flags) {
         // do not check because the View state api may change the display state
-        if (true || flags != mStateFlags) {
-            mStateFlags = flags;
-            flushAppearance();
-        }
+//        if (flags != mStateFlags) {
+        mStateFlags = flags;
+        flushAppearance();
+//        }
     }
 
     /**

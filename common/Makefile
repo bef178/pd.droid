@@ -24,6 +24,7 @@ AAPT += package	\
 	-f	\
 	-I $(AJAR)	\
 	-M ./AndroidManifest.xml	\
+	-S $(RES_PATH)/common	\
 	-S $(RES_PATH)/mime	\
 	-S $(RES_PATH)/pageheader	\
 	-S $(RES_PATH)/progressarc

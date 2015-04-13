@@ -1,4 +1,4 @@
-package th.mediaPlay;
+package th.common.widget;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;

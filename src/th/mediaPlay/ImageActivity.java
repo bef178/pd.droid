@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import th.common.MimeUtil;
+import th.common.widget.ImageSwitcher;
 import th.mediaPlay.MediaGesturePipeline.Callback;
 import th.pd.Cache;
 import th.pd.R;

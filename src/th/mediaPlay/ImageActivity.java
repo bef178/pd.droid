@@ -68,12 +68,14 @@ public class ImageActivity extends MediaPlayActivity {
 
     private void fallbackSwitching() {
         if (mScrolledX > 0) {
-            mImageSwitcher.switchAsNext(getBitmap(mCurrentPos - 1),
+            mImageSwitcher.doSwitch(getBitmap(mCurrentPos - 1),
                     getBitmap(mCurrentPos),
+                    true,
                     1 - getScrolledFraction(mScrolledX));
         } else if (mScrolledX < 0) {
-            mImageSwitcher.switchAsPrev(getBitmap(mCurrentPos + 1),
+            mImageSwitcher.doSwitch(getBitmap(mCurrentPos + 1),
                     getBitmap(mCurrentPos),
+                    false,
                     1 - getScrolledFraction(mScrolledX));
         }
         mScrolledX = 0;
@@ -83,16 +85,18 @@ public class ImageActivity extends MediaPlayActivity {
      * for key triggered fallback, we don't have scrolledX, so play a
      * forth-and-back animation to tell no more images
      */
-    private void fallbackSwitchingForKey(int offset) {
-        final float turnFraction = 0.15f;
+    private void fallbackSwitchingForButton(int offset) {
+        final float turnPointAnimatedFraction = 0.15f;
         if (offset > 0) {
-            mImageSwitcher.switchAndFallbackAsNext(getBitmap(mCurrentPos),
-                    getBitmap(mCurrentPos + 1),
-                    turnFraction);
+            mImageSwitcher.doSwitchAndFallback(
+                    getBitmap(mCurrentPos), getBitmap(mCurrentPos + 1),
+                    true,
+                    turnPointAnimatedFraction);
         } else if (offset < 0) {
-            mImageSwitcher.switchAndFallbackAsPrev(getBitmap(mCurrentPos),
-                    getBitmap(mCurrentPos - 1),
-                    turnFraction);
+            mImageSwitcher.doSwitchAndFallback(
+                    getBitmap(mCurrentPos), getBitmap(mCurrentPos - 1),
+                    false,
+                    turnPointAnimatedFraction);
         }
         mScrolledX = 0;
     }
@@ -147,10 +151,10 @@ public class ImageActivity extends MediaPlayActivity {
             public boolean onFlingTo(int trend) {
                 switch (trend) {
                     case 6:
-                        switchOrFallback(-1);
+                        switchOrFallback(-1, false);
                         return true;
                     case 4:
-                        switchOrFallback(1);
+                        switchOrFallback(1, false);
                         return true;
                     default:
                         break;
@@ -169,18 +173,19 @@ public class ImageActivity extends MediaPlayActivity {
             @Override
             public boolean onScrollBy(int dx) {
                 if (dx < 0) {
-                    mImageSwitcher.scrollAsNext(
+                    mImageSwitcher.doScroll(
                             getBitmap(mCurrentPos),
                             getBitmap(mCurrentPos + 1),
+                            true,
                             getScrolledFraction(dx));
                 } else if (dx > 0) {
-                    mImageSwitcher.scrollAsPrev(
+                    mImageSwitcher.doScroll(
                             getBitmap(mCurrentPos),
                             getBitmap(mCurrentPos - 1),
+                            false,
                             getScrolledFraction(dx));
                 }
                 mScrolledX = dx;
-
                 return true;
             }
 
@@ -191,9 +196,9 @@ public class ImageActivity extends MediaPlayActivity {
                     fallbackSwitching();
                 } else {
                     if (mScrolledX > 0) {
-                        switchOrFallback(-1);
+                        switchOrFallback(-1, false);
                     } else {
-                        switchOrFallback(1);
+                        switchOrFallback(1, false);
                     }
                 }
                 return false;
@@ -204,7 +209,7 @@ public class ImageActivity extends MediaPlayActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        switchOrFallbackForKey(1);
+                        switchOrFallback(1, true);
                     }
                 });
 
@@ -212,7 +217,7 @@ public class ImageActivity extends MediaPlayActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        switchOrFallbackForKey(-1);
+                        switchOrFallback(-1, true);
                     }
                 });
     }
@@ -272,19 +277,20 @@ public class ImageActivity extends MediaPlayActivity {
             return false;
         }
 
-        if (mImageSwitcher.isSwitching()) {
-            mImageSwitcher.doneSwitching();
-        }
+        mImageSwitcher.doneSwitching();
 
         Bitmap bitmap = getBitmap(pos);
         if (offset == 0) {
-            mImageSwitcher.switchAsNext(null, bitmap,
+            mImageSwitcher.doSwitch(null, bitmap,
+                    true,
                     getScrolledFraction(mScrolledX));
         } else if (offset > 0) {
-            mImageSwitcher.switchAsNext(getBitmap(mCurrentPos), bitmap,
+            mImageSwitcher.doSwitch(getBitmap(mCurrentPos), bitmap,
+                    true,
                     getScrolledFraction(mScrolledX));
         } else {
-            mImageSwitcher.switchAsPrev(getBitmap(mCurrentPos), bitmap,
+            mImageSwitcher.doSwitch(getBitmap(mCurrentPos), bitmap,
+                    false,
                     getScrolledFraction(mScrolledX));
         }
 
@@ -299,15 +305,13 @@ public class ImageActivity extends MediaPlayActivity {
         return true;
     }
 
-    private void switchOrFallback(int offset) {
+    private void switchOrFallback(int offset, boolean triggedByButton) {
         if (!switchBy(offset)) {
-            fallbackSwitching();
-        }
-    }
-
-    private void switchOrFallbackForKey(int offset) {
-        if (!switchBy(offset)) {
-            fallbackSwitchingForKey(offset);
+            if (triggedByButton) {
+                fallbackSwitchingForButton(offset);
+            } else {
+                fallbackSwitching();
+            }
         }
     }
 

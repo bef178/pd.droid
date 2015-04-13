@@ -9,9 +9,6 @@ public class ImageStatus {
 
     Bitmap bitmap = null;
 
-    // current offset coordinate
-    private int[] offset = new int[2];
-
     Rect rect = new Rect();
 
     public void alpha(float alpha) {
@@ -30,9 +27,6 @@ public class ImageStatus {
         this.alpha = 0xFF;
 
         this.bitmap = null;
-
-        this.offset[0] = 0;
-        this.offset[1] = 0;
 
         this.rect.left = 0;
         this.rect.top = 0;
@@ -54,9 +48,7 @@ public class ImageStatus {
     }
 
     public void offset(int dx, int dy) {
-        rect.offset(dx - offset[0], dy - offset[1]);
-        offset[0] = dx;
-        offset[1] = dy;
+        rect.offsetTo(dx, dy);
     }
 
     /**

@@ -4,10 +4,10 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import th.common.Cache;
 import th.common.MimeUtil;
 import th.common.widget.ImageSwitcher;
 import th.mediaPlay.MediaGesturePipeline.Callback;
-import th.pd.Cache;
 import th.pd.R;
 
 import android.graphics.Bitmap;
@@ -243,7 +243,7 @@ public class ImageActivity extends MediaPlayActivity {
             protected Void doInBackground(UpdateCacheTaskArgument... params) {
                 UpdateCacheTaskArgument a = params[0];
                 a.bitmap = createBitmap(a.pos);
-                mCache.update(a.pos, a.bitmap);
+                mCache.roll(a.pos, a.bitmap);
                 mCache.set(a.pos, a.bitmap);
                 return null;
             }
@@ -320,7 +320,7 @@ public class ImageActivity extends MediaPlayActivity {
         if (bitmap == null) {
             bitmap = createBitmap(pos);
         }
-        mCache.update(pos, bitmap);
+        mCache.roll(pos, bitmap);
         mCache.set(pos, bitmap);
         for (int i = 1; i <= mCache.RADIUS; ++i) {
             if (mCache.get(pos + i) == null) {

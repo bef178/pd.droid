@@ -1,4 +1,5 @@
-package th.pd;
+
+package th.common;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -69,6 +70,9 @@ public class Cache<E> {
         return null;
     }
 
+    /**
+     * treat id as the center, set entry but keep value null
+     */
     private void refresh(int id) {
         id -= CAPACITY / 2;
         if (cache == null) {
@@ -93,9 +97,9 @@ public class Cache<E> {
     }
 
     /**
-     * update the center of cache as pivot
+     * make sure the given key exists in the cache
      */
-    public void update(int id, E element) {
+    public void roll(int id, E element) {
         Entry<E> entry = getEntry(id);
         if (entry == null) {
             refresh(id);

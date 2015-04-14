@@ -23,17 +23,26 @@ import th.common.R;
  * <br/>
  * There's a mapping for time to location during switching, y = f(x), where x stands for the elapsed
  * time(fraction), y stands for the swept length(animatedFraction) and f is seldom linear. So there
- * would be a distinguishable difference between them.
+ * would be a distinguishable difference between them.<br/>
+ * <br/>
+ * All update requests applies in the model - <code>ImageStatus</code> for <code>onDraw()</code>
+ * reading.<br/>
+ * <br/>
  */
 public class ImageSwitcher extends View {
 
     private class ImageStatus {
 
-        int alpha = 0xFF;
-        Bitmap bitmap = null;
-        Rect rect = new Rect();
+        private Bitmap bitmap;
+        private Rect rect; // where the whole bitmap is drew into, while onDraw() starts at (0,0)
+        private int alpha;
 
-        public void alpha(float alpha) {
+        public ImageStatus() {
+            rect = new Rect();
+            clear();
+        }
+
+        public void applyAlpha(float alpha) {
             if (alpha > 1f) {
                 alpha = 1f;
             } else if (alpha < 0f) {
@@ -42,49 +51,73 @@ public class ImageSwitcher extends View {
             this.alpha = (int) (alpha * 0xFF);
         }
 
+        public void applyOffset(int x, int y) {
+            rect.offsetTo(x, y);
+        }
+
+        /**
+         * the pivot is (left,top)
+         */
+        public void applyScale(float scale) {
+            int w = bitmap.getWidth();
+            int h = bitmap.getHeight();
+            rect.right = rect.left + (int) (scale * w);
+            rect.bottom = rect.top + (int) (scale * h);
+        }
+
         /**
          * reset each attribute to its default value
          */
         public void clear() {
-            this.alpha = 0xFF;
-
             this.bitmap = null;
-
-            this.rect.left = 0;
-            this.rect.top = 0;
-            this.rect.right = 0;
-            this.rect.bottom = 0;
+            this.rect.setEmpty();
+            this.alpha = 0xFF;
         }
 
-        public void initialize(Bitmap bitmap) {
-            clear();
-            this.bitmap = bitmap;
-            if (this.bitmap != null) {
-                this.rect.right = bitmap.getWidth();
-                this.rect.bottom = bitmap.getHeight();
+        /**
+         * Make the image centralized and suitably scaled down. Will definitely overwrite relative
+         * attribute.<br/>
+         */
+        private void fitRect(int width, int height) {
+            int rectWidth = rect.width();
+            int rectHeight = rect.height();
+            if (rectWidth > width
+                    || rectHeight > height) {
+                float scale = Math.min(1f * width / rectWidth, 1f * height / rectHeight);
+                rectWidth *= scale;
+                rectHeight *= scale;
+                rect.right = rect.left + rectWidth;
+                rect.bottom = rect.top + rectHeight;
             }
+            int x = (width - rect.width()) / 2;
+            int y = (height - rect.height()) / 2;
+            applyOffset(x, y);
+        }
+
+        public void initialize(Bitmap bitmap, int containerWidth, int containerHeight) {
+            if (bitmap == null) {
+                clear();
+                return;
+            }
+            reset(bitmap);
+            fitRect(containerWidth, containerHeight);
         }
 
         public boolean isValid() {
             return bitmap != null;
         }
 
-        public void offset(int dx, int dy) {
-            rect.offsetTo(dx, dy);
-        }
-
         /**
-         * reset but keep the image itself
+         * restore the image attributes and move the image to the origin
          */
-        public void restore() {
-            initialize(this.bitmap);
-        }
-
-        public void scale(float scale) {
-            int w = bitmap.getWidth();
-            int h = bitmap.getHeight();
-            rect.right = rect.left + (int) (scale * w);
-            rect.bottom = rect.top + (int) (scale * h);
+        private void reset(Bitmap bitmap) {
+            if (bitmap == null) {
+                clear();
+                return;
+            }
+            this.bitmap = bitmap;
+            this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            this.alpha = 0xFF;
         }
     }
 
@@ -145,11 +178,11 @@ public class ImageSwitcher extends View {
         if ((flags & FLAG_ALPHA) != 0) {
             final float ALPHA_START = 0.4f;
             final float ALPHA_FINAL = 1.0f;
-            imageStatus.alpha(isEnter
+            imageStatus.applyAlpha(isEnter
                     ? (ALPHA_FINAL - ALPHA_START) * animatedFraction + ALPHA_START
                     : (ALPHA_START - ALPHA_FINAL) * animatedFraction + ALPHA_FINAL);
         } else {
-            imageStatus.alpha(1.0f);
+            imageStatus.applyAlpha(1.0f);
         }
 
         if ((flags & FLAG_TRANS) != 0) {
@@ -157,43 +190,51 @@ public class ImageSwitcher extends View {
             int offsetY = 0;
             switch (flags & 0xF00) {
                 case FLAG_TRANS_TO_LEFT: {
-                    int wBitmap = imageStatus.bitmap.getWidth();
+                    int totalX = (imageStatus.rect.width() + hostWidth) / 2;
+                    offsetY = imageStatus.rect.top;
                     if (isEnter) {
-                        offsetX = (int) (wBitmap * (1f - animatedFraction));
+                        // not be here yet, so no test
+                        offsetX = (int) (totalX * (1f - animatedFraction));
                     } else {
-                        offsetX = (int) (wBitmap * -animatedFraction);
+                        int endX = -imageStatus.rect.width();
+                        offsetX = (int) (totalX * (1f - animatedFraction)) + endX;
                     }
                     break;
                 }
                 case FLAG_TRANS_TO_RIGHT: {
-                    int wTotal = imageStatus.bitmap.getWidth();
+                    int totalX = (imageStatus.rect.width() + hostWidth) / 2;
+                    offsetY = imageStatus.rect.top;
                     if (isEnter) {
-                        offsetX = (int) (wTotal * (animatedFraction - 1f));
+                        int startX = -imageStatus.rect.width();
+                        offsetX = (int) (totalX * animatedFraction) + startX;
                     } else {
-                        offsetX = (int) (wTotal * animatedFraction);
+                        // not be here yet, so no test
+                        offsetX = (int) (totalX * animatedFraction);
                     }
                     break;
                 }
                 case FLAG_TRANS_TO_TOP:
+                    // not be here yet, so no test
                     offsetY = (int) (imageStatus.bitmap.getHeight() * animatedFraction);
                     break;
                 case FLAG_TRANS_TO_BOTTOM:
+                    // not be here yet, so no test
                     offsetY = -(int) (imageStatus.bitmap.getHeight() * animatedFraction);
                     break;
             }
-            imageStatus.offset(offsetX, offsetY);
+            imageStatus.applyOffset(offsetX, offsetY);
         }
 
         if ((flags & FLAG_SCALE) != 0) {
             final float SCALE_START = 0.4f;
             final float SCALE_FINAL = 1.0f;
-            imageStatus.scale(isEnter
+            imageStatus.applyScale(isEnter
                     ? (SCALE_FINAL - SCALE_START) * animatedFraction + SCALE_START
                     : (SCALE_START - SCALE_FINAL) * animatedFraction + SCALE_FINAL);
 
             int w = imageStatus.rect.width();
             int h = imageStatus.rect.height();
-            imageStatus.offset((hostWidth - w) / 2, (hostHeight - h) / 2);
+            imageStatus.applyOffset((hostWidth - w) / 2, (hostHeight - h) / 2);
         }
     }
 
@@ -241,18 +282,20 @@ public class ImageSwitcher extends View {
             return;
         }
 
-        mImage.initialize(bitmap);
-        mComingImage.initialize(comingBitmap);
+        int hostWidth = getWidth();
+        int hostHeight = getHeight();
+        mImage.initialize(bitmap, hostWidth, hostHeight);
+        mComingImage.initialize(comingBitmap, hostWidth, hostHeight);
         mComingAsNext = asNext;
 
         updateImageStatus(mComingImage,
                 getFlagsForAnim(true, mComingAsNext),
                 animatedFraction,
-                getWidth(), getHeight());
+                hostWidth, hostHeight);
         updateImageStatus(mImage,
                 getFlagsForAnim(false, mComingAsNext),
                 animatedFraction,
-                getWidth(), getHeight());
+                hostWidth, hostHeight);
 
         invalidate();
     }
@@ -272,8 +315,10 @@ public class ImageSwitcher extends View {
             return;
         }
 
-        mImage.initialize(bitmap);
-        mComingImage.initialize(comingBitmap);
+        final int hostWidth = getWidth();
+        final int hostHeight = getHeight();
+        mImage.initialize(bitmap, hostWidth, hostHeight);
+        mComingImage.initialize(comingBitmap, hostWidth, hostHeight);
         mComingAsNext = asNext;
 
         ValueAnimator animator = getAnimator(startAnimatedFraction);
@@ -287,11 +332,11 @@ public class ImageSwitcher extends View {
                 updateImageStatus(mComingImage,
                         getFlagsForAnim(true, mComingAsNext),
                         animatedFraction,
-                        getWidth(), getHeight());
+                        hostWidth, hostHeight);
                 updateImageStatus(mImage,
                         getFlagsForAnim(false, mComingAsNext),
                         animatedFraction,
-                        getWidth(), getHeight());
+                        hostWidth, hostHeight);
                 invalidate();
             }
         });
@@ -300,7 +345,7 @@ public class ImageSwitcher extends View {
         mAnimatorSet.addListener(new SimpleAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animator) {
-                mImage.initialize(mComingImage.bitmap);
+                mImage.initialize(mComingImage.bitmap, hostWidth, hostHeight);
                 mComingImage.clear();
                 invalidate();
             }
@@ -316,8 +361,10 @@ public class ImageSwitcher extends View {
             return;
         }
 
-        mImage.initialize(bitmap);
-        mComingImage.initialize(comingBitmap);
+        final int hostWidth = getWidth();
+        final int hostHeight = getHeight();
+        mImage.initialize(bitmap, hostWidth, hostHeight);
+        mComingImage.initialize(comingBitmap, hostWidth, hostHeight);
         mComingAsNext = asNext;
 
         ValueAnimator animator = getAnimator(0f);
@@ -331,11 +378,11 @@ public class ImageSwitcher extends View {
                 updateImageStatus(mComingImage,
                         getFlagsForAnim(true, mComingAsNext),
                         animatedFraction,
-                        getWidth(), getHeight());
+                        hostWidth, hostHeight);
                 updateImageStatus(mImage,
                         getFlagsForAnim(false, mComingAsNext),
                         animatedFraction,
-                        getWidth(), getHeight());
+                        hostWidth, hostHeight);
                 invalidate();
             }
         });
@@ -348,11 +395,11 @@ public class ImageSwitcher extends View {
                 updateImageStatus(mImage,
                         getFlagsForAnim(true, !mComingAsNext),
                         animatedFraction,
-                        getWidth(), getHeight());
+                        hostWidth, hostHeight);
                 updateImageStatus(mComingImage,
                         getFlagsForAnim(false, !mComingAsNext),
                         animatedFraction,
-                        getWidth(), getHeight());
+                        hostWidth, hostHeight);
                 invalidate();
             }
         });
@@ -388,12 +435,5 @@ public class ImageSwitcher extends View {
             paint.setAlpha(image.alpha);
             canvas.drawBitmap(image.bitmap, null, image.rect, paint);
         }
-    }
-
-    public void reset() {
-        mImage.restore();
-        mComingImage.clear();
-        mComingAsNext = true;
-        invalidate();
     }
 }

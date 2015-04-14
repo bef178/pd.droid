@@ -59,10 +59,17 @@ public class ImageSwitcher extends View {
          * the pivot is (left,top)
          */
         public void applyScale(float scale) {
+            if (scale <= 0f) {
+                return;
+            }
             int w = bitmap.getWidth();
             int h = bitmap.getHeight();
             rect.right = rect.left + (int) (scale * w);
             rect.bottom = rect.top + (int) (scale * h);
+        }
+
+        public void centralize(int hostWidth, int hostHeight) {
+            applyOffset((hostWidth - rect.width()) / 2, (hostHeight - rect.height()) / 2);
         }
 
         /**
@@ -75,32 +82,40 @@ public class ImageSwitcher extends View {
         }
 
         /**
-         * Make the image centralized and suitably scaled down. Will definitely overwrite relative
-         * attribute.<br/>
+         * Make the image centralized and may suitably scaled down. Will definitely overwrite
+         * relative attribute.<br/>
          */
-        private void fitRect(int width, int height) {
-            int rectWidth = rect.width();
-            int rectHeight = rect.height();
-            if (rectWidth > width
-                    || rectHeight > height) {
-                float scale = Math.min(1f * width / rectWidth, 1f * height / rectHeight);
-                rectWidth *= scale;
-                rectHeight *= scale;
-                rect.right = rect.left + rectWidth;
-                rect.bottom = rect.top + rectHeight;
+        private void fitRect(int hostWidth, int hostHeight) {
+            if (hostWidth <= 0 || hostHeight <= 0) {
+                return;
             }
-            int x = (width - rect.width()) / 2;
-            int y = (height - rect.height()) / 2;
-            applyOffset(x, y);
+            applyScale(getFitScale(hostWidth, hostHeight));
+            centralize(hostWidth, hostHeight);
         }
 
-        public void initialize(Bitmap bitmap, int containerWidth, int containerHeight) {
+        public float getFitScale(int hostWidth, int hostHeight) {
+            if (!isValid() || hostWidth <= 0 || hostHeight <= 0) {
+                return 0f;
+            }
+
+            int bitmapWidth = bitmap.getWidth();
+            int bitmapHeight = bitmap.getHeight();
+            if (hostWidth < bitmapWidth
+                    || hostHeight < bitmapHeight) {
+                return Math.min(
+                        1f * hostWidth / bitmapWidth,
+                        1f * hostHeight / bitmapHeight);
+            }
+            return 1f;
+        }
+
+        public void initialize(Bitmap bitmap, int hostWidth, int hostHeight) {
             if (bitmap == null) {
                 clear();
                 return;
             }
             reset(bitmap);
-            fitRect(containerWidth, containerHeight);
+            fitRect(hostWidth, hostHeight);
         }
 
         public boolean isValid() {
@@ -246,9 +261,13 @@ public class ImageSwitcher extends View {
     // mainly for onDraw() to keep consistent animation
     private boolean mComingAsNext = true;
 
+    // as a trigger to tell which mode we are in
     private float mScale = 1f;
 
     private Paint mPaint;
+
+    // to fix the time sequence of data load and view load
+    private Runnable mFirstLoadRunnable;
 
     public ImageSwitcher(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -257,23 +276,39 @@ public class ImageSwitcher extends View {
         mPaint = new Paint();
     }
 
+    public void applyScale(float scale) {
+        if (!mImage.isValid()) {
+            return;
+        }
+
+        float maxScale = 64f;
+        float minScale = Math.min(1f * getWidth() / mImage.rect.width(), 1f * getWidth() / mImage.rect.width());
+        minScale = Math.min(0.1f, minScale);
+
+        if (scale > maxScale) {
+            scale = maxScale;
+        } else if (scale < minScale) {
+            scale = minScale;
+        }
+
+        if (scale >= 0.98f && scale <= 1.02f) {
+            scale = 1f;
+        }
+
+        mImage.applyScale(scale);
+        mImage.centralize(getWidth(), getHeight());
+        mScale = scale;
+        invalidate();
+    }
+
     public void doneSwitching() {
         if (isSwitching()) {
             mAnimatorSet.end();
         }
     }
 
-    public void setScale(float scale) {
-        if (scale >= 0.98f && scale <= 1.02f) {
-            scale = 1f;
-        }
-        mScale = scale;
-        updateImageStatus(mImage, FLAG_ENTER | FLAG_SCALE, mScale, getWidth(), getHeight());
-        invalidate();
-    }
-
     public void doScale(float scale) {
-        setScale(scale * mScale);
+        applyScale(scale * mScale);
     }
 
     public void doScroll(Bitmap bitmap, Bitmap comingBitmap,
@@ -307,9 +342,8 @@ public class ImageSwitcher extends View {
                 startAnimatedFraction, 7749f);
     }
 
-    private void doSwitch(Bitmap bitmap, Bitmap comingBitmap,
-            boolean asNext, float startAnimatedFraction,
-            final float endAnimatedFraction) {
+    private void doSwitch(Bitmap bitmap, Bitmap comingBitmap, boolean asNext,
+            float startAnimatedFraction, final float endAnimatedFraction) {
 
         if (isSwitching()) {
             return;
@@ -409,8 +443,21 @@ public class ImageSwitcher extends View {
         mAnimatorSet.start();
     }
 
+    public void firstLoad(final Bitmap bitmap) {
+        if (getWidth() == 0 || getHeight() == 0) {
+            mFirstLoadRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    firstLoad(bitmap);
+                }
+            };
+        } else {
+            mImage.initialize(bitmap, getWidth(), getHeight());
+        }
+    }
+
     public boolean isScaled() {
-        return mScale > 1.02f || mScale < 0.98f;
+        return mScale != mImage.getFitScale(getWidth(), getHeight());
     }
 
     public boolean isSwitching() {
@@ -419,6 +466,11 @@ public class ImageSwitcher extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (mFirstLoadRunnable != null) {
+            mFirstLoadRunnable.run();
+            mFirstLoadRunnable = null;
+            return;
+        }
         canvas.drawColor(getResources().getColor(R.color.dev_gray9));
         if (mComingAsNext) {
             onDrawImage(canvas, mPaint, mComingImage);
@@ -435,5 +487,11 @@ public class ImageSwitcher extends View {
             paint.setAlpha(image.alpha);
             canvas.drawBitmap(image.bitmap, null, image.rect, paint);
         }
+    }
+
+    public void resetImage() {
+        mImage.initialize(mImage.bitmap, getWidth(), getHeight());
+        mScale = mImage.getFitScale(getWidth(), getHeight());
+        invalidate();
     }
 }

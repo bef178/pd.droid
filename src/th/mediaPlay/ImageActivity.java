@@ -151,7 +151,7 @@ public class ImageActivity extends MediaPlayActivity {
             @Override
             public boolean onDoubleTap() {
                 if (mImageSwitcher.isScaled()) {
-                    mImageSwitcher.setScale(1f);
+                    mImageSwitcher.resetImage();
                     return true;
                 }
                 return false;
@@ -227,6 +227,7 @@ public class ImageActivity extends MediaPlayActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mImageSwitcher.resetImage();
                         switchOrFallback(1, true);
                     }
                 });
@@ -235,6 +236,7 @@ public class ImageActivity extends MediaPlayActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mImageSwitcher.resetImage();
                         switchOrFallback(-1, true);
                     }
                 });
@@ -299,9 +301,7 @@ public class ImageActivity extends MediaPlayActivity {
 
         Bitmap bitmap = getBitmap(pos);
         if (offset == 0) {
-            mImageSwitcher.doSwitch(null, bitmap,
-                    true,
-                    getScrolledFraction(mScrolledX));
+            mImageSwitcher.firstLoad(bitmap);
         } else if (offset > 0) {
             mImageSwitcher.doSwitch(getBitmap(mCurrentPos), bitmap,
                     true,

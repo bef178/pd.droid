@@ -149,7 +149,19 @@ public class ImageActivity extends MediaPlayActivity {
     private void setupController() {
         mGesturePipeline = new MediaGesturePipeline(this, new Callback() {
             @Override
+            public boolean onDoubleTap() {
+                if (mImageSwitcher.isScaled()) {
+                    mImageSwitcher.setScale(1f);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
             public boolean onFlingTo(int trend) {
+                if (mImageSwitcher.isScaled()) {
+                    return false;
+                }
                 switch (trend) {
                     case 6:
                         switchOrFallback(-1, false);
@@ -165,14 +177,16 @@ public class ImageActivity extends MediaPlayActivity {
 
             @Override
             public boolean onScaleTo(float scale) {
-                mImageSwitcher.setScaleX(scale);
-                mImageSwitcher.setScaleY(scale);
+                mImageSwitcher.doScale(scale);
                 mImageSwitcher.invalidate();
                 return true;
             }
 
             @Override
             public boolean onScrollBy(int dx) {
+                if (mImageSwitcher.isScaled()) {
+                    return false;
+                }
                 if (dx < 0) {
                     mImageSwitcher.doScroll(
                             getBitmap(mCurrentPos),
@@ -192,6 +206,9 @@ public class ImageActivity extends MediaPlayActivity {
 
             @Override
             public boolean onTapUp() {
+                if (mImageSwitcher.isScaled()) {
+                    return false;
+                }
                 onScaleTo(1f);
                 if (getScrolledFraction(mScrolledX) < 0.5f) {
                     fallbackSwitching();

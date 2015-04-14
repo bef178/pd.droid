@@ -142,7 +142,7 @@ class MediaGestureListener implements OnGestureListener,
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        return false;
+        return mCallback != null && mCallback.onDoubleTap();
     }
 
     @Override
@@ -258,6 +258,8 @@ class MediaGestureListener implements OnGestureListener,
 public class MediaGesturePipeline {
 
     static interface Callback {
+
+        boolean onDoubleTap();
 
         boolean onFlingTo(int trend);
 

@@ -11,31 +11,21 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.animation.Interpolator;
 import android.view.View;
 
 import th.common.R;
 
 /**
- * Pay attention to the terms:<br/>
- * 'next' vs 'coming', 'fraction' vs 'animatedFraction'
+ * Pay attention to the terms.<br/>
+ * It always switches from "this image" to the "coming image", i.e. the neighborhood in time. While,
+ * the "coming image" may be the "next image" or the "prev image", i.e. the neighborhood in
+ * location.<br/>
+ * <br/>
+ * There's a mapping for time to location during switching, y = f(x), where x stands for the elapsed
+ * time(fraction), y stands for the swept length(animatedFraction) and f is seldom linear. So there
+ * would be a distinguishable difference between them.
  */
 public class ImageSwitcher extends View {
-    private static class SquareInterpolator implements Interpolator {
-
-        public static float getInterpolated(float x) {
-            return x * x;
-        }
-
-        public static float getInversed(float y) {
-            return (float) (Math.pow(y, 0.5));
-        }
-
-        @Override
-        public float getInterpolation(float x) {
-            return getInterpolated(x);
-        }
-    }
 
     private class ImageStatus {
 
@@ -98,9 +88,9 @@ public class ImageSwitcher extends View {
         }
     }
 
-    private static final int FLAG_ALPHA = 0x20;
     private static final int FLAG_ENTER = 0x1;
     private static final int FLAG_SCALE = 0x10;
+    private static final int FLAG_ALPHA = 0x20;
     private static final int FLAG_TRANS = 0x40;
     private static final int FLAG_TRANS_TO_BOTTOM = 0x200;
     private static final int FLAG_TRANS_TO_LEFT = 0x400;
@@ -211,7 +201,11 @@ public class ImageSwitcher extends View {
 
     private ImageStatus mImage;
     private ImageStatus mComingImage;
+
+    // mainly for onDraw() to keep consistent animation
     private boolean mComingAsNext = true;
+
+    private float mScale = 1f;
 
     private Paint mPaint;
 
@@ -226,6 +220,19 @@ public class ImageSwitcher extends View {
         if (isSwitching()) {
             mAnimatorSet.end();
         }
+    }
+
+    public void setScale(float scale) {
+        if (scale >= 0.98f && scale <= 1.02f) {
+            scale = 1f;
+        }
+        mScale = scale;
+        updateImageStatus(mImage, FLAG_ENTER | FLAG_SCALE, mScale, getWidth(), getHeight());
+        invalidate();
+    }
+
+    public void doScale(float scale) {
+        setScale(scale * mScale);
     }
 
     public void doScroll(Bitmap bitmap, Bitmap comingBitmap,
@@ -338,12 +345,12 @@ public class ImageSwitcher extends View {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float animatedFraction = valueAnimator.getAnimatedFraction();
-                updateImageStatus(mComingImage,
-                        getFlagsForAnim(false, !mComingAsNext),
-                        animatedFraction,
-                        getWidth(), getHeight());
                 updateImageStatus(mImage,
                         getFlagsForAnim(true, !mComingAsNext),
+                        animatedFraction,
+                        getWidth(), getHeight());
+                updateImageStatus(mComingImage,
+                        getFlagsForAnim(false, !mComingAsNext),
                         animatedFraction,
                         getWidth(), getHeight());
                 invalidate();
@@ -353,6 +360,10 @@ public class ImageSwitcher extends View {
         mAnimatorSet = new AnimatorSet();
         mAnimatorSet.playSequentially(animator, fallbackAnimator);
         mAnimatorSet.start();
+    }
+
+    public boolean isScaled() {
+        return mScale > 1.02f || mScale < 0.98f;
     }
 
     public boolean isSwitching() {

@@ -278,9 +278,9 @@ public class GesturePipeline {
 
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
-        handled = mGestureDetector.onTouchEvent(event) || handled;
-        handled = mScaleGestureDetector.onTouchEvent(event) || handled;
-        handled = mElementalGestureDetector.onTouchEvent(event) || handled;
+        handled = handled || mGestureDetector.onTouchEvent(event);
+        handled = handled || mScaleGestureDetector.onTouchEvent(event);
+        handled = mElementalGestureDetector.onTouchEvent(event) || handled; // must run
         return handled;
     }
 }

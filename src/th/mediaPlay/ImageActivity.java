@@ -191,25 +191,39 @@ public class ImageActivity extends MediaPlayActivity {
             }
 
             @Override
-            public boolean onScrollBy(int dx) {
+            public boolean onScrollBy(int[] totalDiff, int[] lastDiff, int trend) {
                 if (mImageSwitcher.isScaled()) {
-                    return false;
+                    Rect imageRect = mImageSwitcher.getImageRect();
+                    if (imageRect.width() > mImageSwitcher.getWidth()
+                            || imageRect.height() > mImageSwitcher.getHeight()) {
+                        imageRect.offset(-lastDiff[0], -lastDiff[1]);
+                        if (imageRect.contains(mImageSwitcher.getWidth() / 2,
+                                mImageSwitcher.getHeight() / 2)) {
+                            mImageSwitcher.doOffset(-lastDiff[0], -lastDiff[1]);
+                        }
+                    }
+                    return true;
                 }
-                if (dx < 0) {
-                    mImageSwitcher.doScroll(
-                            getBitmap(mCurrentPos),
-                            getBitmap(mCurrentPos + 1),
-                            true,
-                            getScrolledFraction(dx));
-                } else if (dx > 0) {
-                    mImageSwitcher.doScroll(
-                            getBitmap(mCurrentPos),
-                            getBitmap(mCurrentPos - 1),
-                            false,
-                            getScrolledFraction(dx));
+                switch (trend) {
+                    case 4:
+                    case 6:
+                        if (totalDiff[0] < 0) {
+                            mImageSwitcher.doScroll(
+                                    getBitmap(mCurrentPos),
+                                    getBitmap(mCurrentPos + 1),
+                                    true,
+                                    getScrolledFraction(totalDiff[0]));
+                        } else if (totalDiff[0] > 0) {
+                            mImageSwitcher.doScroll(
+                                    getBitmap(mCurrentPos),
+                                    getBitmap(mCurrentPos - 1),
+                                    false,
+                                    getScrolledFraction(totalDiff[0]));
+                        }
+                        mScrolledX = totalDiff[0];
+                        return true;
                 }
-                mScrolledX = dx;
-                return true;
+                return false;
             }
 
             @Override

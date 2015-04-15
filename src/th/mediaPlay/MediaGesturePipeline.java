@@ -204,13 +204,11 @@ class MediaGestureListener implements OnGestureListener,
             float dx = e2.getRawX() - e1.getRawX();
             float dy = e2.getRawY() - e1.getRawY();
             int trend = getMoveTrendWithDistanceCheck(dx, dy);
-            switch (trend) {
-                case 6:
-                case 4:
-                    if (mCallback.onScrollBy((int) dx)) {
-                        return true;
-                    }
-            }
+            return mCallback.onScrollBy(new int[] {
+                    (int) dx, (int) dy
+            }, new int[] {
+                    (int) distanceX, (int) distanceY
+            }, trend);
         }
         return false;
     }
@@ -253,7 +251,7 @@ public class MediaGesturePipeline {
 
         boolean onScaleTo(float scale, int focusX, int focusY);
 
-        boolean onScrollBy(int dx);
+        boolean onScrollBy(int[] totalDiff, int[] lastDiff, int trend);
 
         boolean onTapUp();
     }

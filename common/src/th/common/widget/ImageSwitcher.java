@@ -308,6 +308,16 @@ public class ImageSwitcher extends View {
         }
     }
 
+    public void doOffset(int dx, int dy) {
+        if (!mImage.isValid()) {
+            return;
+        }
+        int x = mImage.rect.left + dx;
+        int y = mImage.rect.top + dy;
+        mImage.applyOffset(x, y);
+        invalidate();
+    }
+
     public void doScale(float scale) {
         // focus on the center: the sepcial case avoids accumulated error
         applyScale(scale * mScale);

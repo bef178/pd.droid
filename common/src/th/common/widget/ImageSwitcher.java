@@ -276,7 +276,10 @@ public class ImageSwitcher extends View {
         mPaint = new Paint();
     }
 
-    public void applyScale(float scale) {
+    /**
+     * (focusX, focusY) is stable on the screen
+     */
+    private void applyScale(float scale) {
         if (!mImage.isValid()) {
             return;
         }
@@ -296,9 +299,7 @@ public class ImageSwitcher extends View {
         }
 
         mImage.applyScale(scale);
-        mImage.centralize(getWidth(), getHeight());
         mScale = scale;
-        invalidate();
     }
 
     public void doneSwitching() {
@@ -308,7 +309,24 @@ public class ImageSwitcher extends View {
     }
 
     public void doScale(float scale) {
+        // focus on the center: the sepcial case avoids accumulated error
         applyScale(scale * mScale);
+        mImage.centralize(getWidth(), getHeight());
+        invalidate();
+    }
+
+    public void doScale(float scale, int focusX, int focusY) {
+        // focus on the focus
+        focusX -= mImage.rect.left; // relative to (left, top)
+        focusY -= mImage.rect.top;
+        float fractionX = 1f * focusX / mImage.rect.width();
+        float fractionY = 1f * focusY / mImage.rect.height();
+        applyScale(scale * mScale);
+        float offsetX = fractionX * mImage.rect.width() - focusX;
+        float offsetY = fractionY * mImage.rect.height() - focusY;
+        mImage.applyOffset(mImage.rect.left - (int) offsetX,
+                mImage.rect.top - (int) offsetY);
+        invalidate();
     }
 
     public void doScroll(Bitmap bitmap, Bitmap comingBitmap,
@@ -454,6 +472,10 @@ public class ImageSwitcher extends View {
         } else {
             mImage.initialize(bitmap, getWidth(), getHeight());
         }
+    }
+
+    public Rect getImageRect() {
+        return new Rect(mImage.rect);
     }
 
     public boolean isScaled() {

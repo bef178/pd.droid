@@ -69,21 +69,15 @@ class MediaGestureListener implements OnGestureListener,
 
     private Callback mCallback;
 
-    private float mScaleFactor;
-
     public MediaGestureListener(Callback callback) {
         mCallback = callback;
     }
 
-    private float abs(float f) {
+    private static float abs(float f) {
         return f >= 0f ? f : -f;
     }
 
-    public Callback getCallback() {
-        return mCallback;
-    }
-
-    private int getMoveTrend(float dx, float dy) {
+    private static int getMoveTrend(float dx, float dy) {
         if (abs(dx) >= abs(dy)) {
             if (dx >= 0) {
                 return 6;
@@ -99,7 +93,7 @@ class MediaGestureListener implements OnGestureListener,
         }
     }
 
-    private int getMoveTrendWithDistanceCheck(float dx, float dy) {
+    private static int getMoveTrendWithDistanceCheck(float dx, float dy) {
         final int THRESHOLD_DISTANCE = 100;
         int trend = getMoveTrend(dx, dy);
         switch (trend) {
@@ -119,7 +113,7 @@ class MediaGestureListener implements OnGestureListener,
         return 5;
     }
 
-    private int getMoveTrendWithVelocityCheck(float dx, float dy,
+    private static int getMoveTrendWithVelocityCheck(float dx, float dy,
             float vx, float vy) {
         final int THRESHOLD_VELOCITY = 100;
         int trend = getMoveTrend(dx, dy);
@@ -138,6 +132,10 @@ class MediaGestureListener implements OnGestureListener,
                 break;
         }
         return 5;
+    }
+
+    public Callback getCallback() {
+        return mCallback;
     }
 
     @Override
@@ -161,8 +159,6 @@ class MediaGestureListener implements OnGestureListener,
         if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
             return false;
         }
-
-        resetStatus();
         if (mCallback != null) {
             float dx = e2.getX() - e1.getX();
             float dy = e2.getY() - e1.getY();
@@ -182,22 +178,15 @@ class MediaGestureListener implements OnGestureListener,
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         if (mCallback != null) {
-            mScaleFactor *= detector.getScaleFactor();
-            mCallback.onScaleTo(mScaleFactor);
+            mCallback.onScaleTo(detector.getScaleFactor(),
+                    (int) detector.getFocusX(),
+                    (int) detector.getFocusY());
         }
         return true;
     }
 
-    private void resetStatus() {
-        mScaleFactor = 1f;
-        if (mCallback != null) {
-            mCallback.onScaleTo(mScaleFactor);
-        }
-    }
-
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {
-        mScaleFactor = 1f;
         return true;
     }
 
@@ -211,15 +200,14 @@ class MediaGestureListener implements OnGestureListener,
         if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
             return false;
         }
-        resetStatus();
         if (mCallback != null) {
-            int dx = (int) (e2.getRawX() - e1.getRawX());
-            int trend = getMoveTrendWithDistanceCheck(
-                    dx, e2.getRawY() - e1.getRawY());
+            float dx = e2.getRawX() - e1.getRawX();
+            float dy = e2.getRawY() - e1.getRawY();
+            int trend = getMoveTrendWithDistanceCheck(dx, dy);
             switch (trend) {
                 case 6:
                 case 4:
-                    if (mCallback.onScrollBy(dx)) {
+                    if (mCallback.onScrollBy((int) dx)) {
                         return true;
                     }
             }
@@ -263,7 +251,7 @@ public class MediaGesturePipeline {
 
         boolean onFlingTo(int trend);
 
-        boolean onScaleTo(float scale);
+        boolean onScaleTo(float scale, int focusX, int focusY);
 
         boolean onScrollBy(int dx);
 

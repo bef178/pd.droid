@@ -12,6 +12,7 @@ import th.pd.R;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -176,9 +177,16 @@ public class ImageActivity extends MediaPlayActivity {
             }
 
             @Override
-            public boolean onScaleTo(float scale) {
-                mImageSwitcher.doScale(scale);
-                mImageSwitcher.invalidate();
+            public boolean onScaleTo(float scale, int focusX, int focusY) {
+                Rect imageRect = mImageSwitcher.getImageRect();
+                if (!imageRect.contains(focusX, focusY)
+                        || (imageRect.width() <= mImageSwitcher.getWidth()
+                        && imageRect.height() <= mImageSwitcher.getHeight())) {
+                    // focus on the center
+                    mImageSwitcher.doScale(scale);
+                } else {
+                    mImageSwitcher.doScale(scale, focusX, focusY);
+                }
                 return true;
             }
 
@@ -209,7 +217,6 @@ public class ImageActivity extends MediaPlayActivity {
                 if (mImageSwitcher.isScaled()) {
                     return false;
                 }
-                onScaleTo(1f);
                 if (getScrolledFraction(mScrolledX) < 0.5f) {
                     fallbackSwitching();
                 } else {

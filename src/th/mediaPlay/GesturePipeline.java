@@ -1,7 +1,7 @@
 package th.mediaPlay;
 
 import th.mediaPlay.ElementalGestureDetector.OnTapListener;
-import th.mediaPlay.MediaGesturePipeline.Callback;
+import th.mediaPlay.GesturePipeline.Callback;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
@@ -64,12 +64,12 @@ class ElementalGestureDetector {
 /**
  * all-in-one motion listener, to filter/reclassify the gesture
  */
-class MediaGestureListener implements OnGestureListener,
+class GestureListener implements OnGestureListener,
         OnDoubleTapListener, OnScaleGestureListener, OnTapListener {
 
     private Callback mCallback;
 
-    public MediaGestureListener(Callback callback) {
+    public GestureListener(Callback callback) {
         mCallback = callback;
     }
 
@@ -241,7 +241,7 @@ class MediaGestureListener implements OnGestureListener,
     }
 }
 
-public class MediaGesturePipeline {
+public class GesturePipeline {
 
     static interface Callback {
 
@@ -256,14 +256,14 @@ public class MediaGesturePipeline {
         boolean onTapUp();
     }
 
-    private MediaGestureListener mListener;
+    private GestureListener mListener;
 
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
     private ElementalGestureDetector mElementalGestureDetector;
 
-    public MediaGesturePipeline(Context context, Callback callback) {
-        mListener = new MediaGestureListener(callback);
+    public GesturePipeline(Context context, Callback callback) {
+        mListener = new GestureListener(callback);
         mGestureDetector = new GestureDetector(context, mListener);
         mScaleGestureDetector = new ScaleGestureDetector(context, mListener);
         mElementalGestureDetector = new ElementalGestureDetector(mListener);

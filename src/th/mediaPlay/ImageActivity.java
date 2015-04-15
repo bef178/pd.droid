@@ -7,7 +7,7 @@ import java.util.List;
 import th.common.Cache;
 import th.common.MimeUtil;
 import th.common.widget.ImageSwitcher;
-import th.mediaPlay.MediaGesturePipeline.Callback;
+import th.mediaPlay.GesturePipeline.Callback;
 import th.pd.R;
 
 import android.graphics.Bitmap;
@@ -56,7 +56,7 @@ public class ImageActivity extends MediaPlayActivity {
     private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
     private UpdateCacheTask mUpdateCacheTask;
 
-    private MediaGesturePipeline mGesturePipeline;
+    private GesturePipeline mGesturePipeline;
 
     private int mScrolledX;
 
@@ -148,14 +148,22 @@ public class ImageActivity extends MediaPlayActivity {
     }
 
     private void setupController() {
-        mGesturePipeline = new MediaGesturePipeline(this, new Callback() {
+        mGesturePipeline = new GesturePipeline(this, new Callback() {
             @Override
             public boolean onDoubleTap() {
                 if (mImageSwitcher.isScaled()) {
                     mImageSwitcher.resetImage();
-                    return true;
+                } else {
+                    // scale to full screen fit
+                    Rect imageRect = mImageSwitcher.getImageRect();
+                    if (imageRect.width() < mImageSwitcher.getWidth()
+                            && imageRect.height() < mImageSwitcher.getHeight()) {
+                        float scale = Math.min(1f * mImageSwitcher.getWidth() / imageRect.width(),
+                                1f * mImageSwitcher.getHeight() / imageRect.height());
+                        mImageSwitcher.doScale(scale);
+                    }
                 }
-                return false;
+                return true;
             }
 
             @Override

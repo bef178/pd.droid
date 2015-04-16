@@ -13,7 +13,7 @@ public class VideoActivity extends MediaPlayActivity {
 
 	private AudioManager mAudioManager;
 
-	private VideoPlay mPlayer;
+	private VideoPlayer mPlayer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +42,10 @@ public class VideoActivity extends MediaPlayActivity {
 	}
 
 	private void setupPlayer(Uri videoUri) {
-		mPlayer = new VideoPlay((VideoView) findViewById(R.id.videoView));
+		mPlayer = new VideoPlayer((VideoView) findViewById(R.id.videoView));
 		mPlayer.setVideoUri(videoUri);
 		// TODO play after animation done
-		mPlayer.playAfter(STARTING_DELAY);
+		mPlayer.playDelayed(STARTING_DELAY);
 
 		findViewById(R.id.btnVideoPlay).setOnClickListener(
 				new View.OnClickListener() {

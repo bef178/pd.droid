@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/media_progress_thumb1" android:state_pressed="true" android:state_window_focused="true"/>
-    <item android:drawable="@drawable/media_progress_thumb1" android:state_focused="true" android:state_window_focused="true"/>
-    <item android:drawable="@drawable/media_progress_thumb1" android:state_selected="true" android:state_window_focused="true"/>
-    <item android:drawable="@drawable/media_progress_thumb1"/>
+    <item android:drawable="@drawable/media_progress_thumb" android:state_pressed="true" android:state_window_focused="true"/>
+    <item android:drawable="@drawable/media_progress_thumb" android:state_focused="true" android:state_window_focused="true"/>
+    <item android:drawable="@drawable/media_progress_thumb" android:state_selected="true" android:state_window_focused="true"/>
+    <item android:drawable="@drawable/media_progress_thumb"/>
 </selector>

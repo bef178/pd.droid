@@ -30,8 +30,6 @@ public abstract class MediaPlayActivity extends Activity {
 	static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
 	static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
 
-	private static final int HEADER_DISPLAY_TIMEOUT = 3000;
-
 	private PageHeader mPageHeader;
 
 	private boolean mHasIntentTitle = false;
@@ -64,7 +62,7 @@ public abstract class MediaPlayActivity extends Activity {
 		super.onResume();
 		hideSystemUi();
 		mPageHeader.showWithAnim();
-		mPageHeader.hideWithDelay(HEADER_DISPLAY_TIMEOUT);
+		mPageHeader.hideWithDelay();
 	}
 
 	private void setLogo() {
@@ -164,7 +162,7 @@ public abstract class MediaPlayActivity extends Activity {
 							mPageHeader.hideWithAnim();
 						} else {
 							mPageHeader.showWithAnim();
-							mPageHeader.hideWithDelay(HEADER_DISPLAY_TIMEOUT);
+							mPageHeader.hideWithDelay();
 						}
 					}
 				});

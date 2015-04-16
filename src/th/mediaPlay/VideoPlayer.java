@@ -14,6 +14,10 @@ import android.widget.VideoView;
  * @author tanghao
  */
 public class VideoPlayer {
+    static interface Listener {
+        void onUpdateProgress(int progress);
+        void onUpdateProgressTotal(int total);
+    }
 
     /**
      * don't change status when polling
@@ -21,9 +25,12 @@ public class VideoPlayer {
     class StatusPoller implements Runnable {
         private static final int DELAY = 50;
 
+        // switch state and update progress
         private static final int PURPOSE_FLAG_EXPECT_PLAYING = 0x01;
         // enable seek and preivew when "stopped"
         private static final int PURPOSE_FLAG_GO_PAUSED = 0x02;
+        // update total progress
+        private static final int PURPOSE_FLAG_EXPECT_DURATION = 0x04;
 
         private Handler hander;
         private int purpose = 0;
@@ -52,7 +59,7 @@ public class VideoPlayer {
         }
 
         @Override
-        public void run() {
+        public synchronized void run() {
             if (mVideoView.isPlaying()) {
                 mStatus = STATE_PLAYING;
             }
@@ -61,21 +68,26 @@ public class VideoPlayer {
                     break;
                 case STATE_PLAYING:
                     if (hasPurpose(PURPOSE_FLAG_EXPECT_PLAYING)) {
-                        clearPurpose(PURPOSE_FLAG_EXPECT_PLAYING);
+                        mListener.onUpdateProgress(mVideoView.getCurrentPosition());
                     }
                     if (hasPurpose(PURPOSE_FLAG_GO_PAUSED)) {
                         clearPurpose(PURPOSE_FLAG_GO_PAUSED);
                         pause();
-                        mVideoView.seekTo(0);
+                        seekTo(0);
+                    }
+                    if (hasPurpose(PURPOSE_FLAG_EXPECT_DURATION)) {
+                        clearPurpose(PURPOSE_FLAG_EXPECT_DURATION);
+                        mListener.onUpdateProgressTotal(mVideoView.getDuration());
                     }
                     break;
                 case STATE_PAUSED:
+                    clearPurpose(PURPOSE_FLAG_EXPECT_PLAYING);
                     break;
                 case STATE_STOPPED:
+                    clearPurpose(PURPOSE_FLAG_EXPECT_PLAYING);
                     if (hasPurpose(PURPOSE_FLAG_GO_PAUSED)) {
                         setVideoUri(mVideoUri);
                         startVideo(0);
-
                     }
                     break;
             }
@@ -93,6 +105,8 @@ public class VideoPlayer {
     private static final int STATE_PLAYING = 2;
     private static final int STATE_PAUSED = 3;
 
+    private Listener mListener;
+
     private VideoView mVideoView;
     private Uri mVideoUri;
 
@@ -102,7 +116,10 @@ public class VideoPlayer {
 
     private StatusPoller mStatusPoller;
 
-    public VideoPlayer(VideoView videoView) {
+    private int mBookmark = -1;
+
+    public VideoPlayer(VideoView videoView, Listener listener) {
+        mListener = listener;
         mVideoView = videoView;
         mVideoView.setOnClickListener(null);
         mVideoView.setOnErrorListener(null);
@@ -118,6 +135,18 @@ public class VideoPlayer {
         mHandler = new Handler(videoView.getContext().getMainLooper());
 
         mStatusPoller = new StatusPoller(mHandler);
+    }
+
+    public void onPause() {
+        pause();
+        mBookmark = mVideoView.getCurrentPosition();
+    }
+
+    public void onResume() {
+        if (mBookmark >= 0) {
+            seekTo(mBookmark);
+            mBookmark = -1;
+        }
     }
 
     public void pause() {
@@ -146,11 +175,9 @@ public class VideoPlayer {
                 }
                 setVideoUri(mVideoUri);
                 startVideo(0);
-                mStatus = STATE_PLAYING;
                 break;
             case STATE_PAUSED:
                 startVideo(0);
-                mStatus = STATE_PLAYING;
                 break;
             default:
                 break;
@@ -179,15 +206,20 @@ public class VideoPlayer {
         mVideoView.getContext().sendBroadcast(intent);
     }
 
+    public void seekTo(int bookmark) {
+        mVideoView.seekTo(bookmark);
+        mListener.onUpdateProgress(bookmark);
+    }
+
     public void setVideoUri(Uri videoUri) {
         mVideoUri = videoUri;
         mVideoView.setVideoURI(mVideoUri);
+        mStatusPoller.addPurpose(StatusPoller.PURPOSE_FLAG_EXPECT_DURATION);
     }
 
     private void startVideo(int bookmark) {
         if (bookmark > 0) {
-            mVideoView.seekTo(bookmark);
-            // callback progress-update current, total
+            seekTo(bookmark);
         }
 
         mVideoView.start();

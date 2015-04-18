@@ -16,6 +16,183 @@ import android.view.View;
 import th.common.R;
 
 /**
+ * **Used by <code>ImageSwitcher</code> for paint**<br/>
+ * For an image, there're several rects:<br/>
+ * <code>imageOrigRect</code> - the bitmap dimension<br/>
+ * <code>hostRect</code> - the container dimension<br/>
+ * <code>imageFitRect</code> - the best fit rect results from the former two and thus calculated
+ * <code>fitScale</code><br/>
+ *
+ * @author tanghao
+ */
+class ImageStatus {
+
+    private static int[] findCentralizedOffset(int imageWidth, int imageHeight,
+            int containerWidth, int containerHeight) {
+        return new int[] {
+                (containerWidth - imageWidth) / 2,
+                (containerHeight - imageHeight) / 2
+        };
+    }
+
+    /**
+     * Principle: the container contains the scaled image
+     */
+    private static float findFitScale(int originalWidth, int originalHeight,
+            int containerWidth, int containerHeight) {
+        if (originalWidth <= 0 || originalHeight <= 0
+                || containerWidth <= 0 || containerHeight <= 0) {
+            return 0f;
+        }
+
+        if (containerWidth < originalWidth
+                || containerHeight < originalHeight) {
+            return Math.min(
+                    1f * containerWidth / originalWidth,
+                    1f * containerHeight / originalHeight);
+        }
+        return 1f;
+    }
+
+    Bitmap bitmap;
+
+    // where the whole bitmap is drew into, while onDraw() starts at (0,0)
+    Rect rect;
+
+    // an instantaneous value that may change during animation, finalize to 0xFF
+    private int alpha;
+
+    private float fitScale;
+
+    public ImageStatus() {
+        clear();
+    }
+
+    /**
+     * accept [0f, 1f]
+     */
+    public void applyAlpha(float alpha) {
+        if (alpha > 1f) {
+            alpha = 1f;
+        } else if (alpha < 0f) {
+            alpha = 0f;
+        }
+        this.alpha = (int) (alpha * 0xFF);
+    }
+
+    /**
+     * accept [0, 0xFF]
+     */
+    public void applyAlpha(int alpha) {
+        if (alpha > 0xFF) {
+            alpha = 0xFF;
+        }
+        if (alpha < 0) {
+            alpha = 0;
+        }
+        this.alpha = alpha;
+    }
+
+    public void applyOffset(int x, int y) {
+        rect.offsetTo(x, y);
+    }
+
+    public void applyOffset(int[] coord) {
+        applyOffset(coord[0], coord[1]);
+    }
+
+    /**
+     * the pivot is (left,top)
+     */
+    public void applyScale(float scale) {
+        if (scale <= 0f) {
+            return;
+        }
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        rect.right = rect.left + (int) (scale * w);
+        rect.bottom = rect.top + (int) (scale * h);
+    }
+
+    public void centralize(int hostWidth, int hostHeight) {
+        applyOffset(findCentralizedOffset(rect.width(), rect.height(), hostWidth, hostHeight));
+    }
+
+    /**
+     * reset each attribute to its default value
+     */
+    public void clear() {
+        this.bitmap = null;
+        if (this.rect == null) {
+            this.rect = new Rect();
+        } else {
+            this.rect.setEmpty();
+        }
+        this.alpha = 0xFF;
+        this.fitScale = 1f;
+    }
+
+    public boolean isValid() {
+        return bitmap != null;
+    }
+
+    /**
+     * "find" implies it requires calculation
+     */
+    public float findOpacity() {
+        return alpha / 255f;
+    }
+
+    public float getFitScale() {
+        return this.fitScale;
+    }
+
+    public int getPaintOpacity() {
+        return this.alpha;
+    }
+
+    /**
+     * restore the image attributes and move the image to the origin
+     */
+    private void reset(Bitmap bitmap) {
+        if (bitmap == null) {
+            clear();
+            return;
+        }
+        this.bitmap = bitmap;
+        this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        this.alpha = 0xFF;
+        this.fitScale = 1f;
+    }
+
+    public void resetAndFit(Bitmap bitmap, int hostWidth, int hostHeight) {
+        reset(bitmap);
+
+        if (bitmap == null
+                || hostWidth <= 0 || hostHeight <= 0) {
+            return;
+        }
+
+        this.fitScale = findFitScale(
+                bitmap.getWidth(), bitmap.getHeight(),
+                hostWidth, hostHeight);
+        applyScale(this.fitScale);
+        applyOffset(findCentralizedOffset(
+                this.rect.width(), this.rect.height(),
+                hostWidth, hostHeight));
+    }
+
+    /**
+     * just the setter for fit scale, no couple with any operation
+     */
+    public void updateFitScale(int hostWidth, int hostHeight) {
+        this.fitScale = findFitScale(
+                this.bitmap.getWidth(), this.bitmap.getHeight(),
+                hostWidth, hostHeight);
+    }
+}
+
+/**
  * Pay attention to the terms.<br/>
  * It always switches from "this image" to the "coming image", i.e. the neighborhood in time. While,
  * the "coming image" may be the "next image" or the "prev image", i.e. the neighborhood in
@@ -25,116 +202,11 @@ import th.common.R;
  * time(fraction), y stands for the swept length(animatedFraction) and f is seldom linear. So there
  * would be a distinguishable difference between them.<br/>
  * <br/>
- * All update requests applies in the model - <code>ImageStatus</code> for <code>onDraw()</code>
+ * All update requests are applied to the model - <code>ImageStatus</code> for <code>onDraw()</code>
  * reading.<br/>
  * <br/>
  */
 public class ImageSwitcher extends View {
-
-    private class ImageStatus {
-
-        private Bitmap bitmap;
-        private Rect rect; // where the whole bitmap is drew into, while onDraw() starts at (0,0)
-        private int alpha;
-
-        public ImageStatus() {
-            rect = new Rect();
-            clear();
-        }
-
-        public void applyAlpha(float alpha) {
-            if (alpha > 1f) {
-                alpha = 1f;
-            } else if (alpha < 0f) {
-                alpha = 0f;
-            }
-            this.alpha = (int) (alpha * 0xFF);
-        }
-
-        public void applyOffset(int x, int y) {
-            rect.offsetTo(x, y);
-        }
-
-        /**
-         * the pivot is (left,top)
-         */
-        public void applyScale(float scale) {
-            if (scale <= 0f) {
-                return;
-            }
-            int w = bitmap.getWidth();
-            int h = bitmap.getHeight();
-            rect.right = rect.left + (int) (scale * w);
-            rect.bottom = rect.top + (int) (scale * h);
-        }
-
-        public void centralize(int hostWidth, int hostHeight) {
-            applyOffset((hostWidth - rect.width()) / 2, (hostHeight - rect.height()) / 2);
-        }
-
-        /**
-         * reset each attribute to its default value
-         */
-        public void clear() {
-            this.bitmap = null;
-            this.rect.setEmpty();
-            this.alpha = 0xFF;
-        }
-
-        /**
-         * Make the image centralized and may suitably scaled down. Will definitely overwrite
-         * relative attribute.<br/>
-         */
-        private void fitRect(int hostWidth, int hostHeight) {
-            if (hostWidth <= 0 || hostHeight <= 0) {
-                return;
-            }
-            applyScale(getFitScale(hostWidth, hostHeight));
-            centralize(hostWidth, hostHeight);
-        }
-
-        public float getFitScale(int hostWidth, int hostHeight) {
-            if (!isValid() || hostWidth <= 0 || hostHeight <= 0) {
-                return 0f;
-            }
-
-            int bitmapWidth = bitmap.getWidth();
-            int bitmapHeight = bitmap.getHeight();
-            if (hostWidth < bitmapWidth
-                    || hostHeight < bitmapHeight) {
-                return Math.min(
-                        1f * hostWidth / bitmapWidth,
-                        1f * hostHeight / bitmapHeight);
-            }
-            return 1f;
-        }
-
-        public void initialize(Bitmap bitmap, int hostWidth, int hostHeight) {
-            if (bitmap == null) {
-                clear();
-                return;
-            }
-            reset(bitmap);
-            fitRect(hostWidth, hostHeight);
-        }
-
-        public boolean isValid() {
-            return bitmap != null;
-        }
-
-        /**
-         * restore the image attributes and move the image to the origin
-         */
-        private void reset(Bitmap bitmap) {
-            if (bitmap == null) {
-                clear();
-                return;
-            }
-            this.bitmap = bitmap;
-            this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
-            this.alpha = 0xFF;
-        }
-    }
 
     private static final int FLAG_ENTER = 0x1;
     private static final int FLAG_SCALE = 0x10;
@@ -183,19 +255,21 @@ public class ImageSwitcher extends View {
 
     private static void updateImageStatus(ImageStatus imageStatus, int flags,
             float animatedFraction, int hostWidth, int hostHeight) {
-
-        if (!imageStatus.isValid()) {
+        if (!imageStatus.isValid()
+                || hostWidth == 0 || hostHeight == 0) {
             return;
         }
+
+        imageStatus.updateFitScale(hostWidth, hostHeight);
 
         boolean isEnter = (flags & FLAG_ENTER) != 0;
 
         if ((flags & FLAG_ALPHA) != 0) {
-            final float ALPHA_START = 0.4f;
-            final float ALPHA_FINAL = 1.0f;
+            float alphaStart = 0.4f;
+            float alphaFinal = 1.0f;
             imageStatus.applyAlpha(isEnter
-                    ? (ALPHA_FINAL - ALPHA_START) * animatedFraction + ALPHA_START
-                    : (ALPHA_START - ALPHA_FINAL) * animatedFraction + ALPHA_FINAL);
+                    ? (alphaFinal - alphaStart) * animatedFraction + alphaStart
+                    : (alphaStart - alphaFinal) * animatedFraction + alphaFinal);
         } else {
             imageStatus.applyAlpha(1.0f);
         }
@@ -209,7 +283,6 @@ public class ImageSwitcher extends View {
                     offsetY = imageStatus.rect.top;
                     if (isEnter) {
                         // not be here yet, so no test
-                        offsetX = (int) (totalX * (1f - animatedFraction));
                     } else {
                         int endX = -imageStatus.rect.width();
                         offsetX = (int) (totalX * (1f - animatedFraction)) + endX;
@@ -224,28 +297,25 @@ public class ImageSwitcher extends View {
                         offsetX = (int) (totalX * animatedFraction) + startX;
                     } else {
                         // not be here yet, so no test
-                        offsetX = (int) (totalX * animatedFraction);
                     }
                     break;
                 }
                 case FLAG_TRANS_TO_TOP:
                     // not be here yet, so no test
-                    offsetY = (int) (imageStatus.bitmap.getHeight() * animatedFraction);
                     break;
                 case FLAG_TRANS_TO_BOTTOM:
                     // not be here yet, so no test
-                    offsetY = -(int) (imageStatus.bitmap.getHeight() * animatedFraction);
                     break;
             }
             imageStatus.applyOffset(offsetX, offsetY);
         }
 
         if ((flags & FLAG_SCALE) != 0) {
-            final float SCALE_START = 0.4f;
-            final float SCALE_FINAL = 1.0f;
+            float scaleStart = 0.4f * imageStatus.getFitScale();
+            float scaleFinal = 1.0f * imageStatus.getFitScale();
             imageStatus.applyScale(isEnter
-                    ? (SCALE_FINAL - SCALE_START) * animatedFraction + SCALE_START
-                    : (SCALE_START - SCALE_FINAL) * animatedFraction + SCALE_FINAL);
+                    ? (scaleFinal - scaleStart) * animatedFraction + scaleStart
+                    : (scaleStart - scaleFinal) * animatedFraction + scaleFinal);
 
             int w = imageStatus.rect.width();
             int h = imageStatus.rect.height();
@@ -285,7 +355,8 @@ public class ImageSwitcher extends View {
         }
 
         float maxScale = 64f;
-        float minScale = Math.min(1f * getWidth() / mImage.rect.width(), 1f * getWidth() / mImage.rect.width());
+        float minScale = Math.min(1f * getWidth() / mImage.bitmap.getWidth(),
+                1f * getHeight() / mImage.bitmap.getHeight());
         minScale = Math.min(0.1f, minScale);
 
         if (scale > maxScale) {
@@ -294,8 +365,8 @@ public class ImageSwitcher extends View {
             scale = minScale;
         }
 
-        if (scale >= 0.98f && scale <= 1.02f) {
-            scale = 1f;
+        if (scale >= 0.98f * mImage.getFitScale() && scale <= 1.02f * mImage.getFitScale()) {
+            scale = mImage.getFitScale();
         }
 
         mImage.applyScale(scale);
@@ -347,8 +418,8 @@ public class ImageSwitcher extends View {
 
         int hostWidth = getWidth();
         int hostHeight = getHeight();
-        mImage.initialize(bitmap, hostWidth, hostHeight);
-        mComingImage.initialize(comingBitmap, hostWidth, hostHeight);
+        mImage.resetAndFit(bitmap, hostWidth, hostHeight);
+        mComingImage.resetAndFit(comingBitmap, hostWidth, hostHeight);
         mComingAsNext = asNext;
 
         updateImageStatus(mComingImage,
@@ -379,8 +450,8 @@ public class ImageSwitcher extends View {
 
         final int hostWidth = getWidth();
         final int hostHeight = getHeight();
-        mImage.initialize(bitmap, hostWidth, hostHeight);
-        mComingImage.initialize(comingBitmap, hostWidth, hostHeight);
+        mImage.resetAndFit(bitmap, hostWidth, hostHeight);
+        mComingImage.resetAndFit(comingBitmap, hostWidth, hostHeight);
         mComingAsNext = asNext;
 
         ValueAnimator animator = getAnimator(startAnimatedFraction);
@@ -407,8 +478,9 @@ public class ImageSwitcher extends View {
         mAnimatorSet.addListener(new SimpleAnimatorListener() {
             @Override
             public void onAnimationEnd(Animator animator) {
-                mImage.initialize(mComingImage.bitmap, hostWidth, hostHeight);
+                mImage.resetAndFit(mComingImage.bitmap, hostWidth, hostHeight);
                 mComingImage.clear();
+                mScale = mImage.getFitScale();
                 invalidate();
             }
         });
@@ -425,8 +497,8 @@ public class ImageSwitcher extends View {
 
         final int hostWidth = getWidth();
         final int hostHeight = getHeight();
-        mImage.initialize(bitmap, hostWidth, hostHeight);
-        mComingImage.initialize(comingBitmap, hostWidth, hostHeight);
+        mImage.resetAndFit(bitmap, hostWidth, hostHeight);
+        mComingImage.resetAndFit(comingBitmap, hostWidth, hostHeight);
         mComingAsNext = asNext;
 
         ValueAnimator animator = getAnimator(0f);
@@ -480,7 +552,7 @@ public class ImageSwitcher extends View {
                 }
             };
         } else {
-            mImage.initialize(bitmap, getWidth(), getHeight());
+            mImage.resetAndFit(bitmap, getWidth(), getHeight());
         }
     }
 
@@ -489,7 +561,7 @@ public class ImageSwitcher extends View {
     }
 
     public boolean isScaled() {
-        return mScale != mImage.getFitScale(getWidth(), getHeight());
+        return mScale != mImage.getFitScale();
     }
 
     public boolean isSwitching() {
@@ -516,14 +588,14 @@ public class ImageSwitcher extends View {
 
     private void onDrawImage(Canvas canvas, Paint paint, ImageStatus image) {
         if (image.isValid()) {
-            paint.setAlpha(image.alpha);
+            paint.setAlpha(image.getPaintOpacity());
             canvas.drawBitmap(image.bitmap, null, image.rect, paint);
         }
     }
 
     public void resetImage() {
-        mImage.initialize(mImage.bitmap, getWidth(), getHeight());
-        mScale = mImage.getFitScale(getWidth(), getHeight());
+        mImage.resetAndFit(mImage.bitmap, getWidth(), getHeight());
+        mScale = mImage.getFitScale();
         invalidate();
     }
 }

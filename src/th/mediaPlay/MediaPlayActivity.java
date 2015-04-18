@@ -21,7 +21,7 @@ import android.view.View.OnClickListener;
 /**
  * General media play activity.<br/>
  * Media includes video, audio and image.<br/>
- * This make a control of page header.<br/>
+ * This takes control of page header.<br/>
  *
  * @author tanghao
  */

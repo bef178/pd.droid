@@ -1,3 +1,4 @@
+
 package th.common;
 
 import android.content.Context;
@@ -325,33 +326,33 @@ public class MimeUtil {
         putToMap(map, mapped);
     }
 
-    public static boolean isAudio(String mime) {
-        return mime2Tuple(mime)[0].equals("audio");
+    public static boolean isAudio(String mimeType) {
+        return mime2Tuple(mimeType)[0].equals("audio");
     }
 
     public static boolean isImage(File file) {
         return isImage(mimeTypeByPath(file.getPath()));
     }
 
-    public static boolean isImage(String mime) {
-        return mime2Tuple(mime)[0].equals("image");
+    public static boolean isImage(String mimeType) {
+        return mime2Tuple(mimeType)[0].equals("image");
     }
 
-    public static boolean isMedia(String mime) {
-        return isImage(mime) || isVideo(mime) || isAudio(mime);
+    public static boolean isMedia(String mimeType) {
+        return isImage(mimeType) || isVideo(mimeType) || isAudio(mimeType);
     }
 
-    public static boolean isVideo(String mime) {
-        return mime2Tuple(mime)[0].equals("video");
+    public static boolean isVideo(String mimeType) {
+        return mime2Tuple(mimeType)[0].equals("video");
     }
 
-    private static String[] mime2Tuple(String mime) {
-        if (mime != null) {
-            int i = mime.indexOf('/');
-            if (i > 0 && i < mime.length() - 1) {
+    private static String[] mime2Tuple(String mimeType) {
+        if (mimeType != null) {
+            int i = mimeType.indexOf('/');
+            if (i > 0 && i < mimeType.length() - 1) {
                 return new String[] {
-                        mime.substring(0, i),
-                        mime.substring(i + 1)
+                        mimeType.substring(0, i),
+                        mimeType.substring(i + 1)
                 };
             }
         }

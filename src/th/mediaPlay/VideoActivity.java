@@ -4,6 +4,7 @@ import th.common.FormatUtil;
 import th.pd.R;
 
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -57,6 +58,16 @@ public class VideoActivity extends MediaPlayActivity implements VideoPlayer.List
 	    super.onPause();
 	    mPlayer.onPause();
 	}
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        finish();
+        return true;
+    }
+
+    @Override
+    public void onStartPlaying() {
+    }
 
 	@Override
     public void onUpdateProgress(int progress) {

@@ -1,4 +1,3 @@
-
 package th.common.widget;
 
 import android.animation.Animator;
@@ -12,8 +11,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
-
-import th.common.R;
 
 /**
  * **Used by <code>ImageSwitcher</code> for paint**<br/>
@@ -553,6 +550,7 @@ public class ImageSwitcher extends View {
             };
         } else {
             mImage.resetAndFit(bitmap, getWidth(), getHeight());
+            invalidate();
         }
     }
 
@@ -575,7 +573,6 @@ public class ImageSwitcher extends View {
             mFirstLoadRunnable = null;
             return;
         }
-        canvas.drawColor(getResources().getColor(R.color.dev_gray9));
         if (mComingAsNext) {
             onDrawImage(canvas, mPaint, mComingImage);
             onDrawImage(canvas, mPaint, mImage);

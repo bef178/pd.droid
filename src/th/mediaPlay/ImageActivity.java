@@ -10,6 +10,7 @@ import th.common.widget.ImageSwitcher;
 import th.mediaPlay.GesturePipeline.Callback;
 import th.pd.R;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -121,6 +122,17 @@ public class ImageActivity extends MediaPlayActivity {
             fraction = 1f;
         }
         return fraction;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mImageSwitcher.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mImageSwitcher.resetImage();
+            }
+        }, 100);
     }
 
     @Override

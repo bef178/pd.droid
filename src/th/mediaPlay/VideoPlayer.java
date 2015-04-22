@@ -4,6 +4,7 @@ package th.mediaPlay;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.os.Handler;
 import android.widget.VideoView;
@@ -14,7 +15,8 @@ import android.widget.VideoView;
  * @author tanghao
  */
 public class VideoPlayer {
-    static interface Listener {
+    static interface Listener extends OnErrorListener {
+        void onStartPlaying();
         void onUpdateProgress(int progress);
         void onUpdateProgressTotal(int total);
     }
@@ -61,6 +63,9 @@ public class VideoPlayer {
         @Override
         public synchronized void run() {
             if (mVideoView.isPlaying()) {
+                if (mStatus != STATE_PLAYING) {
+                    mListener.onStartPlaying();
+                }
                 mStatus = STATE_PLAYING;
             }
             switch (mStatus) {
@@ -122,7 +127,7 @@ public class VideoPlayer {
         mListener = listener;
         mVideoView = videoView;
         mVideoView.setOnClickListener(null);
-        mVideoView.setOnErrorListener(null);
+        mVideoView.setOnErrorListener(listener);
         mVideoView.setOnPreparedListener(null);
         mVideoView.setOnCompletionListener(new OnCompletionListener() {
             @Override

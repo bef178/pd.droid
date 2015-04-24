@@ -1,5 +1,4 @@
-
-package th.mediaPlay;
+package th.media;
 
 import android.content.Intent;
 import android.media.MediaPlayer;

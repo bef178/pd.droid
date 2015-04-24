@@ -1,7 +1,7 @@
-package th.mediaPlay;
+package th.media;
 
-import th.mediaPlay.ElementalGestureDetector.OnTapListener;
-import th.mediaPlay.GesturePipeline.Callback;
+import th.media.ElementalGestureDetector.OnTapListener;
+import th.media.GesturePipeline.Callback;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;

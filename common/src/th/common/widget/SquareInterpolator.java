@@ -1,4 +1,3 @@
-
 package th.common.widget;
 
 import android.view.animation.Interpolator;

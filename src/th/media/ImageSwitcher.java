@@ -1,4 +1,4 @@
-package th.common.widget;
+package th.media;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -11,6 +11,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
+
+import th.common.widget.SquareInterpolator;
+import th.common.widget.SimpleAnimatorListener;
 
 /**
  * **Used by <code>ImageSwitcher</code> for paint**<br/>

@@ -1,4 +1,4 @@
-package th.mediaPlay;
+package th.media;
 
 import th.common.FormatUtil;
 import th.pd.R;
@@ -13,7 +13,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-public class VideoActivity extends MediaPlayActivity implements VideoPlayer.Listener {
+public class VideoActivity extends MediaFlipActivity implements VideoPlayer.Listener {
 
 	private static final int STARTING_DELAY = 1000;
 

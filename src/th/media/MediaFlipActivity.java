@@ -1,4 +1,4 @@
-package th.mediaPlay;
+package th.media;
 
 import java.io.File;
 
@@ -19,13 +19,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 /**
- * General media play activity.<br/>
+ * General media view activity.<br/>
  * Media includes video, audio and image.<br/>
  * This takes control of page header.<br/>
  *
  * @author tanghao
  */
-public abstract class MediaPlayActivity extends Activity {
+public abstract class MediaFlipActivity extends Activity {
 
 	static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
 	static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
@@ -150,7 +150,7 @@ public abstract class MediaPlayActivity extends Activity {
 		mPageHeader.setBackButtonClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				MediaPlayActivity.this.onBackPressed();
+				MediaFlipActivity.this.onBackPressed();
 			}
 		});
 

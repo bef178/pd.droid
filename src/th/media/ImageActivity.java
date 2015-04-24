@@ -1,4 +1,4 @@
-package th.mediaPlay;
+package th.media;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -6,8 +6,8 @@ import java.util.List;
 
 import th.common.Cache;
 import th.common.MimeUtil;
-import th.common.widget.ImageSwitcher;
-import th.mediaPlay.GesturePipeline.Callback;
+import th.media.ImageSwitcher;
+import th.media.GesturePipeline.Callback;
 import th.pd.R;
 
 import android.content.res.Configuration;
@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ImageActivity extends MediaPlayActivity {
+public class ImageActivity extends MediaFlipActivity {
 
     private class UpdateCacheTask extends
             AsyncTask<UpdateCacheTaskArgument, Void, Void> {

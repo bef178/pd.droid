@@ -6,7 +6,7 @@ import android.animation.Animator.AnimatorListener;
 /**
  * a code sugar to be overridden
  */
-class SimpleAnimatorListener implements AnimatorListener {
+public class SimpleAnimatorListener implements AnimatorListener {
 
     @Override
     public void onAnimationCancel(Animator animator) {

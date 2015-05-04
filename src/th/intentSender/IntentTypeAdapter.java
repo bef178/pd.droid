@@ -20,7 +20,7 @@ public class IntentTypeAdapter extends BaseAdapter {
 
 	public IntentTypeAdapter(Context context) {
 		mContext = context;
-		mModel = MimeUtil.mimeListSorted();
+		mModel = MimeUtil.mimeTypeSortedList();
 	}
 
 	@Override

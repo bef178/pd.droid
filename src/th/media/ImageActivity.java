@@ -436,7 +436,8 @@ class Model {
         File[] files = seedDiretory.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.isFile() && MimeUtil.isImage(file)) {
+                String mimeType = MimeUtil.mimeTypeByFile(file);
+                if (file.isFile() && MimeUtil.isImage(mimeType)) {
                     dataList.add(Uri.fromFile(file));
                 }
             }

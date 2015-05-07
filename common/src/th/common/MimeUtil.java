@@ -1,4 +1,3 @@
-
 package th.common;
 
 import android.content.Context;
@@ -23,16 +22,12 @@ import java.util.Set;
  * Actually MimeTypeUtil
  */
 public class MimeUtil {
+    private static final String TAG_ALL = "*";
+    private static final String TAG_UNKNOWN = "unknown";
 
     private static Map<String, Integer> mimeType2resId = null;
-
-    private static List<Map.Entry<String, Integer>> mimeTypeSortedList = null;
-
     private static SparseIntArray resId2largeResId = null;
-
-    private static final String TAG_ALL = "*";
-
-    private static final String TAG_UNKNOWN = "unknown";
+    private static List<Map.Entry<String, Integer>> mimeTypeSortedList = null;
 
     static {
         mimeType2resId = new HashMap<String, Integer>();

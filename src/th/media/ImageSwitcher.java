@@ -553,6 +553,7 @@ public class ImageSwitcher extends View {
             };
         } else {
             mImage.resetAndFit(bitmap, getWidth(), getHeight());
+            mScale = mImage.getFitScale();
             invalidate();
         }
     }

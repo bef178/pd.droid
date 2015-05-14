@@ -447,20 +447,20 @@ public class MimeUtil {
         return mimeTypeSortedList;
     }
 
+    /**
+     * return at least the resId of generic file<br/>
+     */
     public static int resIdByMimeType(String mimeType) {
-        if (mimeType == null) {
-            return mimeType2resId.get("*/*");
-        }
+        if (mimeType != null) {
+            Integer resId = mimeType2resId.get(mimeType);
+            if (resId != null) {
+                return resId;
+            }
 
-        Integer resId = mimeType2resId.get(mimeType);
-        if (resId != null) {
-            return resId;
-        }
-
-        final String type = mimeType.split("/")[0];
-        resId = mimeType2resId.get(type + "/*");
-        if (resId != null) {
-            return resId;
+            resId = mimeType2resId.get(divideMimeType(mimeType)[0] + "/*");
+            if (resId != null) {
+                return resId;
+            }
         }
         return mimeType2resId.get("*/*");
     }

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/titlebar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#087AD3"
+    android:orientation="horizontal" >
+
+    <FrameLayout
+        android:id="@+id/btnIcon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center_vertical|start"
+        android:addStatesFromChildren="true"
+        android:clickable="true" >
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:src="@null" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical|start"
+        android:padding="4dp"
+        android:textSize="16sp" />
+
+    <FrameLayout
+        android:id="@+id/btnMinimize"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:addStatesFromChildren="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:src="@drawable/titlebar_minimize_24" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/btnMaximize"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_gravity="center_vertical|start"
+        android:addStatesFromChildren="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:src="@drawable/titlebar_maximize_24" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/btnClose"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="5dp"
+        android:addStatesFromChildren="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:src="@drawable/titlebar_close_24" />
+    </FrameLayout>
+
+</LinearLayout>

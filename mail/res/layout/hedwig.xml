@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/titlebar" />
+
+    <LinearLayout
+        android:id="@+id/tabContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible" />
+
+    <include layout="@layout/line_horizontal" />
+
+    <LinearLayout
+        android:id="@+id/subjectRow"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal" >
+
+        <include layout="@layout/line_vertical" />
+
+        <TextView
+            android:id="@+id/labelSubject"
+            style="@style/compose_label"
+            android:text="@string/subject0" />
+
+        <EditText
+            android:id="@+id/subject"
+            style="@style/compose_edit"
+            android:hint="@null"
+            android:singleLine="true"
+            android:textColor="@color/compose_subject_text"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:typeface="normal" />
+
+        <Button
+            android:id="@+id/btnAttach0"
+            style="@style/compose_label"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/attach" />
+
+        <include layout="@layout/line_vertical" />
+    </LinearLayout>
+
+    <include layout="@layout/line_horizontal" />
+
+    <LinearLayout
+        android:id="@+id/attachmentRow"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <include layout="@layout/line_vertical" />
+
+        <TextView
+            style="@style/compose_label"
+            android:text="@string/andAttach" />
+
+        <View style="@style/compose_edit" />
+
+        <include layout="@layout/line_vertical" />
+    </LinearLayout>
+
+    <include layout="@layout/line_horizontal" />
+
+    <LinearLayout
+        android:id="@+id/recipientRow"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal" >
+
+        <include layout="@layout/line_vertical" />
+
+        <TextView
+            android:id="@+id/labelRecipient"
+            style="@style/compose_label"
+            android:text="@string/recipient0" />
+
+        <EditText
+            android:id="@+id/recipient"
+            style="@style/compose_edit"
+            android:hint="@null"
+            android:textColor="@color/compose_recipient_text" />
+
+        <include layout="@layout/line_vertical" />
+    </LinearLayout>
+
+    <include layout="@layout/line_horizontal" />
+
+    <LinearLayout
+        android:id="@+id/ccRow"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <include layout="@layout/line_vertical" />
+
+        <TextView
+            style="@style/compose_label"
+            android:text="@string/cc" />
+
+        <EditText
+            android:id="@+id/cc"
+            style="@style/compose_edit"
+            android:hint="@null"
+            android:textColor="@color/compose_cc_text" />
+
+        <include layout="@layout/line_vertical" />
+    </LinearLayout>
+
+    <include layout="@layout/line_horizontal" />
+
+    <LinearLayout
+        android:id="@+id/bccRow"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <include layout="@layout/line_vertical" />
+
+        <TextView
+            style="@style/compose_label"
+            android:text="@string/bcc" />
+
+        <EditText
+            android:id="@+id/bcc"
+            style="@style/compose_edit"
+            android:hint="@null"
+            android:textColor="@color/compose_bcc_text" />
+
+        <include layout="@layout/line_vertical" />
+    </LinearLayout>
+
+    <include layout="@layout/line_horizontal" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <LinearLayout
+            android:id="@+id/contentRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <include layout="@layout/line_vertical" />
+
+            <EditText
+                android:id="@+id/mailContent"
+                style="@style/compose_edit"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:background="@null"
+                android:gravity="top|start"
+                android:hint="@null"
+                android:inputType="textMultiLine"
+                android:minHeight="100dp"
+                android:textColor="@color/compose_text"
+                android:textSize="14sp"
+                android:typeface="normal" />
+
+            <include layout="@layout/line_vertical" />
+        </LinearLayout>
+    </ScrollView>
+
+    <include layout="@layout/line_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:orientation="horizontal" >
+
+        <include layout="@layout/line_vertical" />
+
+        <View
+            style="@style/compose_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btnSend"
+            style="@style/compose_label"
+            android:layout_width="wrap_content"
+            android:text="@string/send"
+            android:textColor="#087AD3" />
+
+        <include layout="@layout/line_vertical" />
+    </LinearLayout>
+
+    <include layout="@layout/line_horizontal" />
+
+</LinearLayout>

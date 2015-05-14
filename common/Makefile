@@ -27,7 +27,8 @@ AAPT += package	\
 	-S $(RES_PATH)/common	\
 	-S $(RES_PATH)/mime	\
 	-S $(RES_PATH)/pageheader	\
-	-S $(RES_PATH)/progressarc
+	-S $(RES_PATH)/progressarc	\
+	-S $(RES_PATH)/titlebar
 
 .PHONY: all clean
 

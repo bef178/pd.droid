@@ -1,4 +1,4 @@
-package th.pd.mail.tidyface;
+package th.common.widget;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -10,10 +10,9 @@ import th.common.R;
 public class TitlebarController {
 	public interface Listener {
 		void onClickClose(View btnClose);
-
 		void onClickMaximize(View btnMaximize);
-
 		void onClickMinimize(View btnMinimize);
+		void onClickResize(View btnResize);
 	}
 
 	public static TitlebarController newInstance(View view,
@@ -28,6 +27,7 @@ public class TitlebarController {
 
 	private ImageView mIcon;
 	private TextView mTitle;
+	private View mBtnResize;
 	private View mBtnMinimize;
 	private View mBtnMaximize;
 	private View mBtnClose;
@@ -60,10 +60,20 @@ public class TitlebarController {
 		mIcon = (ImageView) view.findViewById(R.id.icon);
 		mTitle = (TextView) view.findViewById(R.id.title);
 
-		// these 3 buttons shouldn't be null
+		// these buttons shouldn't be null
+		mBtnResize = view.findViewById(R.id.btnResize);
 		mBtnMinimize = view.findViewById(R.id.btnMinimize);
 		mBtnMaximize = view.findViewById(R.id.btnMaximize);
 		mBtnClose = view.findViewById(R.id.btnClose);
+
+		mBtnResize.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (mListener != null) {
+					mListener.onClickResize(view);
+				}
+			}
+		});
 
 		mBtnMinimize.setOnClickListener(new View.OnClickListener() {
 			@Override

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:drawable="@drawable/classic_button_pressed_focused_preferred"
+    android:state_pressed="true"
+    android:state_focused="true"/>
+  <item android:drawable="@drawable/classic_button_normal_focused_preferred"
+    android:state_focused="true"/>
+  <item android:drawable="@drawable/classic_button_pressed_preferred"
+    android:state_pressed="true"/>
+  <item android:drawable="@drawable/classic_button_normal"/>
+</selector>

@@ -1,17 +1,23 @@
 package th.pd.mail.tidyface.compose;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import th.common.widget.TitlebarController;
 import th.pd.mail.R;
-import th.pd.mail.tidyface.TitlebarController;
 
 public class Hedwig extends Fragment implements
 		TitlebarController.Listener, ComposeController.Listener {
+
+	private static final int REQUEST_CODE_PICK_FILE = 11;
 
 	private ComposeController mComposeController;
 	private View mBtnSend;
@@ -25,6 +31,21 @@ public class Hedwig extends Fragment implements
 				onSendMail();
 			}
 		});
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+			case REQUEST_CODE_PICK_FILE:
+				switch (resultCode) {
+					case Activity.RESULT_OK:
+						Uri contentUri = data.getData();
+						mComposeController.addAttachment(contentUri);
+						break;
+				}
+				break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
@@ -43,9 +64,13 @@ public class Hedwig extends Fragment implements
 	}
 
 	@Override
-	public boolean onCleanExit() {
+	public void onClickResize(View btnResize) {
+		Toast.makeText(getActivity(), "resize", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onCleanExit() {
 		this.getActivity().finish();
-		return true;
 	}
 
 	@Override
@@ -61,5 +86,23 @@ public class Hedwig extends Fragment implements
 	private void onSendMail() {
 		ComposeModel model = mComposeController.removeCurrentTab();
 		// TODO
+	}
+
+	@Override
+	public void onPickFile() {
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("*/*");
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+		try {
+			startActivityForResult(
+					Intent.createChooser(intent, "Select a File to Upload"),
+					REQUEST_CODE_PICK_FILE);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(getActivity(),
+					R.string.cannot_find_app_to_pick_file, Toast.LENGTH_SHORT)
+					.show();
+		}
 	}
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="compose_tab_height">32dp</dimen>
+
+    <color name="compose_tab_bg">@color/compose_label_bg</color>
+    <color name="compose_tab_bg_current">#EEE</color>
+    <color name="compose_tab_text">#33000000</color>
+    <color name="compose_tab_text_current">@color/compose_text</color>
+    <color name="compose_label_text">@color/compose_text</color>
+    <color name="compose_label_bg">#08000000</color>
+    <color name="compose_label_bg_pressed">#0F000000</color>
+    <color name="compose_subject_text">@color/compose_text</color>
+    <color name="compose_recipient_text">#666</color>
+    <color name="compose_cc_text">#888</color>
+    <color name="compose_bcc_text">#AAA</color>
+    <color name="compose_text">#333</color>
+
+    <style name="compose_label">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:background">@color/compose_label_bg</item>
+        <item name="android:gravity">center_vertical|end</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:textColor">@color/compose_label_text</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    
+    <style name="compose_label.stateful">
+        <item name="android:background">@drawable/compose_label_bg_selector</item>
+    </style>
+
+    <style name="compose_edit">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">center_vertical|start</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_vertical|start</item>
+        <item name="android:inputType">text</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:typeface">monospace</item>
+    </style>
+
+</resources>

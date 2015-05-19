@@ -1,5 +1,6 @@
 package th.pd.mail.tidyface.compose;
 
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -15,9 +16,10 @@ import java.util.List;
 /**
  * an agent for mail-compose header &amp; content
  */
-public class ComposeController {
+class ComposeController {
 	interface Listener {
-		boolean onCleanExit();
+		void onCleanExit();
+		void onPickFile();
 	}
 
 	private static final int MAX_NUM_MODELS = 4;
@@ -40,6 +42,7 @@ public class ComposeController {
 	private ViewGroup mTabContainer;
 	private TextView mLabelSubject;
 	private EditText mEditSubject;
+	private View mBtnAttach0;
 	private View mAttachmentRow;
 	// TODO attachment
 	private TextView mLabelRecipient;
@@ -49,6 +52,14 @@ public class ComposeController {
 	private View mBccRow;
 	private EditText mEditBcc;
 	private EditText mEditMailContent;
+
+	public void addAttachment(Uri contentUri) {
+		ComposeModel model = getCurrentModel();
+		if (true) {
+			model.addAttachment(contentUri);
+			updateAttachmentRow(model);
+		}
+	}
 
 	public boolean addTab() {
 		if (mModelList.size() == MAX_NUM_MODELS) {
@@ -121,7 +132,9 @@ public class ComposeController {
 		updateTabContainer();
 
 		if (mModelList.isEmpty()) {
-			if (mListener == null || !mListener.onCleanExit()) {
+			if (mListener != null) {
+				mListener.onCleanExit();
+			} else {
 				addTab();
 			}
 		}
@@ -143,6 +156,7 @@ public class ComposeController {
 		mTabContainer = (ViewGroup) view.findViewById(R.id.tabContainer);
 		mLabelSubject = (TextView) view.findViewById(R.id.labelSubject);
 		mEditSubject = (EditText) view.findViewById(R.id.subject);
+		mBtnAttach0 = view.findViewById(R.id.btnAttach0);
 		mAttachmentRow = view.findViewById(R.id.attachmentRow);
 		mLabelRecipient = (TextView) view.findViewById(R.id.labelRecipient);
 		mEditRecipient = (EditText) view.findViewById(R.id.recipient);
@@ -164,6 +178,15 @@ public class ComposeController {
 				boolean toShow = model.toggleShowAttachmentRow();
 				if (toShow != isShown) {
 					updateTabLabelAndContent(model);
+				}
+			}
+		});
+
+		mBtnAttach0.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mListener != null) {
+					mListener.onPickFile();
 				}
 			}
 		});
@@ -267,6 +290,22 @@ public class ComposeController {
 		}
 	}
 
+	private void updateAttachmentRow(ComposeModel model) {
+		if (model == null) {
+			return;
+		}
+		if (model.shouldShowAttachmentRow()) {
+			mLabelSubject.setText(R.string.subject);
+			mBtnAttach0.setVisibility(View.GONE);
+			mAttachmentRow.setVisibility(View.VISIBLE);
+		} else {
+			mLabelSubject.setText(R.string.subject0);
+			mBtnAttach0.setVisibility(View.VISIBLE);
+			mAttachmentRow.setVisibility(View.GONE);
+		}
+		// TODO show attachment
+	}
+
 	private void updateTabLabel(ComposeModel model) {
 		if (model == null) {
 			return;
@@ -284,14 +323,7 @@ public class ComposeController {
 	private void updateTabLabelAndContent(ComposeModel model) {
 		updateTabLabel(model);
 
-		// expand and collapse
-		if (model.shouldShowAttachmentRow()) {
-			mLabelSubject.setText(R.string.subject);
-			mAttachmentRow.setVisibility(View.VISIBLE);
-		} else {
-			mLabelSubject.setText(R.string.subject0);
-			mAttachmentRow.setVisibility(View.GONE);
-		}
+		updateAttachmentRow(model);
 
 		if (model.shouldShowCcBccRow()) {
 			mLabelRecipient.setText(R.string.recipient);

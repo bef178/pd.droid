@@ -1,5 +1,7 @@
 package th.pd.mail.tidyface.compose;
 
+import android.net.Uri;
+
 import th.common.Flags;
 
 import java.util.LinkedList;
@@ -12,13 +14,21 @@ public class ComposeModel {
 
 	private Flags flags = new Flags();
 	private String subject;
-	private final List<Object> attachmentList = new LinkedList<>();
+	private final LinkedList<Uri> attachmentList = new LinkedList<>();
 	private String recipient;
 	private String cc;
 	private String bcc;
 	private String mailContent;
 
-	public List<Object> getAttachments() {
+	public void addAttachment(Uri contentUri) {
+		attachmentList.add(contentUri);
+	}
+
+	public boolean hasAttachment(Uri contentUri) {
+		return attachmentList.contains(contentUri);
+	}
+
+	public List<Uri> getAttachments() {
 		return attachmentList;
 	}
 

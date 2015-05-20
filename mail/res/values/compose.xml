@@ -8,7 +8,7 @@
     <color name="compose_tab_text">#33000000</color>
     <color name="compose_tab_text_current">@color/compose_text</color>
     <color name="compose_label_text">@color/compose_text</color>
-    <color name="compose_label_bg">#08000000</color>
+    <color name="compose_label_bg">#00000000</color>
     <color name="compose_label_bg_pressed">#0F000000</color>
     <color name="compose_subject_text">@color/compose_text</color>
     <color name="compose_recipient_text">#666</color>
@@ -28,10 +28,10 @@
     </style>
     
     <style name="compose_label.stateful">
-        <item name="android:background">@drawable/compose_label_bg_selector</item>
+        <item name="android:background">@drawable/classic_button_plain_selector</item>
     </style>
 
-    <style name="compose_edit">
+    <style name="compose_edit" parent="@style/themeClassic.edit">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_gravity">center_vertical|start</item>

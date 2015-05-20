@@ -9,7 +9,6 @@ import java.util.List;
 
 public class ComposeModel {
 
-	public static final int FLAG_SHOW_ATTACHMENT_ROW = 1 << 1;
 	public static final int FLAG_SHOW_CC_BCC_ROW = 1 << 2;
 
 	private Flags flags = new Flags();
@@ -61,10 +60,6 @@ public class ComposeModel {
 				|| (bcc != null && !bcc.isEmpty());
 	}
 
-	public boolean isAttachmentRowVisible() {
-		return flags.hasFlags(FLAG_SHOW_ATTACHMENT_ROW);
-	}
-
 	public boolean isCcBccRowVisible() {
 		return flags.hasFlags(FLAG_SHOW_CC_BCC_ROW);
 	}
@@ -89,28 +84,8 @@ public class ComposeModel {
 		this.subject = subject;
 	}
 
-	public boolean shouldShowAttachmentRow() {
-		return hasAttachment()
-				|| flags.hasFlags(FLAG_SHOW_ATTACHMENT_ROW);
-	}
-
 	public boolean shouldShowCcBccRow() {
 		return hasCcOrBcc() || flags.hasFlags(FLAG_SHOW_CC_BCC_ROW);
-	}
-
-	public boolean toggleShowAttachmentRow() {
-		if (hasAttachment()) {
-			flags.setFlags(FLAG_SHOW_ATTACHMENT_ROW);
-			return true;
-		}
-
-		if (flags.hasFlags(FLAG_SHOW_ATTACHMENT_ROW)) {
-			flags.clearFlags(FLAG_SHOW_ATTACHMENT_ROW);
-			return false;
-		} else {
-			flags.setFlags(FLAG_SHOW_ATTACHMENT_ROW);
-			return true;
-		}
 	}
 
 	public boolean toggleShowCcBccRow() {

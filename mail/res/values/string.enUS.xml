@@ -3,7 +3,6 @@
     <string name="dmail">dmail</string>
 
     <string name="compose">撰写</string>
-    <string name="subject0">邮件主题...</string>
     <string name="subject">邮件主题</string>
     <string name="recipient0">收件人...</string>
     <string name="recipient">收件人</string>

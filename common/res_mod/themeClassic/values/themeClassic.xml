@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <style name="themeClassic" parent="android:Theme.Holo.Light">
+    <item name="android:textColor">#333</item>
   </style>
 
   <style name="themeClassic.button">
     <item name="android:background">@drawable/classic_button_selector</item>
     <item name="android:gravity">center</item>
     <item name="android:padding">6dp</item>
-    <item name="android:textColor">#333</item>
     <item name="android:textSize">14sp</item>
+  </style>
+
+  <style name="themeClassic.plainButton" parent="themeClassic.button">
+    <item name="android:background">@drawable/classic_button_plain_selector</item>
+  </style>
+
+  <style name="themeClassic.edit">
+    <item name="android:background">@drawable/classic_edit</item>
   </style>
 
   <declare-styleable name="themeClassic">

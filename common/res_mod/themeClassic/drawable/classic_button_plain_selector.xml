@@ -8,7 +8,7 @@
     android:state_hovered="true"/>
   <item android:drawable="@drawable/classic_button_plain_focused"
     android:state_focused="true"/>
-  <item android:drawable="@drawable/classic_button_pressed_focused"
+  <item android:drawable="@drawable/classic_button_pressed"
     android:state_pressed="true"/>
   <item android:drawable="@drawable/classic_button_normal"
     android:state_hovered="true"/>

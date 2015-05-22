@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="themeMailCompose" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
+        <item name="android:windowCloseOnTouchOutside">false</item>
+    </style>
+
     <dimen name="compose_tab_height">32dp</dimen>
 
     <color name="compose_tab_bg">@color/compose_label_bg</color>
@@ -16,6 +20,12 @@
     <color name="compose_bcc_text">#AAA</color>
     <color name="compose_text">#333</color>
 
+    <!-- the margin for the move handle of window -->
+    <dimen name="compose_window_move_margin_top">22dp</dimen>
+    <dimen name="compose_window_move_margin_right">-400dp</dimen>
+    <dimen name="compose_window_move_margin_bottom">0dp</dimen>
+    <dimen name="compose_window_move_margin_left">-400dp</dimen>
+
     <style name="compose_label">
         <item name="android:layout_width">80dp</item>
         <item name="android:layout_height">match_parent</item>
@@ -26,7 +36,7 @@
         <item name="android:textColor">@color/compose_label_text</item>
         <item name="android:textSize">14sp</item>
     </style>
-    
+
     <style name="compose_label.stateful">
         <item name="android:background">@drawable/classic_button_plain_selector</item>
     </style>

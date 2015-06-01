@@ -101,5 +101,12 @@ public class TitlebarController {
 				}
 			}
 		});
+
+		final View titlebar = (view.getId() == R.id.titlebar)
+				? view
+				: view.findViewById(R.id.titlebar);
+		if (titlebar != null) {
+			// TODO double click to trigger maximize
+		}
 	}
 }

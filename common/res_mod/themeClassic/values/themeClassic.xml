@@ -21,4 +21,8 @@
 
   <declare-styleable name="themeClassic">
   </declare-styleable>
+
+  <dimen name="classic_tab_container_height">32dp</dimen>
+  <dimen name="classic_tab_height">28dp</dimen>
+
 </resources>

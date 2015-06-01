@@ -4,25 +4,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * provide basic add/remove/get operation against tabContainer for UI<br/>
- * TODO support tabSeprator
+ * provide basic add/remove/get operation against tabView for UI<br/>
+ * tabView is the hand hold for the tab content
  */
 public class TabController {
-	public interface Listener {
+	public interface Callback {
 		View onTabCreate();
 	}
 
-	private ViewGroup mTabContainer;
-	private Listener mListener;
+	protected ViewGroup mTabContainer;
+	private Callback mCallback;
 
-	public TabController(ViewGroup tabContainer, Listener listener) {
+	public TabController(ViewGroup tabContainer, Callback callback) {
 		tabContainer.removeAllViews();
 		mTabContainer = tabContainer;
-		mListener = listener;
+		mCallback = callback;
 	}
 
 	public int addTab() {
-		View tabView = mListener.onTabCreate();
+		View tabView = mCallback.onTabCreate();
 		if (tabView == null) {
 			return -1;
 		}
@@ -45,20 +45,18 @@ public class TabController {
 		return mTabContainer.getChildAt(tabIndex);
 	}
 
-	public void hideContainer() {
+	public void hideTabContainer() {
 		mTabContainer.setVisibility(View.GONE);
 	}
 
-	public View removeTab(int tabIndex) {
+	public void removeTab(int tabIndex) {
 		if (tabIndex < 0 || tabIndex >= getTabCount()) {
-			return null;
+			return;
 		}
-		View tabView = getTabView(tabIndex);
 		mTabContainer.removeViewAt(tabIndex);
-		return tabView;
 	}
 
-	public void showContainer() {
+	public void showTabContainer() {
 		mTabContainer.setVisibility(View.VISIBLE);
 	}
 }

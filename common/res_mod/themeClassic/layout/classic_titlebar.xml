@@ -5,14 +5,14 @@
     android:layout_height="wrap_content"
     android:background="@drawable/classic_titlebar_bg"
     android:orientation="horizontal"
-    android:padding="4px" >
+    android:padding="2dp" >
 
     <FrameLayout
         android:id="@+id/btnIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|start"
-        android:layout_marginEnd="4px"
+        android:layout_marginEnd="2dp"
         android:addStatesFromChildren="true"
         android:clickable="true"
         android:maxWidth="26dp" >
@@ -31,7 +31,7 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginEnd="4px"
+        android:layout_marginEnd="2dp"
         android:layout_weight="1"
         android:gravity="center_vertical|start"
         android:textColor="#FFF"
@@ -42,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|start"
-        android:layout_marginEnd="2px"
+        android:layout_marginEnd="2dp"
         android:addStatesFromChildren="true"
         android:clickable="true"
         android:visibility="gone" >
@@ -78,7 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|start"
-        android:layout_marginStart="2px"
+        android:layout_marginStart="1px"
         android:addStatesFromChildren="true"
         android:clickable="true" >
 
@@ -96,7 +96,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|start"
-        android:layout_marginStart="4px"
+        android:layout_marginStart="2dp"
         android:addStatesFromChildren="true"
         android:clickable="true" >
 

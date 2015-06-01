@@ -21,7 +21,7 @@ import java.util.List;
  * models store data and status and no logic<br/>
  * views are honest to models<br/>
  */
-class ComposeController implements TabControllerEx.CallbackEx {
+class ComposeController implements TabControllerEx.Callback {
 	interface Listener {
 		void onCleanExit();
 
@@ -48,7 +48,6 @@ class ComposeController implements TabControllerEx.CallbackEx {
 	private Listener mListener;
 	private TabControllerEx mTabControllerEx;
 
-	private View mTabContent;
 	private TextView mLabelSubject;
 	private EditText mEditSubject;
 	private TextView mLabelRecipient;
@@ -83,6 +82,13 @@ class ComposeController implements TabControllerEx.CallbackEx {
 					removeTab(tabIndex);
 				}
 			}
+		}
+	};
+
+	private final View.OnClickListener mTabCreateListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			addTab();
 		}
 	};
 
@@ -124,11 +130,6 @@ class ComposeController implements TabControllerEx.CallbackEx {
 		return mModelList.get(index);
 	}
 
-	private void hideTabs() {
-		mTabControllerEx.hideTabContainer();
-		mTabContent.setBackground(null);
-	}
-
 	@Override
 	public View onTabCreate(int viewType) {
 		int tabHeight = mRes.getDimensionPixelSize(
@@ -143,6 +144,14 @@ class ComposeController implements TabControllerEx.CallbackEx {
 				tabView.setLayoutParams(new LinearLayout.LayoutParams(
 						ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
 				return tabView;
+			case TabControllerEx.VIEW_TYPE_CR:
+				View tabCrView = View.inflate(mLabelSubject.getContext(),
+						R.layout.classic_tab_cr, null);
+				tabCrView.findViewById(R.id.btnTabCreate).setOnClickListener(
+						mTabCreateListener);
+				tabCrView.setLayoutParams(new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
+				return tabCrView;
 			case TabControllerEx.VIEW_TYPE_SP:
 				ImageView tabSpView = (ImageView) View.inflate(
 						mLabelSubject.getContext(),
@@ -226,10 +235,6 @@ class ComposeController implements TabControllerEx.CallbackEx {
 	private void setupHolder(View view) {
 		mRes = view.getResources();
 
-		mTabControllerEx = new TabControllerEx(
-				(ViewGroup) view.findViewById(R.id.tabContainer), this);
-
-		mTabContent = view.findViewById(R.id.tabContent);
 		mLabelSubject = (TextView) view.findViewById(R.id.labelSubject);
 		mEditSubject = (EditText) view.findViewById(R.id.subject);
 		mLabelRecipient = (TextView) view.findViewById(R.id.labelRecipient);
@@ -266,12 +271,9 @@ class ComposeController implements TabControllerEx.CallbackEx {
 				}
 			}
 		});
-	}
 
-	private void showTabs() {
-		mTabControllerEx.showTabContainer();
-		mTabContent.setBackgroundResource(
-				R.drawable.classic_tab_content_border);
+		mTabControllerEx = new TabControllerEx(
+				(ViewGroup) view.findViewById(R.id.tabContainer), this, true);
 	}
 
 	/**
@@ -319,12 +321,6 @@ class ComposeController implements TabControllerEx.CallbackEx {
 			return;
 		}
 
-		if (mModelList.size() == 1) {
-			hideTabs();
-			return;
-		}
-
-		showTabs();
 		int textColor = mRes.getColor(R.color.compose_tab_text);
 		int textColorCurrent = mRes
 				.getColor(R.color.compose_tab_text_current);

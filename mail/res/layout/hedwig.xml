@@ -132,11 +132,12 @@
                     android:layout_weight="1"
                     android:orientation="horizontal" >
 
-                    <Button
+                    <TextView
                         android:id="@+id/btnAttach"
                         style="@style/themeClassic.plainButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:text="@string/attach" />
 
                     <View style="@style/compose_edit" />
@@ -148,8 +149,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|end"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="4dp"
                     android:layout_marginStart="4dp"
                     android:layout_marginTop="4dp"
                     android:minWidth="60dp"

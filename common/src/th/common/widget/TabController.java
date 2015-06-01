@@ -30,7 +30,7 @@ public class TabController {
 		return mTabContainer.getChildCount() - 1;
 	}
 
-	public int getTabCount() {
+	private int getTabCount() {
 		return mTabContainer.getChildCount();
 	}
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="@dimen/classic_tab_height"
+    android:orientation="horizontal" >
+
+    <FrameLayout
+        android:id="@+id/btnTabCreate"
+        android:layout_width="22dp"
+        android:layout_height="26dp"
+        android:layout_gravity="center_vertical|start"
+        android:addStatesFromChildren="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true" >
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:contentDescription="@null"
+            android:src="@drawable/classic_tab_close" />
+    </FrameLayout>
+
+</LinearLayout>

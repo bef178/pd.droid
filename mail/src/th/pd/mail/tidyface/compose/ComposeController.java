@@ -6,19 +6,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import th.common.widget.TabController;
+import th.common.widget.TabControllerEx;
 import th.pd.mail.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * an agent for mail-compose header &amp; content
+ * an agent for mail-compose header &amp; content<br/>
+ * models store data and status and no logic<br/>
+ * views are honest to models<br/>
  */
-class ComposeController implements TabController.Listener {
+class ComposeController implements TabControllerEx.CallbackEx {
 	interface Listener {
 		void onCleanExit();
 
@@ -43,8 +46,9 @@ class ComposeController implements TabController.Listener {
 	private Resources mRes;
 
 	private Listener mListener;
-	private TabController mTabController;
+	private TabControllerEx mTabControllerEx;
 
+	private View mTabContent;
 	private TextView mLabelSubject;
 	private EditText mEditSubject;
 	private TextView mLabelRecipient;
@@ -61,7 +65,7 @@ class ComposeController implements TabController.Listener {
 	private final View.OnClickListener mTabClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			int tabIndex = mTabController.getTabIndex(view);
+			int tabIndex = mTabControllerEx.getTabIndex(view);
 			if (tabIndex >= 0) {
 				switchTab(tabIndex, mCurrentModelIndex);
 			}
@@ -73,7 +77,7 @@ class ComposeController implements TabController.Listener {
 		public void onClick(View view) {
 			ViewParent parent = view.getParent();
 			if (parent instanceof View) {
-				int tabIndex = mTabController
+				int tabIndex = mTabControllerEx
 						.getTabIndex((View) parent);
 				if (tabIndex >= 0) {
 					removeTab(tabIndex);
@@ -92,15 +96,16 @@ class ComposeController implements TabController.Listener {
 
 	public boolean addTab() {
 		if (mModelList.size() >= MAX_NUM_MODELS) {
+			// TODO prompt
 			return false;
 		}
-		int tabIndex = mTabController.addTab();
+		int tabIndex = mTabControllerEx.addTab();
 		if (tabIndex < 0) {
 			return false;
 		}
 		ComposeModel model = new ComposeModel();
 		mModelList.add(model);
-		switchTab(tabIndex, mCurrentModelIndex);// focus on the added tab
+		switchTab(tabIndex, mCurrentModelIndex); // focus on the added tab
 		return true;
 	}
 
@@ -119,18 +124,60 @@ class ComposeController implements TabController.Listener {
 		return mModelList.get(index);
 	}
 
+	private void hideTabs() {
+		mTabControllerEx.hideTabContainer();
+		mTabContent.setBackground(null);
+	}
+
 	@Override
-	public View onTabCreate() {
-		View tabView = View.inflate(mLabelSubject.getContext(),
-				R.layout.hedwig_tab, null);
-		tabView.setOnClickListener(mTabClickListener);
-		tabView.findViewById(R.id.btnTabClose).setOnClickListener(
-				mTabCloseListener);
+	public View onTabCreate(int viewType) {
 		int tabHeight = mRes.getDimensionPixelSize(
 				R.dimen.compose_tab_height);
-		tabView.setLayoutParams(new LinearLayout.LayoutParams(
-				0, tabHeight, 1f));
-		return tabView;
+		switch (viewType) {
+			case TabControllerEx.VIEW_TYPE_BG:
+				View tabView = View.inflate(mLabelSubject.getContext(),
+						R.layout.classic_tab, null);
+				tabView.setOnClickListener(mTabClickListener);
+				tabView.findViewById(R.id.btnTabClose).setOnClickListener(
+						mTabCloseListener);
+				tabView.setLayoutParams(new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
+				return tabView;
+			case TabControllerEx.VIEW_TYPE_SP:
+				ImageView tabSpView = (ImageView) View.inflate(
+						mLabelSubject.getContext(),
+						R.layout.classic_tab_sp, null);
+				tabSpView.setLayoutParams(new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
+				return tabSpView;
+		}
+		return null;
+	}
+
+	@Override
+	public int onTabGetBgRes(int viewType) {
+		switch (viewType) {
+			case TabControllerEx.VIEW_TYPE_BG:
+				return R.drawable.classic_tab_bg;
+			case TabControllerEx.VIEW_TYPE_FG:
+				return R.drawable.classic_tab_fg;
+			case TabControllerEx.VIEW_TYPE_SP_BG_BG:
+				return R.drawable.classic_tab_sp_bg_bg;
+			case TabControllerEx.VIEW_TYPE_SP_BG_FG:
+				return R.drawable.classic_tab_sp_bg_fg;
+			case TabControllerEx.VIEW_TYPE_SP_BG_NA:
+				return R.drawable.classic_tab_sp_bg_na;
+			case TabControllerEx.VIEW_TYPE_SP_FG_BG:
+				return R.drawable.classic_tab_sp_fg_bg;
+			case TabControllerEx.VIEW_TYPE_SP_FG_NA:
+				return R.drawable.classic_tab_sp_fg_na;
+			case TabControllerEx.VIEW_TYPE_SP_NA_BG:
+				return R.drawable.classic_tab_sp_na_bg;
+			case TabControllerEx.VIEW_TYPE_SP_NA_FG:
+				return R.drawable.classic_tab_sp_na_fg;
+			default:
+				return 0;
+		}
 	}
 
 	public ComposeModel removeCurrentTab() {
@@ -157,7 +204,7 @@ class ComposeController implements TabController.Listener {
 
 		ComposeModel model = mModelList.remove(tabIndex);
 
-		mTabController.removeTab(tabIndex);
+		mTabControllerEx.removeTab(tabIndex);
 
 		updateTabContainer();
 
@@ -179,9 +226,10 @@ class ComposeController implements TabController.Listener {
 	private void setupHolder(View view) {
 		mRes = view.getResources();
 
-		mTabController = new TabController(
+		mTabControllerEx = new TabControllerEx(
 				(ViewGroup) view.findViewById(R.id.tabContainer), this);
 
+		mTabContent = view.findViewById(R.id.tabContent);
 		mLabelSubject = (TextView) view.findViewById(R.id.labelSubject);
 		mEditSubject = (EditText) view.findViewById(R.id.subject);
 		mLabelRecipient = (TextView) view.findViewById(R.id.labelRecipient);
@@ -193,6 +241,23 @@ class ComposeController implements TabController.Listener {
 		mEditMailContent = (EditText) view.findViewById(R.id.mailContent);
 		mBtnAttach = view.findViewById(R.id.btnAttach);
 
+		mLabelRecipient.setOnClickListener(new View.OnClickListener() {
+			// toggle cc and bcc row
+			@Override
+			public void onClick(View view) {
+				ComposeModel model = getCurrentModel();
+				updateToModel(model);
+				if (model.hasCcOrBcc()) {
+					// do not hide with cc/bcc
+					return;
+				}
+				model.toggleShowCcBccRow();
+				updateTabCaption(model,
+						mTabControllerEx.getTabView(mCurrentModelIndex));
+				updateTabContent(model);
+			}
+		});
+
 		mBtnAttach.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -201,20 +266,12 @@ class ComposeController implements TabController.Listener {
 				}
 			}
 		});
+	}
 
-		mLabelRecipient.setOnClickListener(new View.OnClickListener() {
-			// toggle cc and bcc row
-			@Override
-			public void onClick(View view) {
-				ComposeModel model = getCurrentModel();
-				updateToModel(model);
-				boolean isShown = model.isCcBccRowVisible();
-				boolean toShow = model.toggleShowCcBccRow();
-				if (toShow != isShown) {
-					updateTabLabelAndContent(model);
-				}
-			}
-		});
+	private void showTabs() {
+		mTabControllerEx.showTabContainer();
+		mTabContent.setBackgroundResource(
+				R.drawable.classic_tab_content_border);
 	}
 
 	/**
@@ -225,17 +282,14 @@ class ComposeController implements TabController.Listener {
 			return;
 		}
 
-		// push the swapped out tab
 		if (sourceTabIndex >= 0) {
 			ComposeModel sourceModel = getModel(sourceTabIndex);
 			updateToModel(sourceModel);
-			updateTabLabel(sourceModel);
 		}
 
-		// pull the swapped in tab
 		mCurrentModelIndex = targetTabIndex;
 		updateTabContainer();
-		updateTabLabelAndContent(getCurrentModel());
+		updateTabContent(getCurrentModel());
 	}
 
 	private void updateAttachmentRow(ComposeModel model) {
@@ -245,55 +299,52 @@ class ComposeController implements TabController.Listener {
 		// TODO show attachment
 	}
 
+	private TextView updateTabCaption(ComposeModel model, View tabView) {
+		if (model == null) {
+			return null;
+		}
+		TextView txtCaption = (TextView) tabView
+				.findViewById(R.id.txtTabCaption);
+		String subject = model.getSubject();
+		if (subject == null || subject.isEmpty()) {
+			txtCaption.setText(R.string.compose);
+		} else {
+			txtCaption.setText(subject);
+		}
+		return txtCaption;
+	}
+
 	private void updateTabContainer() {
 		if (mModelList.isEmpty()) {
 			return;
 		}
 
 		if (mModelList.size() == 1) {
-			mTabController.hideContainer();
+			hideTabs();
 			return;
 		}
 
-		mTabController.showContainer();
+		showTabs();
 		int textColor = mRes.getColor(R.color.compose_tab_text);
 		int textColorCurrent = mRes
 				.getColor(R.color.compose_tab_text_current);
 		for (int i = 0; i < mModelList.size(); ++i) {
-			View tabView = mTabController.getTabView(i);
-			TextView labelTabTitle = (TextView) tabView
-					.findViewById(R.id.labelTabTitle);
+			ComposeModel model = mModelList.get(i);
+			View tabView = mTabControllerEx.getTabView(i);
+
+			TextView txtCaption = updateTabCaption(model, tabView);
 			if (i == mCurrentModelIndex) {
-				tabView.setBackgroundResource(R.color.compose_tab_bg_current);
-				labelTabTitle.setTextColor(textColorCurrent);
+				txtCaption.setTextColor(textColorCurrent);
 			} else {
-				tabView.setBackgroundResource(R.color.compose_tab_bg);
-				labelTabTitle.setTextColor(textColor);
+				txtCaption.setTextColor(textColor);
 			}
 		}
+		mTabControllerEx.setActiveTab(mCurrentModelIndex);
 	}
 
-	private void updateTabLabel(ComposeModel model) {
-		if (model == null) {
-			return;
-		}
-		TextView labelView = (TextView) mTabController.getTabView(
-				mCurrentModelIndex)
-				.findViewById(R.id.labelTabTitle);
-		String subject = model.getSubject();
-		if (subject == null || subject.isEmpty()) {
-			labelView.setText(R.string.compose);
-		} else {
-			labelView.setText(subject);
-		}
-	}
-
-	private void updateTabLabelAndContent(ComposeModel model) {
-		updateTabLabel(model);
-
-		updateAttachmentRow(model);
-
-		if (model.shouldShowCcBccRow()) {
+	private void updateTabContent(ComposeModel model) {
+		// cc/bcc visibility
+		if (model.queryStatusIsCcBccRowShown()) {
 			mLabelRecipient.setText(R.string.recipient);
 			mCcRow.setVisibility(View.VISIBLE);
 			mBccRow.setVisibility(View.VISIBLE);
@@ -303,12 +354,14 @@ class ComposeController implements TabController.Listener {
 			mBccRow.setVisibility(View.GONE);
 		}
 
-		// string content
+		// content texts
 		mEditSubject.setText(model.getSubject());
 		mEditRecipient.setText(model.getRecipient());
 		mEditCc.setText(model.getCc());
 		mEditBcc.setText(model.getBcc());
 		mEditMailContent.setText(model.getMailContent());
+
+		updateAttachmentRow(model);
 	}
 
 	private void updateToModel(ComposeModel model) {

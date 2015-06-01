@@ -5,7 +5,7 @@
         <item name="android:windowCloseOnTouchOutside">false</item>
     </style>
 
-    <dimen name="compose_tab_height">32dp</dimen>
+    <dimen name="compose_tab_height">@dimen/classic_tab_height</dimen>
 
     <color name="compose_tab_bg">@color/compose_label_bg</color>
     <color name="compose_tab_bg_current">#EEE</color>

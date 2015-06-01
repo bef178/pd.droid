@@ -9,9 +9,9 @@ import java.util.List;
 
 public class ComposeModel {
 
-	public static final int FLAG_SHOW_CC_BCC_ROW = 1 << 2;
+	private static final int FLAG_SHOWS_CC_BCC_ROW = 1 << 2;
 
-	private Flags flags = new Flags();
+	private Flags flags = new Flags(); // the status
 	private String subject;
 	private final LinkedList<Uri> attachmentList = new LinkedList<>();
 	private String recipient;
@@ -21,10 +21,6 @@ public class ComposeModel {
 
 	public void addAttachment(Uri contentUri) {
 		attachmentList.add(contentUri);
-	}
-
-	public boolean hasAttachment(Uri contentUri) {
-		return attachmentList.contains(contentUri);
 	}
 
 	public List<Uri> getAttachments() {
@@ -55,13 +51,17 @@ public class ComposeModel {
 		return !attachmentList.isEmpty();
 	}
 
+	public boolean hasAttachment(Uri contentUri) {
+		return attachmentList.contains(contentUri);
+	}
+
 	public boolean hasCcOrBcc() {
 		return (cc != null && !cc.isEmpty())
 				|| (bcc != null && !bcc.isEmpty());
 	}
 
-	public boolean isCcBccRowVisible() {
-		return flags.hasFlags(FLAG_SHOW_CC_BCC_ROW);
+	public boolean queryStatusIsCcBccRowShown() {
+		return flags.hasFlags(FLAG_SHOWS_CC_BCC_ROW);
 	}
 
 	public void setBcc(String bcc) {
@@ -84,21 +84,15 @@ public class ComposeModel {
 		this.subject = subject;
 	}
 
-	public boolean shouldShowCcBccRow() {
-		return hasCcOrBcc() || flags.hasFlags(FLAG_SHOW_CC_BCC_ROW);
-	}
-
+	/**
+	 * return <code>true</code> if it is shown after toggled
+	 */
 	public boolean toggleShowCcBccRow() {
-		if (hasCcOrBcc()) {
-			flags.setFlags(FLAG_SHOW_CC_BCC_ROW);
-			return true;
-		}
-
-		if (flags.hasFlags(FLAG_SHOW_CC_BCC_ROW)) {
-			flags.clearFlags(FLAG_SHOW_CC_BCC_ROW);
+		if (flags.hasFlags(FLAG_SHOWS_CC_BCC_ROW)) {
+			flags.clearFlags(FLAG_SHOWS_CC_BCC_ROW);
 			return false;
 		} else {
-			flags.setFlags(FLAG_SHOW_CC_BCC_ROW);
+			flags.setFlags(FLAG_SHOWS_CC_BCC_ROW);
 			return true;
 		}
 	}

@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import th.common.widget.TabControllerEx;
+import th.common.widget.TabController;
 import th.pd.mail.R;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
  * models store data and status and no logic<br/>
  * views are honest to models<br/>
  */
-class ComposeController implements TabControllerEx.Callback {
+class ComposeController implements TabController.Callback {
 	interface Listener {
 		void onCleanExit();
 
@@ -46,7 +46,7 @@ class ComposeController implements TabControllerEx.Callback {
 	private Resources mRes;
 
 	private Listener mListener;
-	private TabControllerEx mTabControllerEx;
+	private TabController mTabController;
 
 	private TextView mLabelSubject;
 	private EditText mEditSubject;
@@ -64,7 +64,7 @@ class ComposeController implements TabControllerEx.Callback {
 	private final View.OnClickListener mTabClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			int tabIndex = mTabControllerEx.getTabIndex(view);
+			int tabIndex = mTabController.getTabIndex(view);
 			if (tabIndex >= 0) {
 				switchTab(tabIndex, mCurrentModelIndex);
 			}
@@ -76,8 +76,7 @@ class ComposeController implements TabControllerEx.Callback {
 		public void onClick(View view) {
 			ViewParent parent = view.getParent();
 			if (parent instanceof View) {
-				int tabIndex = mTabControllerEx
-						.getTabIndex((View) parent);
+				int tabIndex = mTabController.getTabIndex((View) parent);
 				if (tabIndex >= 0) {
 					removeTab(tabIndex);
 				}
@@ -105,7 +104,7 @@ class ComposeController implements TabControllerEx.Callback {
 			// TODO prompt
 			return false;
 		}
-		int tabIndex = mTabControllerEx.addTab();
+		int tabIndex = mTabController.addTab();
 		if (tabIndex < 0) {
 			return false;
 		}
@@ -135,7 +134,7 @@ class ComposeController implements TabControllerEx.Callback {
 		int tabHeight = mRes.getDimensionPixelSize(
 				R.dimen.compose_tab_height);
 		switch (viewType) {
-			case TabControllerEx.VIEW_TYPE_BG:
+			case TabController.VIEW_TYPE_BG:
 				View tabView = View.inflate(mLabelSubject.getContext(),
 						R.layout.classic_tab, null);
 				tabView.setOnClickListener(mTabClickListener);
@@ -144,7 +143,7 @@ class ComposeController implements TabControllerEx.Callback {
 				tabView.setLayoutParams(new LinearLayout.LayoutParams(
 						ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
 				return tabView;
-			case TabControllerEx.VIEW_TYPE_CR:
+			case TabController.VIEW_TYPE_CR:
 				View tabCrView = View.inflate(mLabelSubject.getContext(),
 						R.layout.classic_tab_cr, null);
 				tabCrView.findViewById(R.id.btnTabCreate).setOnClickListener(
@@ -152,7 +151,7 @@ class ComposeController implements TabControllerEx.Callback {
 				tabCrView.setLayoutParams(new LinearLayout.LayoutParams(
 						ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
 				return tabCrView;
-			case TabControllerEx.VIEW_TYPE_SP:
+			case TabController.VIEW_TYPE_SP:
 				ImageView tabSpView = (ImageView) View.inflate(
 						mLabelSubject.getContext(),
 						R.layout.classic_tab_sp, null);
@@ -166,23 +165,23 @@ class ComposeController implements TabControllerEx.Callback {
 	@Override
 	public int onTabGetBgRes(int viewType) {
 		switch (viewType) {
-			case TabControllerEx.VIEW_TYPE_BG:
+			case TabController.VIEW_TYPE_BG:
 				return R.drawable.classic_tab_bg;
-			case TabControllerEx.VIEW_TYPE_FG:
+			case TabController.VIEW_TYPE_FG:
 				return R.drawable.classic_tab_fg;
-			case TabControllerEx.VIEW_TYPE_SP_BG_BG:
+			case TabController.VIEW_TYPE_SP_BG_BG:
 				return R.drawable.classic_tab_sp_bg_bg;
-			case TabControllerEx.VIEW_TYPE_SP_BG_FG:
+			case TabController.VIEW_TYPE_SP_BG_FG:
 				return R.drawable.classic_tab_sp_bg_fg;
-			case TabControllerEx.VIEW_TYPE_SP_BG_NA:
+			case TabController.VIEW_TYPE_SP_BG_NA:
 				return R.drawable.classic_tab_sp_bg_na;
-			case TabControllerEx.VIEW_TYPE_SP_FG_BG:
+			case TabController.VIEW_TYPE_SP_FG_BG:
 				return R.drawable.classic_tab_sp_fg_bg;
-			case TabControllerEx.VIEW_TYPE_SP_FG_NA:
+			case TabController.VIEW_TYPE_SP_FG_NA:
 				return R.drawable.classic_tab_sp_fg_na;
-			case TabControllerEx.VIEW_TYPE_SP_NA_BG:
+			case TabController.VIEW_TYPE_SP_NA_BG:
 				return R.drawable.classic_tab_sp_na_bg;
-			case TabControllerEx.VIEW_TYPE_SP_NA_FG:
+			case TabController.VIEW_TYPE_SP_NA_FG:
 				return R.drawable.classic_tab_sp_na_fg;
 			default:
 				return 0;
@@ -213,7 +212,7 @@ class ComposeController implements TabControllerEx.Callback {
 
 		ComposeModel model = mModelList.remove(tabIndex);
 
-		mTabControllerEx.removeTab(tabIndex);
+		mTabController.removeTab(tabIndex);
 
 		updateTabContainer();
 
@@ -258,7 +257,7 @@ class ComposeController implements TabControllerEx.Callback {
 				}
 				model.toggleShowCcBccRow();
 				updateTabCaption(model,
-						mTabControllerEx.getTabView(mCurrentModelIndex));
+						mTabController.getTabView(mCurrentModelIndex));
 				updateTabContent(model);
 			}
 		});
@@ -272,7 +271,7 @@ class ComposeController implements TabControllerEx.Callback {
 			}
 		});
 
-		mTabControllerEx = new TabControllerEx(
+		mTabController = new TabController(
 				(ViewGroup) view.findViewById(R.id.tabContainer), this, true);
 	}
 
@@ -326,7 +325,7 @@ class ComposeController implements TabControllerEx.Callback {
 				.getColor(R.color.compose_tab_text_current);
 		for (int i = 0; i < mModelList.size(); ++i) {
 			ComposeModel model = mModelList.get(i);
-			View tabView = mTabControllerEx.getTabView(i);
+			View tabView = mTabController.getTabView(i);
 
 			TextView txtCaption = updateTabCaption(model, tabView);
 			if (i == mCurrentModelIndex) {
@@ -335,7 +334,7 @@ class ComposeController implements TabControllerEx.Callback {
 				txtCaption.setTextColor(textColor);
 			}
 		}
-		mTabControllerEx.setActiveTab(mCurrentModelIndex);
+		mTabController.setActiveTab(mCurrentModelIndex);
 	}
 
 	private void updateTabContent(ComposeModel model) {

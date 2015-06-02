@@ -20,13 +20,14 @@
         android:allowBackup="true"
         android:label="@string/dmail"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name=".MainActivity"
-            android:theme="@style/themeMailCompose"
-            android:label="@string/dmail" >
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/dmail"
+            android:theme="@style/themeMailCompose" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -47,6 +48,7 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
+
         <service
             android:name="AuthenticatationService"
             android:exported="true" >
@@ -58,5 +60,4 @@
                 android:resource="@xml/authenticator" />
         </service>
     </application>
-
 </manifest>

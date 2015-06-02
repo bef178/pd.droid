@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -23,6 +24,10 @@ import th.pd.mail.R;
 public class Hedwig extends Fragment implements
 		TitlebarController.Listener, ComposeController.Listener {
 
+	/**
+	 * the finger offset maps to the anchor coordinate<br/>
+	 * the anchor coordinate is restricted then maps to the layout offset<br/>
+	 */
 	private class MoveListener implements View.OnTouchListener {
 		private final int[] MARGIN;
 		private final View mDecorView;
@@ -68,10 +73,10 @@ public class Hedwig extends Fragment implements
 		/**
 		 * take the center point as anchor point
 		 */
-		private void findAndSetWindowAnchorPoint(int[] anchor) {
-			mDecorView.getLocationOnScreen(anchor);
-			anchor[0] += mDecorView.getWidth() / 2;
-			anchor[1] += mDecorView.getHeight() / 2;
+		private void findAndSetWindowAnchorPoint(View decorView, int[] anchor) {
+			decorView.getLocationOnScreen(anchor);
+			anchor[0] += decorView.getWidth() / 2;
+			anchor[1] += decorView.getHeight() / 2;
 		}
 
 		private void onMove(int rawX, int rawY) {
@@ -90,7 +95,7 @@ public class Hedwig extends Fragment implements
 				anchorY = mAcceptableAnchorRect.bottom;
 			}
 
-			// the offset after adjust
+			// the offset after restrict
 			int dx = anchorX - mAnchor[0];
 			int dy = anchorY - mAnchor[1];
 
@@ -110,11 +115,10 @@ public class Hedwig extends Fragment implements
 		public boolean onTouch(View v, MotionEvent event) {
 			final int rawX = (int) event.getRawX();
 			final int rawY = (int) event.getRawY();
-			event.getX();
 
 			switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_DOWN:
-					findAndSetWindowAnchorPoint(mAnchor);
+					findAndSetWindowAnchorPoint(mDecorView, mAnchor);
 					findAndSetAcceptableAnchorRect(v);
 					mTouchPointFromAnchor[0] = rawX - mAnchor[0];
 					mTouchPointFromAnchor[1] = rawY - mAnchor[1];
@@ -205,6 +209,12 @@ public class Hedwig extends Fragment implements
 	}
 
 	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		relayout();
+		super.onConfigurationChanged(newConfig);
+	}
+
+	@Override
 	public void onPickFile() {
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("*/*");
@@ -225,5 +235,25 @@ public class Hedwig extends Fragment implements
 	private void onSendMail() {
 		ComposeModel model = mComposeController.removeCurrentTab();
 		// TODO
+	}
+
+	/**
+	 * the screen anchor coord changes after orientation changes,<br/>
+	 * thus everything based on "offset" will be invalid.<br/>
+	 * in this case, the screen anchor is (width/2,
+	 * (height-statusbarHeight-navigationbarHeight)/2+statusbarHeight) and with
+	 * error +1/-1<br/>
+	 * but we shouldn't assume anything.<br/>
+	 * so just put the window back to screen center.
+	 */
+	private void relayout() {
+		View decorView = getActivity().getWindow().getDecorView();
+		WindowManager.LayoutParams layoutParams =
+				(WindowManager.LayoutParams) decorView.getLayoutParams();
+		layoutParams.x = 0;
+		layoutParams.y = 0;
+		layoutParams.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+		getActivity().getWindowManager().updateViewLayout(
+				decorView, layoutParams);
 	}
 }

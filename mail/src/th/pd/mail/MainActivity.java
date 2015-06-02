@@ -45,7 +45,8 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (isOutOfBounds(this, event)) {
-			return moveTaskToBack(true);
+			moveTaskToBack(true);
+			return true;
 		}
 		return super.onTouchEvent(event);
 	}

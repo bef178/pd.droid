@@ -26,6 +26,7 @@
         android:clickable="true" >
 
         <ImageView
+            android:id="@+id/imgTabClose"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_gravity="center"

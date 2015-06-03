@@ -93,6 +93,7 @@ class ComposeController implements TabController.Callback {
 
 	public void addAttachment(Uri contentUri) {
 		ComposeModel model = getCurrentModel();
+		updateToModel(model);
 		if (true) {
 			model.addAttachment(contentUri);
 			updateAttachmentRow(model);
@@ -127,6 +128,12 @@ class ComposeController implements TabController.Callback {
 			return null;
 		}
 		return mModelList.get(index);
+	}
+
+	public ComposeModel getUpdatedModel() {
+		ComposeModel model = getCurrentModel();
+		updateToModel(model);
+		return model;
 	}
 
 	@Override
@@ -188,13 +195,13 @@ class ComposeController implements TabController.Callback {
 		}
 	}
 
-	public ComposeModel removeCurrentTab() {
-		return removeTab(mCurrentModelIndex);
+	public void removeCurrentTab() {
+		removeTab(mCurrentModelIndex);
 	}
 
-	public ComposeModel removeTab(int tabIndex) {
+	public void removeTab(int tabIndex) {
 		if (tabIndex < 0 || tabIndex >= mModelList.size()) {
-			return null;
+			return;
 		}
 
 		// TODO confirm dialog
@@ -210,8 +217,7 @@ class ComposeController implements TabController.Callback {
 			--mCurrentModelIndex;
 		}
 
-		ComposeModel model = mModelList.remove(tabIndex);
-
+		mModelList.remove(tabIndex);
 		mTabController.removeTab(tabIndex);
 
 		updateTabContainer();
@@ -223,8 +229,6 @@ class ComposeController implements TabController.Callback {
 				addTab();
 			}
 		}
-
-		return model;
 	}
 
 	public void setListener(Listener listener) {

@@ -1,6 +1,7 @@
 package th.pd.mail.tidyface.compose;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -10,6 +11,9 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.text.util.Rfc822Token;
+import android.text.util.Rfc822Tokenizer;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -23,6 +27,78 @@ import th.pd.mail.R;
 
 public class Hedwig extends Fragment implements
 		TitlebarController.Listener, ComposeController.Listener {
+
+	private class DoubleClickListener implements View.OnTouchListener {
+		private static final int ACCEPTABLE_OFFSET = 10;
+		private static final int ACCEPTABLE_TIMEOUT = 250;
+
+		private long mLastActionTimestamp = -1;
+		private Point mFirstTouchPoint = new Point();
+		private int mDoubleClickStep = 0;
+
+		private boolean allowsPosition(int rawX, int rawY) {
+			return rawX - mFirstTouchPoint.x <= ACCEPTABLE_OFFSET
+					&& rawY - mFirstTouchPoint.y <= ACCEPTABLE_OFFSET;
+		}
+
+		private boolean allowsTimestamp() {
+			return SystemClock.elapsedRealtime() - mLastActionTimestamp <= ACCEPTABLE_TIMEOUT;
+		}
+
+		private void onTouchDown(MotionEvent event) {
+			if (mDoubleClickStep == 0) {
+				mFirstTouchPoint.x = (int) event.getRawX();
+				mFirstTouchPoint.y = (int) event.getRawY();
+				mDoubleClickStep = 1;
+				return;
+			}
+
+			if (!allowsTimestamp()) {
+				mDoubleClickStep = 1;
+				return;
+			}
+
+			if (mDoubleClickStep == 2
+					&& allowsPosition((int) event.getRawX(),
+							(int) event.getRawY())) {
+				mDoubleClickStep = 3;
+			} else {
+				mDoubleClickStep = 1;
+			}
+		}
+
+		private void onTouchUp(MotionEvent event) {
+			if (!allowsTimestamp()
+					|| !allowsPosition((int) event.getRawX(),
+							(int) event.getRawY())) {
+				mDoubleClickStep = 0;
+				return;
+			}
+
+			++mDoubleClickStep;
+			if (mDoubleClickStep == 4) {
+				// trigger double click
+				mComposeController.addTab();
+				mDoubleClickStep = 0;
+			}
+		}
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction() & MotionEvent.ACTION_MASK) {
+				case MotionEvent.ACTION_DOWN:
+					onTouchDown(event);
+					mLastActionTimestamp = SystemClock.elapsedRealtime();
+					return true;
+				case MotionEvent.ACTION_UP:
+					onTouchUp(event);
+					mLastActionTimestamp = SystemClock.elapsedRealtime();
+					return true;
+			}
+			mLastActionTimestamp = SystemClock.elapsedRealtime();
+			return false;
+		}
+	}
 
 	/**
 	 * the finger offset maps to the anchor coordinate<br/>
@@ -45,10 +121,10 @@ public class Hedwig extends Fragment implements
 			mDecorView = getActivity().getWindow().getDecorView();
 			Resources res = getActivity().getResources();
 			MARGIN = new int[] {
-					res.getDimensionPixelOffset(R.dimen.compose_window_move_margin_top),
-					res.getDimensionPixelOffset(R.dimen.compose_window_move_margin_right),
-					res.getDimensionPixelOffset(R.dimen.compose_window_move_margin_bottom),
-					res.getDimensionPixelOffset(R.dimen.compose_window_move_margin_left)
+					res.getDimensionPixelOffset(R.dimen.compose_titlebar_move_margin_top),
+					res.getDimensionPixelOffset(R.dimen.compose_titlebar_move_margin_right),
+					res.getDimensionPixelOffset(R.dimen.compose_titlebar_move_margin_bottom),
+					res.getDimensionPixelOffset(R.dimen.compose_titlebar_move_margin_left)
 			};
 		}
 
@@ -111,6 +187,13 @@ public class Hedwig extends Fragment implements
 			mAnchor[1] += dy;
 		}
 
+		private void onMoveBegin(View view, int rawX, int rawY) {
+			findAndSetWindowAnchorPoint(mDecorView, mAnchor);
+			findAndSetAcceptableAnchorRect(view);
+			mTouchPointFromAnchor[0] = rawX - mAnchor[0];
+			mTouchPointFromAnchor[1] = rawY - mAnchor[1];
+		}
+
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 			final int rawX = (int) event.getRawX();
@@ -118,21 +201,13 @@ public class Hedwig extends Fragment implements
 
 			switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_DOWN:
-					findAndSetWindowAnchorPoint(mDecorView, mAnchor);
-					findAndSetAcceptableAnchorRect(v);
-					mTouchPointFromAnchor[0] = rawX - mAnchor[0];
-					mTouchPointFromAnchor[1] = rawY - mAnchor[1];
-					break;
-				case MotionEvent.ACTION_POINTER_DOWN:
-					break;
-				case MotionEvent.ACTION_UP:
-				case MotionEvent.ACTION_POINTER_UP:
-					break;
+					onMoveBegin(v, rawX, rawY);
+					return true;
 				case MotionEvent.ACTION_MOVE:
 					onMove(rawX, rawY);
-					break;
+					return true;
 			}
-			return true;
+			return false;
 		}
 	}
 
@@ -150,8 +225,6 @@ public class Hedwig extends Fragment implements
 				onSendMail();
 			}
 		});
-		getView().findViewById(R.id.titlebar).setOnTouchListener(
-				new MoveListener());
 	}
 
 	@Override
@@ -181,7 +254,7 @@ public class Hedwig extends Fragment implements
 
 	@Override
 	public void onClickMaximize(View btnMaximize) {
-		mComposeController.addTab();
+		Toast.makeText(getActivity(), "max", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -201,7 +274,21 @@ public class Hedwig extends Fragment implements
 		getActivity().getWindow().setBackgroundDrawable(null);
 
 		View view = inflater.inflate(R.layout.hedwig, container, false);
-		TitlebarController.newInstance(view, this);
+		TitlebarController.newInstance(view, this).setTitlebarTouchListener(
+				new View.OnTouchListener() {
+					private DoubleClickListener mDoubleClickListener = new DoubleClickListener();
+					private MoveListener mMoveListener = new MoveListener();
+
+					@Override
+					public boolean onTouch(View view, MotionEvent event) {
+						boolean handled = false;
+						handled = mDoubleClickListener.onTouch(view, event)
+								| handled;
+						handled = mMoveListener.onTouch(view, event)
+								| handled;
+						return handled;
+					}
+				});
 		mComposeController = ComposeController.newInstance(view, this);
 		mBtnSend = view.findViewById(R.id.btnSend);
 
@@ -233,8 +320,15 @@ public class Hedwig extends Fragment implements
 	}
 
 	private void onSendMail() {
-		ComposeModel model = mComposeController.removeCurrentTab();
-		// TODO
+		ComposeModel model = mComposeController.getUpdatedModel();
+		// TODO tokenlize and validate everything
+		Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(model.getRecipient());
+
+		if (ActivityManager.isUserAMonkey()) {
+			return;
+		}
+
+		// ready to send
 	}
 
 	/**

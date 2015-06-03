@@ -25,6 +25,7 @@ public class TitlebarController {
 
 	private Listener mListener;
 
+	private View mTitlebar;
 	private ImageView mIcon;
 	private TextView mTitle;
 	private View mBtnResize;
@@ -46,7 +47,7 @@ public class TitlebarController {
 		}
 	}
 
-	public void setListener(Listener listener) {
+	private void setListener(Listener listener) {
 		mListener = listener;
 	}
 
@@ -56,7 +57,17 @@ public class TitlebarController {
 		}
 	}
 
+	public void setTitlebarTouchListener(View.OnTouchListener touchListener) {
+		if (mTitlebar != null) {
+			mTitlebar.setOnTouchListener(touchListener);
+		}
+	}
+
 	private void setupHolders(View view) {
+		mTitlebar = (view.getId() == R.id.titlebar)
+				? view
+				: view.findViewById(R.id.titlebar);
+
 		mIcon = (ImageView) view.findViewById(R.id.icon);
 		mTitle = (TextView) view.findViewById(R.id.title);
 
@@ -101,12 +112,5 @@ public class TitlebarController {
 				}
 			}
 		});
-
-		final View titlebar = (view.getId() == R.id.titlebar)
-				? view
-				: view.findViewById(R.id.titlebar);
-		if (titlebar != null) {
-			// TODO double click to trigger maximize
-		}
 	}
 }

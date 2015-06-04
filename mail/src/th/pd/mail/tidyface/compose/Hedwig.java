@@ -2,8 +2,10 @@ package th.pd.mail.tidyface.compose;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -12,8 +14,6 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.text.util.Rfc822Token;
-import android.text.util.Rfc822Tokenizer;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,6 +24,8 @@ import android.widget.Toast;
 
 import th.common.widget.TitlebarController;
 import th.pd.mail.R;
+import th.pd.mail.dao.FastSyncAccess;
+import th.pd.mail.dao.MessageForSend;
 
 public class Hedwig extends Fragment implements
 		TitlebarController.Listener, ComposeController.Listener {
@@ -77,9 +79,10 @@ public class Hedwig extends Fragment implements
 
 			++mDoubleClickStep;
 			if (mDoubleClickStep == 4) {
-				// trigger double click
-				mComposeController.addTab();
 				mDoubleClickStep = 0;
+
+				// trigger double click
+				onClickMaximize(null);
 			}
 		}
 
@@ -276,7 +279,8 @@ public class Hedwig extends Fragment implements
 		View view = inflater.inflate(R.layout.hedwig, container, false);
 		TitlebarController.newInstance(view, this).setTitlebarTouchListener(
 				new View.OnTouchListener() {
-					private DoubleClickListener mDoubleClickListener = new DoubleClickListener();
+					private DoubleClickListener mDoubleClickListener =
+							new DoubleClickListener();
 					private MoveListener mMoveListener = new MoveListener();
 
 					@Override
@@ -320,15 +324,78 @@ public class Hedwig extends Fragment implements
 	}
 
 	private void onSendMail() {
-		ComposeModel model = mComposeController.getUpdatedModel();
-		// TODO tokenlize and validate everything
-		Rfc822Token[] tokens = Rfc822Tokenizer.tokenize(model.getRecipient());
+		MessageForSend syncMessage = new MessageForSend();
+		syncMessage.setMessage(
+				mComposeController.getUpdatedModel().getMessage());
+		processSendMail(syncMessage, true, true);
+	}
 
-		if (ActivityManager.isUserAMonkey()) {
-			return;
+	/**
+	 * @return an error code to tell which is incorrect
+	 */
+	private int processSendMail(final MessageForSend syncMessage,
+			final boolean checksEmptySubject,
+			final boolean checksEmptyContent) {
+		if (!syncMessage.hasRecipient()) {
+			// no recipient
+			return -1;
 		}
 
-		// ready to send
+		if (checksEmptySubject && !syncMessage.hasSubject()) {
+			DialogInterface.OnClickListener dialogButtonListener =
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							if (whichButton == DialogInterface.BUTTON_POSITIVE) {
+								processSendMail(syncMessage, false,
+										checksEmptyContent);
+							}
+							dialog.dismiss();
+						}
+					};
+			new AlertDialog.Builder(getActivity())
+					.setMessage("empty SUBJECT: send anyway?")
+					.setPositiveButton("send", dialogButtonListener)
+					.setNegativeButton("cancel", dialogButtonListener)
+					.create().show();
+			return 0;
+		}
+
+		if (checksEmptyContent && !syncMessage.hasContent()) {
+			DialogInterface.OnClickListener dialogButtonListener =
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							if (whichButton == DialogInterface.BUTTON_POSITIVE) {
+								processSendMail(syncMessage,
+										checksEmptySubject, false);
+							}
+							dialog.dismiss();
+						}
+					};
+			new AlertDialog.Builder(getActivity())
+					.setMessage("empty CONTENT: send anyway?")
+					.setPositiveButton("send", dialogButtonListener)
+					.setNegativeButton("cancel", dialogButtonListener)
+					.create().show();
+			return 0;
+		}
+
+		syncMessage.setServerAuth(FastSyncAccess
+				.getCurrentServerAuthForSend());
+		// TODO ... and other necessary stuff
+
+		if (ActivityManager.isUserAMonkey()) {
+			// monkey user
+			return -9;
+		}
+		FastSyncAccess.addMessageForSend(syncMessage);
+		FastSyncAccess.awakeWorkerIfNecessary();
+
+		// successfully enqueued
+		return 1;
 	}
 
 	/**

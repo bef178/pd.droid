@@ -3,61 +3,62 @@ package th.pd.mail.tidyface.compose;
 import android.net.Uri;
 
 import th.common.Flags;
+import th.pd.mail.dao.Message;
 
-import java.util.LinkedList;
 import java.util.List;
 
-public class ComposeModel {
+class ComposeModel {
 
 	private static final int FLAG_SHOWS_CC_BCC_ROW = 1 << 2;
 
 	private Flags flags = new Flags(); // the status
-	private String subject;
-	private final LinkedList<Uri> attachmentList = new LinkedList<>();
-	private String recipient;
-	private String cc;
-	private String bcc;
-	private String mailContent;
+	private Message message = new Message();
 
 	public void addAttachment(Uri contentUri) {
-		attachmentList.add(contentUri);
+		message.attachmentList.add(contentUri);
 	}
 
 	public List<Uri> getAttachments() {
-		return attachmentList;
+		return message.attachmentList;
 	}
 
 	public String getBcc() {
-		return bcc;
+		return message.getBlindCarbonCopy();
 	}
 
 	public String getCc() {
-		return cc;
+		return message.getCarbonCopy();
 	}
 
 	public String getMailContent() {
-		return mailContent;
+		return message.getContent();
+	}
+
+	public Message getMessage() {
+		return message;
 	}
 
 	public String getRecipient() {
-		return recipient;
+		return message.getRecipient();
 	}
 
 	public String getSubject() {
-		return subject;
+		return message.getSubject();
 	}
 
 	public boolean hasAttachment() {
-		return !attachmentList.isEmpty();
+		return !message.attachmentList.isEmpty();
 	}
 
 	public boolean hasAttachment(Uri contentUri) {
-		return attachmentList.contains(contentUri);
+		return message.attachmentList.contains(contentUri);
 	}
 
 	public boolean hasCcOrBcc() {
-		return (cc != null && !cc.isEmpty())
-				|| (bcc != null && !bcc.isEmpty());
+		return (message.getCarbonCopy() != null
+				&& !message.getCarbonCopy().isEmpty())
+				|| (message.getBlindCarbonCopy() != null
+				&& !message.getBlindCarbonCopy().isEmpty());
 	}
 
 	public boolean queryStatusIsCcBccRowShown() {
@@ -65,23 +66,23 @@ public class ComposeModel {
 	}
 
 	public void setBcc(String bcc) {
-		this.bcc = bcc;
+		this.message.setBlindCarbonCopy(bcc);
 	}
 
 	public void setCc(String cc) {
-		this.cc = cc;
+		this.message.setCarbonCopy(cc);
 	}
 
 	public void setMailContent(String mailContent) {
-		this.mailContent = mailContent;
+		this.message.setContent(mailContent);
 	}
 
 	public void setRecipient(String recipient) {
-		this.recipient = recipient;
+		this.message.setRecipient(recipient);
 	}
 
 	public void setSubject(String subject) {
-		this.subject = subject;
+		this.message.setSubject(subject);
 	}
 
 	/**

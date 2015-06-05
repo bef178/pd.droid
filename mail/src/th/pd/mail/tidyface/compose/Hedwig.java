@@ -108,17 +108,30 @@ public class Hedwig extends Fragment implements
 	 * the anchor coordinate is restricted then maps to the layout offset<br/>
 	 */
 	private class MoveListener implements View.OnTouchListener {
+		private static final int SNAP_OFFSET = 16;
+
 		private final int[] MARGIN;
 		private final View mDecorView;
 		private WindowManager.LayoutParams mLayoutParams;
 
-		// i don't believe any resize triggered during moving
 		private Rect mAcceptableAnchorRect = new Rect();
 
-		// the center point of the window
-		private int[] mAnchor = new int[2];
+		/**
+		 * the window anchor coord in screen<br/>
+		 * with layoutParams we have<br/>
+		 * &emsp; rawAnchor.x - layoutParams.x == screenAnchor.x<br/>
+		 * &emsp; rawAnchor.y - layoutParams.y == screenAnchor.y<br/>
+		 */
+		private int[] mRawAnchor = new int[2];
 
-		private int[] mTouchPointFromAnchor = new int[2];
+		/**
+		 * the anchor coord in window
+		 */
+		private int[] mAnchorFromTopleft = new int[2];
+
+		private int[] mTouchPointFromWindowAnchor = new int[2];
+
+		private int[] mScreenSize = new int[2];
 
 		public MoveListener() {
 			mDecorView = getActivity().getWindow().getDecorView();
@@ -131,52 +144,62 @@ public class Hedwig extends Fragment implements
 			};
 		}
 
-		private void findAndSetAcceptableAnchorRect(View handleView) {
-			Display defDisplay = getActivity().getWindowManager()
-					.getDefaultDisplay();
-			Point screenSize = new Point();
-			defDisplay.getSize(screenSize);
+		private void findAndSetScreenSize(Activity a, int[] screenSize) {
+			Display defDisplay = a.getWindowManager().getDefaultDisplay();
+			Point p = new Point();
+			defDisplay.getSize(p);
+			screenSize[0] = p.x;
+			screenSize[1] = p.y;
+		}
 
+		private void findAndSetAcceptableRectForWindowAnchor(View handleView) {
 			// the boundary for the anchor point;
 			// for determine whether the window goes beyoud the boundary
 			mAcceptableAnchorRect.top = -handleView.getTop() + MARGIN[0];
 			mAcceptableAnchorRect.right =
-					screenSize.x - handleView.getRight() - MARGIN[1];
+					mScreenSize[0] - handleView.getRight() - MARGIN[1];
 			mAcceptableAnchorRect.bottom =
-					screenSize.y - handleView.getBottom() - MARGIN[2];
+					mScreenSize[1] - handleView.getBottom() - MARGIN[2];
 			mAcceptableAnchorRect.left = -handleView.getLeft() + MARGIN[3];
 			mAcceptableAnchorRect.offset(mDecorView.getWidth() / 2,
 					mDecorView.getHeight() / 2);
 		}
 
-		/**
-		 * take the center point as anchor point
-		 */
-		private void findAndSetWindowAnchorPoint(View decorView, int[] anchor) {
-			decorView.getLocationOnScreen(anchor);
-			anchor[0] += decorView.getWidth() / 2;
-			anchor[1] += decorView.getHeight() / 2;
+		private void findAndSetWindowAnchor(View decorView,
+				int[] anchorFromTopleft,
+				int[] rawWindowAnchorCoord) {
+			// take the center point as anchor point
+			anchorFromTopleft[0] = decorView.getWidth() / 2;
+			anchorFromTopleft[1] = decorView.getHeight() / 2;
+
+			decorView.getLocationOnScreen(rawWindowAnchorCoord); // topleft
+			rawWindowAnchorCoord[0] += anchorFromTopleft[0];
+			rawWindowAnchorCoord[1] += anchorFromTopleft[1];
 		}
 
 		private void onMove(int rawX, int rawY) {
-			int anchorX = rawX - mTouchPointFromAnchor[0];
-			int anchorY = rawY - mTouchPointFromAnchor[1];
+			int rawWindowAnchorX = rawX - mTouchPointFromWindowAnchor[0];
+			int rawWindowAnchorY = rawY - mTouchPointFromWindowAnchor[1];
 
-			if (anchorX < mAcceptableAnchorRect.left) {
-				anchorX = mAcceptableAnchorRect.left;
-			} else if (anchorX > mAcceptableAnchorRect.right) {
-				anchorX = mAcceptableAnchorRect.right;
+			if (rawWindowAnchorX < mAcceptableAnchorRect.left) {
+				rawWindowAnchorX = mAcceptableAnchorRect.left;
+			} else if (rawWindowAnchorX > mAcceptableAnchorRect.right) {
+				rawWindowAnchorX = mAcceptableAnchorRect.right;
+			} else {
+				rawWindowAnchorX = snapX(rawWindowAnchorX);
 			}
 
-			if (anchorY < mAcceptableAnchorRect.top) {
-				anchorY = mAcceptableAnchorRect.top;
-			} else if (anchorY > mAcceptableAnchorRect.bottom) {
-				anchorY = mAcceptableAnchorRect.bottom;
+			if (rawWindowAnchorY < mAcceptableAnchorRect.top) {
+				rawWindowAnchorY = mAcceptableAnchorRect.top;
+			} else if (rawWindowAnchorY > mAcceptableAnchorRect.bottom) {
+				rawWindowAnchorY = mAcceptableAnchorRect.bottom;
+			} else {
+				rawWindowAnchorY = snapY(rawWindowAnchorY);
 			}
 
 			// the offset after restrict
-			int dx = anchorX - mAnchor[0];
-			int dy = anchorY - mAnchor[1];
+			int dx = rawWindowAnchorX - mRawAnchor[0];
+			int dy = rawWindowAnchorY - mRawAnchor[1];
 
 			mLayoutParams = (WindowManager.LayoutParams) mDecorView
 					.getLayoutParams();
@@ -186,15 +209,16 @@ public class Hedwig extends Fragment implements
 			getActivity().getWindowManager().updateViewLayout(
 					mDecorView, mLayoutParams);
 
-			mAnchor[0] += dx;
-			mAnchor[1] += dy;
+			mRawAnchor[0] += dx;
+			mRawAnchor[1] += dy;
 		}
 
 		private void onMoveBegin(View view, int rawX, int rawY) {
-			findAndSetWindowAnchorPoint(mDecorView, mAnchor);
-			findAndSetAcceptableAnchorRect(view);
-			mTouchPointFromAnchor[0] = rawX - mAnchor[0];
-			mTouchPointFromAnchor[1] = rawY - mAnchor[1];
+			findAndSetWindowAnchor(mDecorView, mAnchorFromTopleft, mRawAnchor);
+			findAndSetScreenSize(getActivity(), mScreenSize);
+			findAndSetAcceptableRectForWindowAnchor(view);
+			mTouchPointFromWindowAnchor[0] = rawX - mRawAnchor[0];
+			mTouchPointFromWindowAnchor[1] = rawY - mRawAnchor[1];
 		}
 
 		@Override
@@ -211,6 +235,28 @@ public class Hedwig extends Fragment implements
 					return true;
 			}
 			return false;
+		}
+
+		private int snapX(int rawWindowAnchorX) {
+			int left = rawWindowAnchorX - mAnchorFromTopleft[0];
+			int right = rawWindowAnchorX + mAnchorFromTopleft[0];
+			if (left < SNAP_OFFSET) {
+				rawWindowAnchorX -= left;
+			} else if (mScreenSize[0] - right < SNAP_OFFSET) {
+				rawWindowAnchorX += mScreenSize[0] - right;
+			}
+			return rawWindowAnchorX;
+		}
+
+		private int snapY(int rawWindowAnchorY) {
+			int top = rawWindowAnchorY - mAnchorFromTopleft[1];
+			int bottom = rawWindowAnchorY + mAnchorFromTopleft[1];
+			if (top < SNAP_OFFSET) {
+				rawWindowAnchorY -= top;
+			} else if (mScreenSize[1] - bottom < SNAP_OFFSET) {
+				rawWindowAnchorY += mScreenSize[1] - bottom;
+			}
+			return rawWindowAnchorY;
 		}
 	}
 
@@ -262,7 +308,7 @@ public class Hedwig extends Fragment implements
 
 	@Override
 	public void onClickMinimize(View btnMinimize) {
-		Toast.makeText(getActivity(), "min", Toast.LENGTH_SHORT).show();
+		getActivity().moveTaskToBack(true);
 	}
 
 	@Override

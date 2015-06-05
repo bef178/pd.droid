@@ -3,6 +3,7 @@
 
     <style name="themeMailCompose" parent="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
         <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
 
     <dimen name="compose_titlebar_move_margin_top">22dp</dimen>

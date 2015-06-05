@@ -9,5 +9,5 @@
         android:name="th.pd.mail.tidyface.compose.Hedwig"
         android:layout_width="500dp"
         android:layout_height="wrap_content" />
-
 </LinearLayout>
+

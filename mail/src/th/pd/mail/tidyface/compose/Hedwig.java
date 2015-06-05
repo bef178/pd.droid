@@ -429,8 +429,7 @@ public class Hedwig extends Fragment implements
 			return 0;
 		}
 
-		syncMessage.setServerAuth(FastSyncAccess
-				.getCurrentServerAuthForSend());
+		// TODO add serverAuth according to sender address
 		// TODO ... and other necessary stuff
 
 		if (ActivityManager.isUserAMonkey()) {

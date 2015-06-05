@@ -1,10 +1,6 @@
 package th.pd.mail.dao;
 
-import th.pd.mail.fastsync.MailServerAuth;
-
 public class MessageForSend extends SyncableMessage {
-
-	private MailServerAuth mServerAuth;
 
 	public boolean hasContent() {
 		return !getMessage().getContent().isEmpty();
@@ -18,7 +14,13 @@ public class MessageForSend extends SyncableMessage {
 		return !getMessage().getSubject().isEmpty();
 	}
 
-	public void setServerAuth(MailServerAuth mailServerAuth) {
-		mServerAuth = mailServerAuth;
+	@Override
+	public void setMessage(Message message) {
+		super.setMessage(message);
+		parse();
+	}
+
+	private void parse() {
+		// TODO parse message so set attributes needed for send
 	}
 }

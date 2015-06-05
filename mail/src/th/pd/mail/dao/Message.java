@@ -23,6 +23,7 @@ public class Message {
 		return sb.toString();
 	}
 
+	private String from;
 	private String to;
 	private String cc;
 	private String bcc;
@@ -53,6 +54,10 @@ public class Message {
 		return to;
 	}
 
+	public String getSender() {
+		return from;
+	}
+
 	public String getSubject() {
 		return subject;
 	}
@@ -71,6 +76,10 @@ public class Message {
 
 	public void setRecipient(String recipient) {
 		this.to = recipient;
+	}
+
+	public void setSender(String from) {
+		this.from = from;
 	}
 
 	public void setSubject(String subject) {

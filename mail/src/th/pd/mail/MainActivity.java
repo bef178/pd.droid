@@ -3,6 +3,7 @@ package th.pd.mail;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ public class MainActivity extends Activity {
 				Const.ACCOUNT_TYPE);
 		AccountManager accountManager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
 		accountManager.addAccountExplicitly(account, null, null);
+		ContentResolver.setSyncAutomatically(account, Const.AUTHORITY, true);
 	}
 
 	private boolean isOutOfBounds(Context context, MotionEvent event) {

@@ -108,7 +108,7 @@ public class Hedwig extends Fragment implements
 	 * the anchor coordinate is restricted then maps to the layout offset<br/>
 	 */
 	private class MoveListener implements View.OnTouchListener {
-		private static final int SNAP_OFFSET = 16;
+		private static final int SNAP_OFFSET = 12;
 
 		private final int[] MARGIN;
 		private final View mDecorView;
@@ -239,10 +239,10 @@ public class Hedwig extends Fragment implements
 
 		private int snapX(int rawWindowAnchorX) {
 			int left = rawWindowAnchorX - mAnchorFromTopleft[0];
-			int right = rawWindowAnchorX + mAnchorFromTopleft[0];
-			if (left < SNAP_OFFSET) {
+			int right = left + mDecorView.getWidth();
+			if (Math.abs(left) < SNAP_OFFSET) {
 				rawWindowAnchorX -= left;
-			} else if (mScreenSize[0] - right < SNAP_OFFSET) {
+			} else if (Math.abs(mScreenSize[0] - right) < SNAP_OFFSET) {
 				rawWindowAnchorX += mScreenSize[0] - right;
 			}
 			return rawWindowAnchorX;
@@ -250,10 +250,10 @@ public class Hedwig extends Fragment implements
 
 		private int snapY(int rawWindowAnchorY) {
 			int top = rawWindowAnchorY - mAnchorFromTopleft[1];
-			int bottom = rawWindowAnchorY + mAnchorFromTopleft[1];
-			if (top < SNAP_OFFSET) {
+			int bottom = top + mDecorView.getHeight();
+			if (Math.abs(top) < SNAP_OFFSET) {
 				rawWindowAnchorY -= top;
-			} else if (mScreenSize[1] - bottom < SNAP_OFFSET) {
+			} else if (Math.abs(mScreenSize[1] - bottom) < SNAP_OFFSET) {
 				rawWindowAnchorY += mScreenSize[1] - bottom;
 			}
 			return rawWindowAnchorY;

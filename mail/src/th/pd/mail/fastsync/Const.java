@@ -1,5 +1,7 @@
 package th.pd.mail.fastsync;
 
+import android.util.Log;
+
 /**
  * Everything that i don't know where to put collects here.
  */
@@ -13,4 +15,38 @@ public class Const {
 
 	public static final String SYNC_FLAGS = "sync-flags";
 	public static final int SYNC_RUN_IN_BACKGROUND = 0x01;
+
+	private static final boolean DEBUG = true;
+
+	public static void logd(String msg) {
+		String tag = null;
+		String className = Const.class.getName();
+		StackTraceElement stack[] = (new Throwable()).getStackTrace();
+		for (int i = 0; i < stack.length; ++i) {
+			StackTraceElement frame = stack[i];
+			if (frame.getClassName().equals(className)) {
+				tag = stack[++i].getClassName();
+				break;
+			}
+		}
+
+		if (tag != null) {
+			int i = tag.lastIndexOf('$');
+			if (i < 0) {
+				i = tag.lastIndexOf('.');
+			}
+			if (i >= 0) {
+				tag = tag.substring(++i);
+			}
+		}
+
+		logd(tag, msg);
+	}
+
+	public static void logd(String tag, String msg) {
+		if (DEBUG) {
+			Log.d(tag, msg);
+			Log.d("th", msg);
+		}
+	}
 }

@@ -30,6 +30,10 @@ class ComposeModel {
 		return message.getCarbonCopy();
 	}
 
+	public String getSender() {
+		return message.getSender();
+	}
+
 	public String getMailContent() {
 		return message.getContent();
 	}
@@ -79,6 +83,10 @@ class ComposeModel {
 
 	public void setRecipient(String recipient) {
 		this.message.setRecipient(recipient);
+	}
+
+	public void setSender(String sender) {
+		this.message.setSender(sender);
 	}
 
 	public void setSubject(String subject) {

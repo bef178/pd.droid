@@ -31,11 +31,11 @@ class ComposeController implements TabController.Callback {
 	private static final int MAX_NUM_MODELS = 4;
 
 	public static ComposeController newInstance(View containerView,
-			Listener listener) {
+			Listener listener, String sender) {
 		ComposeController instance = new ComposeController();
 		instance.setupHolder(containerView);
 		instance.setListener(listener);
-		instance.addTab();
+		instance.addTab(sender);
 		return instance;
 	}
 
@@ -87,7 +87,7 @@ class ComposeController implements TabController.Callback {
 	private final View.OnClickListener mTabCreateListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			addTab();
+			addTab(getCurrentModel().getSender());
 		}
 	};
 
@@ -100,7 +100,7 @@ class ComposeController implements TabController.Callback {
 		}
 	}
 
-	public boolean addTab() {
+	public boolean addTab(String sender) {
 		if (mModelList.size() >= MAX_NUM_MODELS) {
 			// TODO prompt
 			return false;
@@ -110,6 +110,7 @@ class ComposeController implements TabController.Callback {
 			return false;
 		}
 		ComposeModel model = new ComposeModel();
+		model.setSender(sender);
 		mModelList.add(model);
 		switchTab(tabIndex, mCurrentModelIndex); // focus on the added tab
 		return true;
@@ -199,7 +200,7 @@ class ComposeController implements TabController.Callback {
 		removeTab(mCurrentModelIndex);
 	}
 
-	public void removeTab(int tabIndex) {
+	public void removeTab(final int tabIndex) {
 		if (tabIndex < 0 || tabIndex >= mModelList.size()) {
 			return;
 		}
@@ -217,7 +218,7 @@ class ComposeController implements TabController.Callback {
 			--mCurrentModelIndex;
 		}
 
-		mModelList.remove(tabIndex);
+		ComposeModel model = mModelList.remove(tabIndex);
 		mTabController.removeTab(tabIndex);
 
 		updateTabContainer();
@@ -226,7 +227,7 @@ class ComposeController implements TabController.Callback {
 			if (mListener != null) {
 				mListener.onCleanExit();
 			} else {
-				addTab();
+				addTab(model.getSender());
 			}
 		}
 	}

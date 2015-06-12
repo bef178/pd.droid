@@ -11,7 +11,6 @@ import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 /**
  * main entrance of the sync service
@@ -27,12 +26,12 @@ public class SyncService extends Service {
 		public void onPerformSync(Account account, Bundle extras,
 				String authority, ContentProviderClient client,
 				SyncResult syncResult) {
-			logi("performSync--begin--");
+			Const.logd("performSync--begin--");
 
 			Mailbox mailbox = MailObjectCache.getInstance().getMailbox(
 					account.name, client);
 			if (mailbox == null) {
-				logi("performSync--end---- with null mailbox");
+				Const.logd("performSync--end---- with null mailbox");
 				return;
 			}
 
@@ -46,7 +45,7 @@ public class SyncService extends Service {
 				performSync(getContext(), mailbox, mailFolder, extras,
 						syncResult);
 			}
-			logi("performSync--end---- done");
+			Const.logd("performSync--end---- done");
 		}
 	}
 
@@ -58,12 +57,6 @@ public class SyncService extends Service {
 		return new int[] {
 				13
 		};
-	}
-
-	private static void logi(String message) {
-		final String LOG_TAG = SyncService.class.getSimpleName();
-		Log.i(LOG_TAG, message);
-		Log.w("th", message);
 	}
 
 	private static void performSync(Context context, Mailbox mailbox,

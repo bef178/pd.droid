@@ -3,7 +3,7 @@ package th.pd.mail.dao;
 /**
  * *have* a message not *be* a message
  */
-abstract class SyncableMessage {
+public abstract class SyncableMessage {
 
 	private Message message;
 

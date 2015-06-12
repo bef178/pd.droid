@@ -26,6 +26,8 @@ import th.common.widget.TitlebarController;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;
 import th.pd.mail.dao.MessageForSend;
+import th.pd.mail.fastsync.MailObjectCache;
+import th.pd.mail.fastsync.MailServerAuth;
 
 public class Hedwig extends Fragment implements
 		TitlebarController.Listener, ComposeController.Listener {
@@ -271,7 +273,7 @@ public class Hedwig extends Fragment implements
 		mBtnSend.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				onSendMail();
+				onSendMessage();
 			}
 		});
 	}
@@ -339,7 +341,7 @@ public class Hedwig extends Fragment implements
 						return handled;
 					}
 				});
-		mComposeController = ComposeController.newInstance(view, this);
+		mComposeController = ComposeController.newInstance(view, this, FastSyncAccess.getCurrentUser());
 		mBtnSend = view.findViewById(R.id.btnSend);
 
 		return view;
@@ -369,19 +371,36 @@ public class Hedwig extends Fragment implements
 		}
 	}
 
-	private void onSendMail() {
+	private void onSendMessage() {
 		MessageForSend syncMessage = new MessageForSend();
 		syncMessage.setMessage(
 				mComposeController.getUpdatedModel().getMessage());
-		processSendMail(syncMessage, true, true);
+		int errorCode = processSendMessage(syncMessage, true, true);
+		switch (errorCode) {
+			case -2:
+				Toast.makeText(getActivity(), "no sender",
+						Toast.LENGTH_SHORT).show();
+				break;
+			case -1:
+				Toast.makeText(getActivity(), "no recipient",
+						Toast.LENGTH_SHORT).show();
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**
 	 * @return an error code to tell which is incorrect
 	 */
-	private int processSendMail(final MessageForSend syncMessage,
+	private int processSendMessage(final MessageForSend syncMessage,
 			final boolean checksEmptySubject,
 			final boolean checksEmptyContent) {
+		if (!syncMessage.hasSender()) {
+			// no sender
+			return -2;
+		}
+
 		if (!syncMessage.hasRecipient()) {
 			// no recipient
 			return -1;
@@ -394,7 +413,7 @@ public class Hedwig extends Fragment implements
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
 							if (whichButton == DialogInterface.BUTTON_POSITIVE) {
-								processSendMail(syncMessage, false,
+								processSendMessage(syncMessage, false,
 										checksEmptyContent);
 							}
 							dialog.dismiss();
@@ -415,7 +434,7 @@ public class Hedwig extends Fragment implements
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
 							if (whichButton == DialogInterface.BUTTON_POSITIVE) {
-								processSendMail(syncMessage,
+								processSendMessage(syncMessage,
 										checksEmptySubject, false);
 							}
 							dialog.dismiss();
@@ -431,6 +450,10 @@ public class Hedwig extends Fragment implements
 
 		// TODO add serverAuth according to sender address
 		// TODO ... and other necessary stuff
+		MailServerAuth serverAuth = MailObjectCache.getInstance()
+				.findMailServerAuth(syncMessage.getMessage().getSender(),
+						"smtp");
+		syncMessage.setServerAuth(serverAuth);
 
 		if (ActivityManager.isUserAMonkey()) {
 			// monkey user

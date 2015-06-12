@@ -1,0 +1,69 @@
+package th.pd.mail.fastsync;
+
+import th.pd.mail.dao.MessageForSend;
+import th.pd.mail.dao.SyncableMessage;
+
+import java.util.concurrent.LinkedBlockingQueue;
+
+/**
+ * a dispatcher to manage queues, tasks and threads<br/>
+ * we don't use handler/post if want to take the control of priority and number
+ * of threads
+ */
+public class SyncController {
+	private static final int NUM_THREADS = 3;
+
+	private static SyncController controller = null;
+
+	public static SyncController getInstance() {
+		if (controller == null) {
+			controller = new SyncController();
+		}
+		return controller;
+	}
+
+	////////////////////////////////////////////////////////
+
+	private final LinkedBlockingQueue<SyncableMessage> mTaskQueue = new LinkedBlockingQueue<>();
+	private final LinkedBlockingQueue<SyncThread> mThreadPool = new LinkedBlockingQueue<>();
+
+	private SyncController() {
+		setupThreads(NUM_THREADS);
+	}
+
+	// would run in sync thread
+	void addResult(SyncThread syncThread) {
+		// TODO parse/handle/save the result
+		// TODO tell UI
+	}
+
+	// would run in main thread
+	public void addTask(MessageForSend syncMessage) {
+		mTaskQueue.offer(syncMessage);
+		SyncThread t = getThread();
+		if (t != null) {
+			t.wakeUp();
+		}
+	}
+
+	// would run in sync thread
+	SyncableMessage getTask() {
+		return mTaskQueue.poll();
+	}
+
+	private SyncThread getThread() {
+		return mThreadPool.poll();
+	}
+
+	// sync thread may invoke
+	void putThread(SyncThread syncThread) {
+		mThreadPool.offer(syncThread);
+	}
+
+	private void setupThreads(int numThreads) {
+		for (int i = 0; i < numThreads; ++i) {
+			SyncThread syncThread = new SyncThread("syncd-#" + i);
+			syncThread.start();
+		}
+	}
+}

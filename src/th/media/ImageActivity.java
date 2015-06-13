@@ -10,13 +10,16 @@ import th.media.ImageSwitcher;
 import th.media.GesturePipeline.Callback;
 import th.pd.R;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -49,6 +52,17 @@ public class ImageActivity extends MediaFlipActivity {
         }
     }
 
+    // TODO put this function to a common Util
+    private static void findScreenSize(Activity a, int[] screenSize) {
+        Display defDisplay = a.getWindowManager().getDefaultDisplay();
+        Point p = new Point();
+        defDisplay.getSize(p);
+        screenSize[0] = p.x;
+        screenSize[1] = p.y;
+    }
+
+    private int[] mScreenSize = new int[2];
+
     private Model mModel;
     private int mCurrentPos;
     private ImageSwitcher mImageSwitcher;
@@ -64,7 +78,16 @@ public class ImageActivity extends MediaFlipActivity {
     private Bitmap createBitmap(int pos) {
         Uri uri = mModel.getData(pos);
         if (uri != null) {
-            return BitmapFactory.decodeFile(uri.getPath());
+            // sample to avoid OOM
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(uri.getPath(), options);
+            int invSampleScale =
+                    Math.min(options.outWidth / mScreenSize[0],
+                            options.outHeight / mScreenSize[1]);
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = invSampleScale;
+            return BitmapFactory.decodeFile(uri.getPath(), options);
         }
         return null;
     }
@@ -144,6 +167,8 @@ public class ImageActivity extends MediaFlipActivity {
 
         onCreate(savedInstanceState, R.layout.image_main);
 
+        findScreenSize(this, mScreenSize);
+
         setupModel(imageUri);
         setupSwitcher();
         setupController();
@@ -170,7 +195,8 @@ public class ImageActivity extends MediaFlipActivity {
                     Rect imageRect = mImageSwitcher.getImageRect();
                     if (imageRect.width() < mImageSwitcher.getWidth()
                             && imageRect.height() < mImageSwitcher.getHeight()) {
-                        float scale = Math.min(1f * mImageSwitcher.getWidth() / imageRect.width(),
+                        float scale = Math.min(
+                                1f * mImageSwitcher.getWidth() / imageRect.width(),
                                 1f * mImageSwitcher.getHeight() / imageRect.height());
                         mImageSwitcher.doScale(scale);
                     }

@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -21,17 +20,11 @@ import th.common.R;
 
 public class PageHeader {
 
-	/**
-	 * it has animations so gives a chance to notify
-	 */
-	public static abstract class VisibilityListener {
-
-		public void onHideStart() {
-			// dummy by default
-		}
+	public interface Callback {
+		public boolean onAction(int actionId);
 	}
 
-	public static final int DEFAULT_DISPLAY_TIMEOUT = 2000;
+	private static final int DEFAULT_DISPLAY_TIMEOUT = 2000;
 
 	private static final int MSG_HIDE_WITH_ANIM = 7749;
 
@@ -44,7 +37,6 @@ public class PageHeader {
 	private Context mContext;
 
 	private View mHeader;
-	private View mHeaderBackButton;
 	private ImageView mHeaderLogo;
 	private TextView mHeaderTitle;
 	private TextView mHeaderSummary;
@@ -55,9 +47,19 @@ public class PageHeader {
 
 	private Animator mOnGoingAnimation;
 
-	private VisibilityListener mExtVisibilityListener;
+	private Callback mCallback;
 
 	private Handler mHandler;
+
+	private View.OnClickListener mOnClickListener =
+			new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (mCallback != null) {
+						mCallback.onAction(v.getId());
+					}
+				}
+			};
 
 	private final AnimatorListener mAnimHideListener =
 			new AnimatorListenerAdapter() {
@@ -78,12 +80,7 @@ public class PageHeader {
 						mOnGoingAnimation.end();
 					}
 					mOnGoingAnimation = animation;
-
 					mFinallyVisible = false;
-
-					if (mExtVisibilityListener != null) {
-						mExtVisibilityListener.onHideStart();
-					}
 				};
 			};
 
@@ -123,12 +120,12 @@ public class PageHeader {
 			@Override
 			public void handleMessage(Message message) {
 				switch (message.what) {
-				case MSG_HIDE_WITH_ANIM: {
-					hideWithAnim();
-					break;
-				}
-				default:
-					throw new AssertionError(message.what);
+					case MSG_HIDE_WITH_ANIM: {
+						hideWithAnim();
+						break;
+					}
+					default:
+						throw new AssertionError(message.what);
 				}
 			}
 		};
@@ -138,13 +135,15 @@ public class PageHeader {
 
 	private void findViews(View headerView) {
 		mHeader = headerView;
-		mHeaderBackButton = mHeader.findViewById(R.id.pageheader_back_button);
-		mHeaderBackButton.setClickable(true);
-		mHeaderOptionContainer = (ViewGroup) mHeader
+		headerView.findViewById(R.id.actionPageHeaderBack)
+				.setOnClickListener(mOnClickListener);
+		mHeaderOptionContainer = (ViewGroup) headerView
 				.findViewById(R.id.pageheader_option_container);
-		mHeaderLogo = (ImageView) mHeader.findViewById(R.id.pageheader_logo);
-		mHeaderTitle = (TextView) mHeader.findViewById(R.id.pageheader_title);
-		mHeaderSummary = (TextView) mHeader
+		mHeaderLogo = (ImageView) headerView
+				.findViewById(R.id.pageheader_logo);
+		mHeaderTitle = (TextView) headerView
+				.findViewById(R.id.pageheader_title);
+		mHeaderSummary = (TextView) headerView
 				.findViewById(R.id.pageheader_summary);
 	}
 
@@ -168,9 +167,6 @@ public class PageHeader {
 		if (isFinallyVisible()) {
 			mHeader.setVisibility(View.GONE);
 			mFinallyVisible = false;
-			if (mExtVisibilityListener != null) {
-				mExtVisibilityListener.onHideStart();
-			}
 		}
 	}
 
@@ -196,7 +192,9 @@ public class PageHeader {
 		}
 
 		float endingY = -mHeader.getHeight();
-		int topLeft[] = { 0, 0 };
+		int topLeft[] = {
+				0, 0
+		};
 		mHeader.getLocationInWindow(topLeft);
 		endingY -= topLeft[1];
 
@@ -211,7 +209,7 @@ public class PageHeader {
 	}
 
 	public void hideWithDelay() {
-	    hideWithDelay(DEFAULT_DISPLAY_TIMEOUT);
+		hideWithDelay(DEFAULT_DISPLAY_TIMEOUT);
 	}
 
 	/**
@@ -229,8 +227,8 @@ public class PageHeader {
 		return mHeader != null && mFinallyVisible;
 	}
 
-	public void setBackButtonClickListener(OnClickListener clickListener) {
-		mHeaderBackButton.setOnClickListener(clickListener);
+	public void setCallback(Callback callback) {
+		mCallback = callback;
 	}
 
 	public void setLogo(Drawable logo) {
@@ -248,10 +246,6 @@ public class PageHeader {
 
 	public void setTitle(CharSequence text) {
 		mHeaderTitle.setText(text);
-	}
-
-	public void setVisibilityListener(VisibilityListener listener) {
-		mExtVisibilityListener = listener;
 	}
 
 	public void showImmediately() {

@@ -5,6 +5,7 @@ import java.io.File;
 import th.common.SystemUiUtil;
 import th.common.widget.PageHeader;
 import th.pd.R;
+
 import android.app.Activity;
 import android.content.AsyncQueryHandler;
 import android.content.Intent;
@@ -40,6 +41,15 @@ public abstract class MediaFlipActivity extends Activity {
 
 	private void hideSystemUi() {
 		SystemUiUtil.hideSystemUi(mPageHeader.getView().getRootView());
+	}
+
+	private boolean onAction(int actionId) {
+		switch (actionId) {
+			case R.id.actionPageHeaderBack:
+				onBackPressed();
+				return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -147,10 +157,10 @@ public abstract class MediaFlipActivity extends Activity {
 
 	private void setupPageHeader() {
 		mPageHeader = new PageHeader(findViewById(R.id.pageHeader));
-		mPageHeader.setBackButtonClickListener(new View.OnClickListener() {
+		mPageHeader.setCallback(new PageHeader.Callback() {
 			@Override
-			public void onClick(View v) {
-				MediaFlipActivity.this.onBackPressed();
+			public boolean onAction(int actionId) {
+				return MediaFlipActivity.this.onAction(actionId);
 			}
 		});
 

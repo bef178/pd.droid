@@ -26,7 +26,7 @@ import android.view.View.OnClickListener;
  *
  * @author tanghao
  */
-public abstract class MediaFlipActivity extends Activity {
+public abstract class AbsMediaActivity extends Activity {
 
 	static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
 	static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
@@ -160,7 +160,7 @@ public abstract class MediaFlipActivity extends Activity {
 		mPageHeader.setCallback(new PageHeader.Callback() {
 			@Override
 			public boolean onAction(int actionId) {
-				return MediaFlipActivity.this.onAction(actionId);
+				return AbsMediaActivity.this.onAction(actionId);
 			}
 		});
 

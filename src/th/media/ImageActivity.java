@@ -23,7 +23,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ImageActivity extends MediaFlipActivity {
+public class ImageActivity extends AbsMediaActivity {
 
     private class UpdateCacheTask extends
             AsyncTask<UpdateCacheTaskArgument, Void, Void> {

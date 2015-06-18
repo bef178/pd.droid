@@ -13,7 +13,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-public class VideoActivity extends MediaFlipActivity implements VideoPlayer.Listener {
+public class VideoActivity extends AbsMediaActivity implements VideoPlayer.Listener {
 
 	private static final int STARTING_DELAY = 1000;
 

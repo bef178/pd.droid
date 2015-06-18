@@ -346,9 +346,6 @@ public class ImageSwitcher extends View {
         mPaint = new Paint();
     }
 
-    /**
-     * (focusX, focusY) is stable on the screen
-     */
     private void applyScale(float scale) {
         if (!mImage.isValid()) {
             return;
@@ -396,15 +393,18 @@ public class ImageSwitcher extends View {
         invalidate();
     }
 
-    public void doScale(float scale, int focusX, int focusY) {
-        // focus on the focus
-        focusX -= mImage.rect.left; // relative to (left, top)
-        focusY -= mImage.rect.top;
-        float fractionX = 1f * focusX / mImage.rect.width();
-        float fractionY = 1f * focusY / mImage.rect.height();
+    /**
+     * (anchorX, anchorY) is stable on the screen
+     */
+    public void doScale(float scale, int anchorX, int anchorY) {
+        // focus on the anchor
+        anchorX -= mImage.rect.left; // relative to (left, top)
+        anchorY -= mImage.rect.top;
+        float fractionX = 1f * anchorX / mImage.rect.width();
+        float fractionY = 1f * anchorY / mImage.rect.height();
         applyScale(scale * mScale);
-        float offsetX = fractionX * mImage.rect.width() - focusX;
-        float offsetY = fractionY * mImage.rect.height() - focusY;
+        float offsetX = fractionX * mImage.rect.width() - anchorX;
+        float offsetY = fractionY * mImage.rect.height() - anchorY;
         mImage.applyOffset(mImage.rect.left - (int) offsetX,
                 mImage.rect.top - (int) offsetY);
         invalidate();

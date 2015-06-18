@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import th.common.R;
 
-public class PageHeader {
+public class PageHeaderController {
 
 	public interface Callback {
 		public boolean onAction(int actionId);
@@ -112,7 +112,7 @@ public class PageHeader {
 				}
 			};
 
-	public PageHeader(View headerView) {
+	public PageHeaderController(View headerView) {
 		mContext = headerView.getContext();
 		findViews(headerView);
 

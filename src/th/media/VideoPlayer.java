@@ -3,7 +3,6 @@ package th.media;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.os.Handler;
 import android.widget.VideoView;
@@ -14,10 +13,14 @@ import android.widget.VideoView;
  * @author tanghao
  */
 public class VideoPlayer {
-    static interface Listener extends OnErrorListener {
-        void onStartPlaying();
-        void onUpdateProgress(int progress);
-        void onUpdateProgressTotal(int total);
+    static interface Callback {
+        public static final int ACTION_PLAY = 1;
+        public static final int ACTION_PAUSE = 2;
+        public static final int ACTION_UPDATE_PROGRESS = 3;
+        public static final int ACTION_UPDATE_PROGRESS_TOTAL = 4;
+
+        public boolean onAction(int actionId, int extra);
+        public boolean onError(MediaPlayer mp, int what, int extra);
     }
 
     /**
@@ -63,7 +66,7 @@ public class VideoPlayer {
         public synchronized void run() {
             if (mVideoView.isPlaying()) {
                 if (mStatus != STATE_PLAYING) {
-                    mListener.onStartPlaying();
+                    mCallback.onAction(Callback.ACTION_PLAY, 0);
                 }
                 mStatus = STATE_PLAYING;
             }
@@ -72,7 +75,8 @@ public class VideoPlayer {
                     break;
                 case STATE_PLAYING:
                     if (hasPurpose(PURPOSE_FLAG_EXPECT_PLAYING)) {
-                        mListener.onUpdateProgress(mVideoView.getCurrentPosition());
+                        mCallback.onAction(Callback.ACTION_UPDATE_PROGRESS,
+                                mVideoView.getCurrentPosition());
                     }
                     if (hasPurpose(PURPOSE_FLAG_GO_PAUSED)) {
                         clearPurpose(PURPOSE_FLAG_GO_PAUSED);
@@ -81,7 +85,8 @@ public class VideoPlayer {
                     }
                     if (hasPurpose(PURPOSE_FLAG_EXPECT_DURATION)) {
                         clearPurpose(PURPOSE_FLAG_EXPECT_DURATION);
-                        mListener.onUpdateProgressTotal(mVideoView.getDuration());
+                        mCallback.onAction(Callback.ACTION_UPDATE_PROGRESS_TOTAL,
+                                mVideoView.getDuration());
                     }
                     break;
                 case STATE_PAUSED:
@@ -109,7 +114,7 @@ public class VideoPlayer {
     private static final int STATE_PLAYING = 2;
     private static final int STATE_PAUSED = 3;
 
-    private Listener mListener;
+    private Callback mCallback;
 
     private VideoView mVideoView;
     private Uri mVideoUri;
@@ -122,11 +127,16 @@ public class VideoPlayer {
 
     private int mBookmark = -1;
 
-    public VideoPlayer(VideoView videoView, Listener listener) {
-        mListener = listener;
+    public VideoPlayer(VideoView videoView, Callback callback) {
+        mCallback = callback;
         mVideoView = videoView;
         mVideoView.setOnClickListener(null);
-        mVideoView.setOnErrorListener(listener);
+        mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return mCallback.onError(mp, what, extra);
+            }
+        });
         mVideoView.setOnPreparedListener(null);
         mVideoView.setOnCompletionListener(new OnCompletionListener() {
             @Override
@@ -156,6 +166,7 @@ public class VideoPlayer {
     public void pause() {
         mVideoView.pause();
         mStatus = STATE_PAUSED;
+        mCallback.onAction(Callback.ACTION_PAUSE, 0);
     }
 
     /**
@@ -212,7 +223,7 @@ public class VideoPlayer {
 
     public void seekTo(int bookmark) {
         mVideoView.seekTo(bookmark);
-        mListener.onUpdateProgress(bookmark);
+        mCallback.onAction(Callback.ACTION_UPDATE_PROGRESS, bookmark);
     }
 
     public void setVideoUri(Uri videoUri) {

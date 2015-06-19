@@ -13,13 +13,56 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-public class VideoActivity extends AbsMediaActivity implements VideoPlayer.Listener {
+public class VideoActivity extends AbsMediaActivity {
 
 	private static final int STARTING_DELAY = 1000;
 
 	private AudioManager mAudioManager;
 
 	private VideoPlayer mPlayer;
+
+	private VideoPlayer.Callback mCallback = new VideoPlayer.Callback() {
+
+		@Override
+		public boolean onError(MediaPlayer mp, int what, int extra) {
+			finish();
+	        return true;
+		}
+
+		@Override
+		public boolean onAction(int actionId, int extra) {
+			switch (actionId) {
+				case ACTION_PLAY:
+					// TODO set button to 'playing' state
+					return true;
+				case ACTION_PAUSE:
+					// TODO set button to 'paused' state
+					return true;
+				case ACTION_UPDATE_PROGRESS: {
+					int progress = extra;
+					SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+				    TextView tvTime = (TextView) findViewById(R.id.tvTime);
+				    seekBar.setProgress(progress);
+			        tvTime.setText(FormatUtil.formatTimespan(progress / 1000));
+			        return true;
+				}
+				case ACTION_UPDATE_PROGRESS_TOTAL: {
+					int total = extra;
+					SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+				    TextView tvTimeTotal = (TextView) findViewById(R.id.tvTimeTotal);
+				    if (total > 0) {
+				        seekBar.setVisibility(View.VISIBLE);
+				        seekBar.setMax(total);
+				        tvTimeTotal.setText(FormatUtil.formatTimespan((total + 200) / 1000));
+				    } else {
+				        seekBar.setVisibility(View.INVISIBLE);
+				    }
+				    return true;
+				}
+			}
+			return false;
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,39 +102,8 @@ public class VideoActivity extends AbsMediaActivity implements VideoPlayer.Liste
 	    mPlayer.onPause();
 	}
 
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        finish();
-        return true;
-    }
-
-    @Override
-    public void onStartPlaying() {
-    }
-
-	@Override
-    public void onUpdateProgress(int progress) {
-	    SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-	    TextView tvTime = (TextView) findViewById(R.id.tvTime);
-	    seekBar.setProgress(progress);
-        tvTime.setText(FormatUtil.formatTimespan(progress / 1000));
-    }
-
-	@Override
-	public void onUpdateProgressTotal(int total) {
-	    SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-	    TextView tvTimeTotal = (TextView) findViewById(R.id.tvTimeTotal);
-	    if (total > 0) {
-	        seekBar.setVisibility(View.VISIBLE);
-	        seekBar.setMax(total);
-	        tvTimeTotal.setText(FormatUtil.formatTimespan((total + 200) / 1000));
-	    } else {
-	        seekBar.setVisibility(View.INVISIBLE);
-	    }
-	}
-
 	private void setupPlayer(Uri videoUri) {
-		mPlayer = new VideoPlayer((VideoView) findViewById(R.id.videoView), this);
+		mPlayer = new VideoPlayer((VideoView) findViewById(R.id.videoView), mCallback);
 		mPlayer.setVideoUri(videoUri);
 		// TODO play after animation done
 		mPlayer.playDelayed(STARTING_DELAY);

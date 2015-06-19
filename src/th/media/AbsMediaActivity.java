@@ -3,7 +3,7 @@ package th.media;
 import java.io.File;
 
 import th.common.SystemUiUtil;
-import th.common.widget.PageHeader;
+import th.common.widget.PageHeaderController;
 import th.pd.R;
 
 import android.app.Activity;
@@ -31,7 +31,7 @@ public abstract class AbsMediaActivity extends Activity {
 	static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
 	static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
 
-	private PageHeader mPageHeader;
+	private PageHeaderController mPageHeaderController;
 
 	private boolean mHasIntentTitle = false;
 
@@ -39,11 +39,7 @@ public abstract class AbsMediaActivity extends Activity {
 		return this.getClass().getName();
 	}
 
-	private void hideSystemUi() {
-		SystemUiUtil.hideSystemUi(mPageHeader.getView().getRootView());
-	}
-
-	private boolean onAction(int actionId) {
+	protected boolean onAction(int actionId) {
 		switch (actionId) {
 			case R.id.actionPageHeaderBack:
 				onBackPressed();
@@ -58,38 +54,38 @@ public abstract class AbsMediaActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState, int layoutRes) {
 		super.onCreate(savedInstanceState);
 		setContentView(layoutRes);
-		setupPageHeader();
+		setupPageHeaderController();
 	}
 
 	@Override
 	protected void onPause() {
-		mPageHeader.hideImmediately();
+		mPageHeaderController.hideImmediately();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		hideSystemUi();
-		mPageHeader.showWithAnim();
-		mPageHeader.hideWithDelay();
+		SystemUiUtil.hideSystemUi(mPageHeaderController.getView().getRootView());
+		mPageHeaderController.showWithAnim();
+		mPageHeaderController.hideWithDelay();
 	}
 
 	private void setLogo() {
 		Bitmap logo = getIntent().getParcelableExtra(INTENT_EXTRA_LOGO);
 		if (logo != null) {
-			mPageHeader.setLogo(new BitmapDrawable(getResources(), logo));
+			mPageHeaderController.setLogo(new BitmapDrawable(getResources(), logo));
 		}
 	}
 
 	protected void setSummary(CharSequence summary) {
-		mPageHeader.setSummary(summary);
+		mPageHeaderController.setSummary(summary);
 	}
 
 	private void setTitle() {
 		String title = getIntent().getStringExtra(Intent.EXTRA_TITLE);
 		if (title != null) {
-			mPageHeader.setTitle(title);
+			mPageHeaderController.setTitle(title);
 			mHasIntentTitle = true;
 			return;
 		}
@@ -104,7 +100,7 @@ public abstract class AbsMediaActivity extends Activity {
 							Cursor cursor) {
 						try {
 							if ((cursor != null) && cursor.moveToFirst()) {
-								mPageHeader.setTitle(cursor.getString(0));
+								mPageHeaderController.setTitle(cursor.getString(0));
 							}
 						} finally {
 							try {
@@ -136,7 +132,7 @@ public abstract class AbsMediaActivity extends Activity {
 			File f = new File(uri.toString());
 			if (f.exists() && f.isFile()) {
 				// same as file scheme
-				mPageHeader.setTitle(f.getName());
+				mPageHeaderController.setTitle(f.getName());
 				return true;
 			}
 			return false;
@@ -148,16 +144,16 @@ public abstract class AbsMediaActivity extends Activity {
 				setTitleByQuery(uri);
 				return true;
 			} else if (origUriScheme.equals("file")) {
-				mPageHeader.setTitle(new File(uri.toString()).getName());
+				mPageHeaderController.setTitle(new File(uri.toString()).getName());
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private void setupPageHeader() {
-		mPageHeader = new PageHeader(findViewById(R.id.pageHeader));
-		mPageHeader.setCallback(new PageHeader.Callback() {
+	private void setupPageHeaderController() {
+		mPageHeaderController = new PageHeaderController(findViewById(R.id.pageHeader));
+		mPageHeaderController.setCallback(new PageHeaderController.Callback() {
 			@Override
 			public boolean onAction(int actionId) {
 				return AbsMediaActivity.this.onAction(actionId);
@@ -168,11 +164,11 @@ public abstract class AbsMediaActivity extends Activity {
 				new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (mPageHeader.isFinallyVisible()) {
-							mPageHeader.hideWithAnim();
+						if (mPageHeaderController.isFinallyVisible()) {
+							mPageHeaderController.hideWithAnim();
 						} else {
-							mPageHeader.showWithAnim();
-							mPageHeader.hideWithDelay();
+							mPageHeaderController.showWithAnim();
+							mPageHeaderController.hideWithDelay();
 						}
 					}
 				});

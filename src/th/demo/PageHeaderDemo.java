@@ -1,46 +1,46 @@
 package th.demo;
 
 import th.common.SystemUiUtil;
-import th.common.widget.PageHeader;
+import th.common.widget.PageHeaderController;
 
 import android.view.View;
 import android.view.View.OnClickListener;
 
 public class PageHeaderDemo {
 
-	private PageHeader mHeader;
+	private PageHeaderController mPageHeaderController;
 
 	public PageHeaderDemo(View headerView, View demoButton) {
-		mHeader = new PageHeader(headerView);
+		mPageHeaderController = new PageHeaderController(headerView);
 		demoButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (mHeader.isFinallyVisible()) {
-					mHeader.hideWithAnim();
+				if (mPageHeaderController.isFinallyVisible()) {
+					mPageHeaderController.hideWithAnim();
 					showOptions();
 				} else {
-					mHeader.showWithAnim();
-					mHeader.hideWithDelay();
+					mPageHeaderController.showWithAnim();
+					mPageHeaderController.hideWithDelay();
 				}
 			}
 		});
 	}
 
 	public void hideSystemUi() {
-		SystemUiUtil.hideSystemUi(mHeader.getView().getRootView());
+		SystemUiUtil.hideSystemUi(mPageHeaderController.getView().getRootView());
 	}
 
 	public void onResume() {
 		hideSystemUi();
-		mHeader.showWithAnim();
-		mHeader.hideWithDelay();
+		mPageHeaderController.showWithAnim();
+		mPageHeaderController.hideWithDelay();
 	}
 
 	public void setTitle(CharSequence title) {
-		mHeader.setTitle(title);
+		mPageHeaderController.setTitle(title);
 	}
 
 	private void showOptions() {
-		mHeader.getView().showContextMenu();
+		mPageHeaderController.getView().showContextMenu();
 	}
 }

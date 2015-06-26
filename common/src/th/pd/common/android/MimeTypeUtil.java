@@ -18,10 +18,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-/**
- * Actually MimeTypeUtil
- */
-public class MimeUtil {
+public class MimeTypeUtil {
+
     private static final String TAG_ALL = "*";
     private static final String TAG_UNKNOWN = "unknown";
 
@@ -51,19 +49,20 @@ public class MimeUtil {
                 };
             }
         }
-        return new String[] {
-                TAG_UNKNOWN, TAG_UNKNOWN
-        };
+        return new String[] { TAG_UNKNOWN, TAG_UNKNOWN };
     }
 
-    public static Drawable drawableByMimeType(Context context, String mimeType) {
-        return context.getResources().getDrawable(resIdByMimeType(mimeType));
+    public static Drawable drawableByMimeType(Context context,
+            String mimeType) {
+        return context.getResources().getDrawable(
+                resIdByMimeType(mimeType), null);
     }
 
     public static Drawable drawableLargeByMimeType(Context context,
             String mimeType) {
         int resId = resIdByMimeType(mimeType);
-        return context.getResources().getDrawable(resId2largeResId.get(resId));
+        return context.getResources().getDrawable(
+                resId2largeResId.get(resId), null);
     }
 
     private static void initMimeTypeMap(Map<String, Integer> map) {
@@ -98,7 +97,8 @@ public class MimeUtil {
                 "text/x-csh", R.drawable.mime_generic_code,
                 "text/x-haskell", R.drawable.mime_generic_code,
                 "text/x-java", R.drawable.mime_generic_code,
-                "text/x-literate-haskell", R.drawable.mime_generic_code,
+                "text/x-literate-haskell",
+                R.drawable.mime_generic_code,
                 "text/x-pascal", R.drawable.mime_generic_code,
                 "text/x-tcl", R.drawable.mime_generic_code,
                 "text/x-tex", R.drawable.mime_generic_code,
@@ -110,7 +110,8 @@ public class MimeUtil {
                 "application/javascript", R.drawable.mime_generic_code,
                 "application/xml", R.drawable.mime_generic_code,
                 "text/javascript", R.drawable.mime_generic_code,
-                "application/x-javascript", R.drawable.mime_generic_code,
+                "application/x-javascript",
+                R.drawable.mime_generic_code,
 
                 // contact
                 // "text/x-vcard", R.drawable.mime_contact;
@@ -135,7 +136,7 @@ public class MimeUtil {
                 R.drawable.mime_generic_file,
         };
         for (int i = 0; i < mappedGeneric.length; i += 2) {
-            map.put((String) mappedGeneric[i], (Integer) mappedGeneric[i + 1]);
+            map.put(mappedGeneric[i], mappedGeneric[i + 1]);
         }
 
         Object[] mappedDocument = {
@@ -217,7 +218,7 @@ public class MimeUtil {
                 R.drawable.mime_ppt,
         };
         for (int i = 0; i < mappedDocument.length; i += 2) {
-            map.put((String) mappedDocument[i], (Integer) mappedDocument[i + 1]);
+            map.put(mappedDocument[i], mappedDocument[i + 1]);
         }
 
         Object[] mappedCompressed = {
@@ -242,7 +243,7 @@ public class MimeUtil {
                 "application/x-deb", R.drawable.mime_zip,
         };
         for (int i = 0; i < mappedCompressed.length; i += 2) {
-            map.put((String) mappedCompressed[i], (Integer) mappedCompressed[i + 1]);
+            map.put(mappedCompressed[i], mappedCompressed[i + 1]);
         }
 
         Object[] mappedAudio = {
@@ -257,7 +258,7 @@ public class MimeUtil {
                 "audio/x-wav", R.drawable.mime_wav,
         };
         for (int i = 0; i < mappedAudio.length; i += 2) {
-            map.put((String) mappedAudio[i], (Integer) mappedAudio[i + 1]);
+            map.put(mappedAudio[i], mappedAudio[i + 1]);
         }
 
         Object[] mappedVideo = {
@@ -295,14 +296,16 @@ public class MimeUtil {
                 R.drawable.mime_generic_image,
         };
         for (int i = 0; i < mappedImage.length; i += 2) {
-            map.put((String) mappedImage[i], (Integer) mappedImage[i + 1]);
+            map.put((String) mappedImage[i],
+                    (Integer) mappedImage[i + 1]);
         }
     }
 
     private static void initMimeTypeResMap(SparseIntArray map) {
         int[] mapped = {
                 R.drawable.mime_apk, R.drawable.mime_apk_156,
-                R.drawable.mime_certificate, R.drawable.mime_certificate_156,
+                R.drawable.mime_certificate,
+                R.drawable.mime_certificate_156,
                 R.drawable.mime_contact, R.drawable.mime_contact_156,
                 R.drawable.mime_doc, R.drawable.mime_doc_156,
                 R.drawable.mime_document, R.drawable.mime_document_156,
@@ -394,7 +397,8 @@ public class MimeUtil {
      * MIME, see http://en.wikipedia.org/wiki/MIME<br/>
      * <code>null</code> matches nothing<br/>
      */
-    public static boolean mimeTypeMatches(String[] acceptables, String[] tests) {
+    public static boolean mimeTypeMatches(String[] acceptables,
+            String[] tests) {
         if (acceptables == null) {
             return false;
         }
@@ -416,9 +420,9 @@ public class MimeUtil {
     /**
      * <code>null</code> matches nothing<br/>
      */
-    private static boolean mimeTypePieceMatches(String piece, String testPiece) {
-        if (piece == null
-                || piece.equalsIgnoreCase(TAG_UNKNOWN)) {
+    private static boolean mimeTypePieceMatches(String piece,
+            String testPiece) {
+        if (piece == null || piece.equalsIgnoreCase(TAG_UNKNOWN)) {
             return false;
         }
         return piece.equalsIgnoreCase(TAG_ALL)
@@ -429,7 +433,8 @@ public class MimeUtil {
         if (mimeTypeSortedList == null) {
             mimeTypeSortedList = new ArrayList<Map.Entry<String, Integer>>(
                     mimeType2resId.size());
-            Set<Map.Entry<String, Integer>> entrySet = mimeType2resId.entrySet();
+            Set<Map.Entry<String, Integer>> entrySet = mimeType2resId
+                    .entrySet();
             Iterator<Map.Entry<String, Integer>> it = entrySet.iterator();
             while (it.hasNext()) {
                 Map.Entry<String, Integer> entry = it.next();
@@ -437,6 +442,7 @@ public class MimeUtil {
             }
             Collections.sort(mimeTypeSortedList,
                     new Comparator<Map.Entry<String, Integer>>() {
+
                         @Override
                         public int compare(Entry<String, Integer> lhs,
                                 Entry<String, Integer> rhs) {

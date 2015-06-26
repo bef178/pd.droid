@@ -6,6 +6,7 @@ import java.util.List;
 public class Cache<E> {
 
     private static class Entry<E> {
+
         private int key = 0;
         private E value = null;
 
@@ -86,15 +87,6 @@ public class Cache<E> {
         }
     }
 
-    public boolean set(int id, E element) {
-        Entry<E> entry = getEntry(id);
-        if (entry != null) {
-            entry.setV(element);
-            return true;
-        }
-        return false;
-    }
-
     /**
      * make sure the given key exists in the cache
      */
@@ -117,5 +109,14 @@ public class Cache<E> {
                 cache.add(0, e);
             }
         }
+    }
+
+    public boolean set(int id, E element) {
+        Entry<E> entry = getEntry(id);
+        if (entry != null) {
+            entry.setV(element);
+            return true;
+        }
+        return false;
     }
 }

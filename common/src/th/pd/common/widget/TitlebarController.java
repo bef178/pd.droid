@@ -1,4 +1,4 @@
-package th.pd.common.widget;
+package th.pd.common.android;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -8,109 +8,118 @@ import android.widget.TextView;
 import th.pd.common.R;
 
 public class TitlebarController {
-	public interface Listener {
-		void onClickClose(View btnClose);
-		void onClickMaximize(View btnMaximize);
-		void onClickMinimize(View btnMinimize);
-		void onClickResize(View btnResize);
-	}
 
-	public static TitlebarController newInstance(View view,
-			Listener listener) {
-		TitlebarController instance = new TitlebarController();
-		instance.setupHolders(view);
-		instance.setListener(listener);
-		return instance;
-	}
+    public interface Listener {
 
-	private Listener mListener;
+        void onClickClose(View btnClose);
 
-	private View mTitlebar;
-	private ImageView mIcon;
-	private TextView mTitle;
-	private View mBtnResize;
-	private View mBtnMinimize;
-	private View mBtnMaximize;
-	private View mBtnClose;
+        void onClickMaximize(View btnMaximize);
 
-	public void setEnableButtonMaximize(boolean enabled) {
-		mBtnMaximize.setEnabled(enabled);
-	}
+        void onClickMinimize(View btnMinimize);
 
-	public void setEnableButtonMinimize(boolean enabled) {
-		mBtnMinimize.setEnabled(enabled);
-	}
+        void onClickResize(View btnResize);
+    }
 
-	public void setIcon(Drawable drawable) {
-		if (mIcon != null) {
-			mIcon.setImageDrawable(drawable);
-		}
-	}
+    public static TitlebarController newInstance(View view,
+            Listener listener) {
+        TitlebarController instance = new TitlebarController();
+        instance.setupHolders(view);
+        instance.setListener(listener);
+        return instance;
+    }
 
-	private void setListener(Listener listener) {
-		mListener = listener;
-	}
+    private Listener mListener;
 
-	public void setTitle(CharSequence text) {
-		if (mTitle != null) {
-			mTitle.setText(text);
-		}
-	}
+    private View mTitlebar;
+    private ImageView mIcon;
+    private TextView mTitle;
+    private View mBtnResize;
+    private View mBtnMinimize;
+    private View mBtnMaximize;
+    private View mBtnClose;
 
-	public void setTitlebarTouchListener(View.OnTouchListener touchListener) {
-		if (mTitlebar != null) {
-			mTitlebar.setOnTouchListener(touchListener);
-		}
-	}
+    public void setEnableButtonMaximize(boolean enabled) {
+        mBtnMaximize.setEnabled(enabled);
+    }
 
-	private void setupHolders(View view) {
-		mTitlebar = (view.getId() == R.id.titlebar)
-				? view
-				: view.findViewById(R.id.titlebar);
+    public void setEnableButtonMinimize(boolean enabled) {
+        mBtnMinimize.setEnabled(enabled);
+    }
 
-		mIcon = (ImageView) view.findViewById(R.id.icon);
-		mTitle = (TextView) view.findViewById(R.id.title);
+    public void setIcon(Drawable drawable) {
+        if (mIcon != null) {
+            mIcon.setImageDrawable(drawable);
+        }
+    }
 
-		// these buttons shouldn't be null
-		mBtnResize = view.findViewById(R.id.btnResize);
-		mBtnMinimize = view.findViewById(R.id.btnMinimize);
-		mBtnMaximize = view.findViewById(R.id.btnMaximize);
-		mBtnClose = view.findViewById(R.id.btnClose);
+    private void setListener(Listener listener) {
+        mListener = listener;
+    }
 
-		mBtnResize.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (mListener != null) {
-					mListener.onClickResize(view);
-				}
-			}
-		});
+    public void setTitle(CharSequence text) {
+        if (mTitle != null) {
+            mTitle.setText(text);
+        }
+    }
 
-		mBtnMinimize.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (mListener != null) {
-					mListener.onClickMinimize(view);
-				}
-			}
-		});
+    public void setTitlebarTouchListener(View.OnTouchListener touchListener) {
+        if (mTitlebar != null) {
+            mTitlebar.setOnTouchListener(touchListener);
+        }
+    }
 
-		mBtnMaximize.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (mListener != null) {
-					mListener.onClickMaximize(view);
-				}
-			}
-		});
+    private void setupHolders(View view) {
+        mTitlebar = (view.getId() == R.id.titlebar)
+                ? view
+                : view.findViewById(R.id.titlebar);
 
-		mBtnClose.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (mListener != null) {
-					mListener.onClickClose(view);
-				}
-			}
-		});
-	}
+        mIcon = (ImageView) view.findViewById(R.id.icon);
+        mTitle = (TextView) view.findViewById(R.id.title);
+
+        // these buttons shouldn't be null
+        mBtnResize = view.findViewById(R.id.btnResize);
+        mBtnMinimize = view.findViewById(R.id.btnMinimize);
+        mBtnMaximize = view.findViewById(R.id.btnMaximize);
+        mBtnClose = view.findViewById(R.id.btnClose);
+
+        mBtnResize.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.onClickResize(view);
+                }
+            }
+        });
+
+        mBtnMinimize.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.onClickMinimize(view);
+                }
+            }
+        });
+
+        mBtnMaximize.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.onClickMaximize(view);
+                }
+            }
+        });
+
+        mBtnClose.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    mListener.onClickClose(view);
+                }
+            }
+        });
+    }
 }

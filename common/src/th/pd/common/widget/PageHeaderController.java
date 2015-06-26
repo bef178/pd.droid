@@ -20,286 +20,289 @@ import th.pd.common.R;
 
 public class PageHeaderController {
 
-	public interface Callback {
-		public boolean onAction(int actionId);
-	}
+    public interface Callback {
 
-	private static final int DEFAULT_DISPLAY_TIMEOUT = 2000;
+        public boolean onAction(int actionId);
+    }
 
-	private static final int MSG_HIDE_WITH_ANIM = 7749;
+    private static final int DEFAULT_DISPLAY_TIMEOUT = 2000;
 
-	// same value as that in ActionBarImpl.
-	private static final int ANIM_DURATION = 250;
+    private static final int MSG_HIDE_WITH_ANIM = 7749;
 
-	// a little faster to catch up with the system UI
-	private static final int ANIM_SHOW_DURATION = 250;
+    // same value as that in ActionBarImpl.
+    private static final int ANIM_DURATION = 250;
 
-	private Context mContext;
+    // a little faster to catch up with the system UI
+    private static final int ANIM_SHOW_DURATION = 250;
 
-	private View mHeader;
-	private ImageView mHeaderLogo;
-	private TextView mHeaderTitle;
-	private TextView mHeaderSummary;
-	private ViewGroup mHeaderOptionContainer;
+    private Context mContext;
 
-	// for the final state of the last animation
-	private boolean mFinallyVisible = false;
+    private View mHeader;
+    private ImageView mHeaderLogo;
+    private TextView mHeaderTitle;
+    private TextView mHeaderSummary;
+    private ViewGroup mHeaderOptionContainer;
 
-	private Animator mOnGoingAnimation;
+    // for the final state of the last animation
+    private boolean mFinallyVisible = false;
 
-	private Callback mCallback;
+    private Animator mOnGoingAnimation;
 
-	private Handler mHandler;
+    private Callback mCallback;
 
-	private View.OnClickListener mOnClickListener =
-			new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (mCallback != null) {
-						mCallback.onAction(v.getId());
-					}
-				}
-			};
+    private Handler mHandler;
 
-	private final AnimatorListener mAnimHideListener =
-			new AnimatorListenerAdapter() {
+    private View.OnClickListener mOnClickListener =
+            new View.OnClickListener() {
 
-				@Override
-				public void onAnimationEnd(Animator animation) {
-					mOnGoingAnimation = null;
-					mFinallyVisible = false;
-					if (mHeader != null) {
-						mHeader.setTranslationY(0);
-						mHeader.setVisibility(View.GONE);
-					}
-				}
+                @Override
+                public void onClick(View v) {
+                    if (mCallback != null) {
+                        mCallback.onAction(v.getId());
+                    }
+                }
+            };
 
-				@Override
-				public void onAnimationStart(Animator animation) {
-					if (mOnGoingAnimation != null) {
-						mOnGoingAnimation.end();
-					}
-					mOnGoingAnimation = animation;
-					mFinallyVisible = false;
-				};
-			};
+    private final AnimatorListener mAnimHideListener =
+            new AnimatorListenerAdapter() {
 
-	private final AnimatorListener mAnimShowListener =
-			new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mOnGoingAnimation = null;
+                    mFinallyVisible = false;
+                    if (mHeader != null) {
+                        mHeader.setTranslationY(0);
+                        mHeader.setVisibility(View.GONE);
+                    }
+                }
 
-				@Override
-				public void onAnimationEnd(Animator animation) {
-					mOnGoingAnimation = null;
-					mFinallyVisible = true;
-				}
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    if (mOnGoingAnimation != null) {
+                        mOnGoingAnimation.end();
+                    }
+                    mOnGoingAnimation = animation;
+                    mFinallyVisible = false;
+                };
+            };
 
-				@Override
-				public void onAnimationStart(Animator animation) {
-					if (mOnGoingAnimation != null) {
-						mOnGoingAnimation.end();
-					}
-					mOnGoingAnimation = animation;
-					mFinallyVisible = true;
-				};
-			};
+    private final AnimatorListener mAnimShowListener =
+            new AnimatorListenerAdapter() {
 
-	private final ValueAnimator.AnimatorUpdateListener mAnimUpdateListener =
-			new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mOnGoingAnimation = null;
+                    mFinallyVisible = true;
+                }
 
-				@Override
-				public void onAnimationUpdate(ValueAnimator animation) {
-					mHeader.requestLayout();
-				}
-			};
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    if (mOnGoingAnimation != null) {
+                        mOnGoingAnimation.end();
+                    }
+                    mOnGoingAnimation = animation;
+                    mFinallyVisible = true;
+                };
+            };
 
-	public PageHeaderController(View headerView) {
-		mContext = headerView.getContext();
-		findViews(headerView);
+    private final ValueAnimator.AnimatorUpdateListener mAnimUpdateListener =
+            new ValueAnimator.AnimatorUpdateListener() {
 
-		mHandler = new Handler(mContext.getMainLooper()) {
-			@Override
-			public void handleMessage(Message message) {
-				switch (message.what) {
-					case MSG_HIDE_WITH_ANIM: {
-						hideWithAnim();
-						break;
-					}
-					default:
-						throw new AssertionError(message.what);
-				}
-			}
-		};
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    mHeader.requestLayout();
+                }
+            };
 
-		hideImmediately();
-	}
+    public PageHeaderController(View headerView) {
+        mContext = headerView.getContext();
+        findViews(headerView);
 
-	private void findViews(View headerView) {
-		mHeader = headerView;
-		headerView.findViewById(R.id.actionPageHeaderBack)
-				.setOnClickListener(mOnClickListener);
-		mHeaderOptionContainer = (ViewGroup) headerView
-				.findViewById(R.id.pageheader_option_container);
-		mHeaderLogo = (ImageView) headerView
-				.findViewById(R.id.pageheader_logo);
-		mHeaderTitle = (TextView) headerView
-				.findViewById(R.id.pageheader_title);
-		mHeaderSummary = (TextView) headerView
-				.findViewById(R.id.pageheader_summary);
-	}
+        mHandler = new Handler(mContext.getMainLooper()) {
 
-	public ViewGroup getOptionContainer() {
-		return mHeaderOptionContainer;
-	}
+            @Override
+            public void handleMessage(Message message) {
+                switch (message.what) {
+                    case MSG_HIDE_WITH_ANIM: {
+                        hideWithAnim();
+                        break;
+                    }
+                    default:
+                        throw new AssertionError(message.what);
+                }
+            }
+        };
 
-	public View getView() {
-		return mHeader;
-	}
+        hideImmediately();
+    }
 
-	public void hideImmediately() {
-		if (mHeader == null) {
-			return;
-		}
+    private void findViews(View headerView) {
+        mHeader = headerView;
+        headerView.findViewById(R.id.actionPageHeaderBack)
+                .setOnClickListener(mOnClickListener);
+        mHeaderOptionContainer = (ViewGroup) headerView
+                .findViewById(R.id.pageheader_option_container);
+        mHeaderLogo = (ImageView) headerView
+                .findViewById(R.id.pageheader_logo);
+        mHeaderTitle = (TextView) headerView
+                .findViewById(R.id.pageheader_title);
+        mHeaderSummary = (TextView) headerView
+                .findViewById(R.id.pageheader_summary);
+    }
 
-		if (mOnGoingAnimation != null) {
-			mOnGoingAnimation.end();
-		}
+    public ViewGroup getOptionContainer() {
+        return mHeaderOptionContainer;
+    }
 
-		if (isFinallyVisible()) {
-			mHeader.setVisibility(View.GONE);
-			mFinallyVisible = false;
-		}
-	}
+    public View getView() {
+        return mHeader;
+    }
 
-	public void hideWithAnim() {
-		hideWithAnim(ANIM_DURATION);
-	}
+    public void hideImmediately() {
+        if (mHeader == null) {
+            return;
+        }
 
-	/**
-	 * remove any pending posts of hide message and do hide
-	 */
-	public void hideWithAnim(int animDuration) {
-		if (mHeader == null) {
-			return;
-		}
+        if (mOnGoingAnimation != null) {
+            mOnGoingAnimation.end();
+        }
 
-		if (animDuration <= 0) {
-			hideImmediately();
-			return;
-		}
+        if (isFinallyVisible()) {
+            mHeader.setVisibility(View.GONE);
+            mFinallyVisible = false;
+        }
+    }
 
-		if (!isFinallyVisible()) {
-			return;
-		}
+    public void hideWithAnim() {
+        hideWithAnim(ANIM_DURATION);
+    }
 
-		float endingY = -mHeader.getHeight();
-		int topLeft[] = {
-				0, 0
-		};
-		mHeader.getLocationInWindow(topLeft);
-		endingY -= topLeft[1];
+    /**
+     * remove any pending posts of hide message and do hide
+     */
+    public void hideWithAnim(int animDuration) {
+        if (mHeader == null) {
+            return;
+        }
 
-		ObjectAnimator a = ObjectAnimator.ofFloat(
-				mHeader, View.TRANSLATION_Y, endingY);
-		a.addUpdateListener(mAnimUpdateListener);
+        if (animDuration <= 0) {
+            hideImmediately();
+            return;
+        }
 
-		a.setInterpolator(new AccelerateInterpolator(1.5f));
-		a.setDuration(animDuration);
-		a.addListener(mAnimHideListener);
-		a.start();
-	}
+        if (!isFinallyVisible()) {
+            return;
+        }
 
-	public void hideWithDelay() {
-		hideWithDelay(DEFAULT_DISPLAY_TIMEOUT);
-	}
+        float endingY = -mHeader.getHeight();
+        int topLeft[] = {
+                0, 0
+        };
+        mHeader.getLocationInWindow(topLeft);
+        endingY -= topLeft[1];
 
-	/**
-	 * refresh timeout of hide message
-	 */
-	public void hideWithDelay(int delay) {
-		mHandler.removeMessages(MSG_HIDE_WITH_ANIM);
-		mHandler.sendEmptyMessageDelayed(MSG_HIDE_WITH_ANIM, delay);
-	}
+        ObjectAnimator a = ObjectAnimator.ofFloat(
+                mHeader, View.TRANSLATION_Y, endingY);
+        a.addUpdateListener(mAnimUpdateListener);
 
-	/**
-	 * @return the final state of header
-	 */
-	public boolean isFinallyVisible() {
-		return mHeader != null && mFinallyVisible;
-	}
+        a.setInterpolator(new AccelerateInterpolator(1.5f));
+        a.setDuration(animDuration);
+        a.addListener(mAnimHideListener);
+        a.start();
+    }
 
-	public void setCallback(Callback callback) {
-		mCallback = callback;
-	}
+    public void hideWithDelay() {
+        hideWithDelay(DEFAULT_DISPLAY_TIMEOUT);
+    }
 
-	public void setLogo(Drawable logo) {
-		mHeaderLogo.setImageDrawable(logo);
-		if (logo != null) {
-			mHeaderLogo.setVisibility(View.VISIBLE);
-		} else {
-			mHeaderLogo.setVisibility(View.GONE);
-		}
-	}
+    /**
+     * refresh timeout of hide message
+     */
+    public void hideWithDelay(int delay) {
+        mHandler.removeMessages(MSG_HIDE_WITH_ANIM);
+        mHandler.sendEmptyMessageDelayed(MSG_HIDE_WITH_ANIM, delay);
+    }
 
-	public void setSummary(CharSequence text) {
-		mHeaderSummary.setText(text);
-	}
+    /**
+     * @return the final state of header
+     */
+    public boolean isFinallyVisible() {
+        return mHeader != null && mFinallyVisible;
+    }
 
-	public void setTitle(CharSequence text) {
-		mHeaderTitle.setText(text);
-	}
+    public void setCallback(Callback callback) {
+        mCallback = callback;
+    }
 
-	public void showImmediately() {
-		if (mHeader == null) {
-			return;
-		}
+    public void setLogo(Drawable logo) {
+        mHeaderLogo.setImageDrawable(logo);
+        if (logo != null) {
+            mHeaderLogo.setVisibility(View.VISIBLE);
+        } else {
+            mHeaderLogo.setVisibility(View.GONE);
+        }
+    }
 
-		if (mOnGoingAnimation != null) {
-			mOnGoingAnimation.end();
-		}
+    public void setSummary(CharSequence text) {
+        mHeaderSummary.setText(text);
+    }
 
-		if (!isFinallyVisible()) {
-			mHeader.setVisibility(View.VISIBLE);
-			mFinallyVisible = true;
-		}
-	}
+    public void setTitle(CharSequence text) {
+        mHeaderTitle.setText(text);
+    }
 
-	public void showWithAnim() {
-		showWithAnim(ANIM_SHOW_DURATION);
-	}
+    public void showImmediately() {
+        if (mHeader == null) {
+            return;
+        }
 
-	/**
-	 * dummy if show animation wip;<br/>
-	 * end hide animation if hide animation wip to restore stable state<br/>
-	 */
-	private void showWithAnim(int animDuration) {
-		if (mHeader == null) {
-			return;
-		}
+        if (mOnGoingAnimation != null) {
+            mOnGoingAnimation.end();
+        }
 
-		if (animDuration <= 0) {
-			showImmediately();
-			return;
-		}
+        if (!isFinallyVisible()) {
+            mHeader.setVisibility(View.VISIBLE);
+            mFinallyVisible = true;
+        }
+    }
 
-		if (isFinallyVisible()) {
-			return;
-		}
+    public void showWithAnim() {
+        showWithAnim(ANIM_SHOW_DURATION);
+    }
 
-		mHeader.setVisibility(View.VISIBLE);
+    /**
+     * dummy if show animation wip;<br/>
+     * end hide animation if hide animation wip to restore stable state<br/>
+     */
+    private void showWithAnim(int animDuration) {
+        if (mHeader == null) {
+            return;
+        }
 
-		float startingY = -mHeader.getHeight();
-		int[] topLeft = { 0, 0 };
-		mHeader.getLocationInWindow(topLeft);
-		startingY -= topLeft[1];
-		mHeader.setTranslationY(startingY);
+        if (animDuration <= 0) {
+            showImmediately();
+            return;
+        }
 
-		ObjectAnimator a = ObjectAnimator.ofFloat(
-				mHeader, View.TRANSLATION_Y, 0);
-		a.addUpdateListener(mAnimUpdateListener);
+        if (isFinallyVisible()) {
+            return;
+        }
 
-		a.setInterpolator(new DecelerateInterpolator(1.5f));
-		a.setDuration(animDuration);
-		a.addListener(mAnimShowListener);
-		a.start();
-	}
+        mHeader.setVisibility(View.VISIBLE);
+
+        float startingY = -mHeader.getHeight();
+        int[] topLeft = { 0, 0 };
+        mHeader.getLocationInWindow(topLeft);
+        startingY -= topLeft[1];
+        mHeader.setTranslationY(startingY);
+
+        ObjectAnimator a = ObjectAnimator.ofFloat(
+                mHeader, View.TRANSLATION_Y, 0);
+        a.addUpdateListener(mAnimUpdateListener);
+
+        a.setInterpolator(new DecelerateInterpolator(1.5f));
+        a.setDuration(animDuration);
+        a.addListener(mAnimShowListener);
+        a.start();
+    }
 }

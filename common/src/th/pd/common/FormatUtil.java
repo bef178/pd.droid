@@ -6,9 +6,7 @@ import java.util.Date;
 public class FormatUtil {
 
     public static String formatBytes(long size) {
-        String[] units = {
-                " B", " KB", " MB", " GB", " TB", " PB"
-        };
+        String[] units = { " B", " KB", " MB", " GB", " TB", " PB" };
 
         float number = size;
         int suffix = 0;

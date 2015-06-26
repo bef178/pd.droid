@@ -174,6 +174,6 @@ public class TabController {
 		mTabContainer.getChildAt(index + 1).setBackgroundResource(
 				mCallback.onTabGetBgRes((index + 1 == size - 1)
 						? VIEW_TYPE_SP_FG_NA
-						: VIEW_TYPE_SP_FG_BG));
-	}
+                        : VIEW_TYPE_SP_FG_BG));
+    }
 }

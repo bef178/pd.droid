@@ -5,8 +5,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import th.pd.common.R;
-
 public class TitlebarController {
 
     public interface Listener {

@@ -38,7 +38,7 @@ all: $(TARGET)
 R:
 	@-mkdir -p $(GEN_SRC)
 	@echo "Making common.R ..."
-	@$(AAPT) --custom-package "th.pd.common"	\
+	@$(AAPT) --custom-package "th.pd.common.android"	\
 		-m -J $(GEN_SRC)
 
 dot_class: R

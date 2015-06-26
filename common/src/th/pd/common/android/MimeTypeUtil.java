@@ -1,4 +1,4 @@
-package th.pd.common.adnroid;
+package th.pd.common.android;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import th.pd.common.R;
 
 public class MimeTypeUtil {
 

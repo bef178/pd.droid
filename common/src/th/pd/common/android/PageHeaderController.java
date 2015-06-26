@@ -16,8 +16,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import th.pd.common.R;
-
 public class PageHeaderController {
 
     public interface Callback {

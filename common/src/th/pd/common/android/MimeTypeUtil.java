@@ -1,4 +1,4 @@
-package th.pd.common;
+package th.pd.common.adnroid;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import th.pd.common.R;
 
 public class MimeTypeUtil {
 
@@ -54,15 +56,15 @@ public class MimeTypeUtil {
 
     public static Drawable drawableByMimeType(Context context,
             String mimeType) {
-        return context.getResources().getDrawable(
-                resIdByMimeType(mimeType), null);
+        int resId = resIdByMimeType(mimeType);
+        return context.getResources().getDrawable(resId);
     }
 
     public static Drawable drawableLargeByMimeType(Context context,
             String mimeType) {
         int resId = resIdByMimeType(mimeType);
-        return context.getResources().getDrawable(
-                resId2largeResId.get(resId), null);
+        resId = resId2largeResId.get(resId);
+        return context.getResources().getDrawable(resId);
     }
 
     private static void initMimeTypeMap(Map<String, Integer> map) {
@@ -136,7 +138,8 @@ public class MimeTypeUtil {
                 R.drawable.mime_generic_file,
         };
         for (int i = 0; i < mappedGeneric.length; i += 2) {
-            map.put(mappedGeneric[i], mappedGeneric[i + 1]);
+            map.put((String) mappedGeneric[i],
+                    (Integer) mappedGeneric[i + 1]);
         }
 
         Object[] mappedDocument = {
@@ -218,7 +221,8 @@ public class MimeTypeUtil {
                 R.drawable.mime_ppt,
         };
         for (int i = 0; i < mappedDocument.length; i += 2) {
-            map.put(mappedDocument[i], mappedDocument[i + 1]);
+            map.put((String) mappedDocument[i],
+                    (Integer) mappedDocument[i + 1]);
         }
 
         Object[] mappedCompressed = {
@@ -243,7 +247,8 @@ public class MimeTypeUtil {
                 "application/x-deb", R.drawable.mime_zip,
         };
         for (int i = 0; i < mappedCompressed.length; i += 2) {
-            map.put(mappedCompressed[i], mappedCompressed[i + 1]);
+            map.put((String) mappedCompressed[i],
+                    (Integer) mappedCompressed[i + 1]);
         }
 
         Object[] mappedAudio = {
@@ -258,7 +263,7 @@ public class MimeTypeUtil {
                 "audio/x-wav", R.drawable.mime_wav,
         };
         for (int i = 0; i < mappedAudio.length; i += 2) {
-            map.put(mappedAudio[i], mappedAudio[i + 1]);
+            map.put((String) mappedAudio[i], (Integer) mappedAudio[i + 1]);
         }
 
         Object[] mappedVideo = {

@@ -1,4 +1,4 @@
-package th.pd.common.widget;
+package th.pd.common.android;
 
 import android.view.animation.Interpolator;
 

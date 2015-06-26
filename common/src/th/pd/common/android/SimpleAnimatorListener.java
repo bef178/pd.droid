@@ -1,4 +1,4 @@
-package th.pd.common.widget;
+package th.pd.common.android;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;

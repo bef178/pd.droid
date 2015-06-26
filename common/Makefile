@@ -6,7 +6,8 @@ define all-typef
 	`find -L $(2) -type f -name "$(strip $(1))"`
 endef
 
-AAPT := $(ADT_HOME)/build-tools/19.0.0/aapt
+ADT_HOME := $(HOME)/app/android-sdk-linux
+AAPT := $(ADT_HOME)/build-tools/22.0.1/aapt
 AJAR := $(ADT_HOME)/platforms/android-19/android.jar
 
 GEN_PATH := ./gen
@@ -17,7 +18,7 @@ GEN_BIN := $(GEN_PATH)/bin
 GEN_RES := $(GEN_PATH)/res
 GEN_SRC := $(GEN_PATH)/src
 
-TARGET := th-common.jar
+TARGET := pd-common.jar
 
 AAPT += package	\
 	--auto-add-overlay	\
@@ -37,7 +38,7 @@ all: $(TARGET)
 R:
 	@-mkdir -p $(GEN_SRC)
 	@echo "Making common.R ..."
-	@$(AAPT) --custom-package "th.common"	\
+	@$(AAPT) --custom-package "th.pd.common"	\
 		-m -J $(GEN_SRC)
 
 dot_class: R

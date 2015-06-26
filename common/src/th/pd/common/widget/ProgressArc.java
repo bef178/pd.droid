@@ -1,4 +1,4 @@
-package th.common.widget;
+package th.pd.common.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -9,7 +9,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
-import th.common.R;
+import th.pd.common.R;
 
 public class ProgressArc extends View {
 

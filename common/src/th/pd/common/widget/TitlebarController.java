@@ -1,11 +1,11 @@
-package th.common.widget;
+package th.pd.common.widget;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import th.common.R;
+import th.pd.common.R;
 
 public class TitlebarController {
 	public interface Listener {

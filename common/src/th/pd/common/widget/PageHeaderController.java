@@ -1,4 +1,4 @@
-package th.common.widget;
+package th.pd.common.widget;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -16,7 +16,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import th.common.R;
+import th.pd.common.R;
 
 public class PageHeaderController {
 

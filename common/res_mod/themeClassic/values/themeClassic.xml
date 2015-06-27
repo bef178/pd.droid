@@ -5,14 +5,14 @@
   </style>
 
   <style name="themeClassic.button">
-    <item name="android:background">@drawable/classic_button_selector</item>
+    <item name="android:background">@drawable/classic_button1_selector</item>
     <item name="android:gravity">center</item>
     <item name="android:padding">6dp</item>
     <item name="android:textSize">14sp</item>
   </style>
 
-  <style name="themeClassic.plainButton" parent="themeClassic.button">
-    <item name="android:background">@drawable/classic_button_plain_selector</item>
+  <style name="themeClassic.flatButton" parent="themeClassic.button">
+    <item name="android:background">@drawable/classic_button0_selector</item>
   </style>
 
   <style name="themeClassic.edit">

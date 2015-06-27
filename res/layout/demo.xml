@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:progressArc="http://schemas.android.com/apk/res-auto"
+    xmlns:pd-common="http://schemas.android.com/apk/th.pd.common.android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal" >
@@ -28,16 +28,15 @@
             layout="@layout/intentsender_demo"
             android:background="@color/dev_gray6" />
 
-        <th.common.widget.ProgressArc
+        <th.pd.common.android.ProgressArc
             android:id="@+id/progressArc_demo"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:background="@color/dev_gray9"
-            progressArc:arcWidth="3dp"
-            progressArc:borderColor="@color/dev_blue"
-            progressArc:borderWidth="1dp"
-            progressArc:degreeStart="0"
-            progressArc:degreeTotal="300" />
+            pd-common:arcWidth="3dp"
+            pd-common:borderColor="@color/dev_blue"
+            pd-common:borderWidth="1dp"
+            pd-common:degreeStart="0"
+            pd-common:degreeTotal="300" />
     </LinearLayout>
-
 </LinearLayout>

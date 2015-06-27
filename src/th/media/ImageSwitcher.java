@@ -12,8 +12,8 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 
-import th.common.widget.SquareInterpolator;
-import th.common.widget.SimpleAnimatorListener;
+import th.pd.common.android.SimpleAnimatorListener;
+import th.pd.common.android.SquareInterpolator;
 
 /**
  * **Used by <code>ImageSwitcher</code> for paint**<br/>
@@ -27,7 +27,8 @@ import th.common.widget.SimpleAnimatorListener;
  */
 class ImageStatus {
 
-    private static int[] findCentralizedOffset(int imageWidth, int imageHeight,
+    private static int[] findCentralizedOffset(int imageWidth,
+            int imageHeight,
             int containerWidth, int containerHeight) {
         return new int[] {
                 (containerWidth - imageWidth) / 2,
@@ -38,7 +39,8 @@ class ImageStatus {
     /**
      * Principle: the container contains the scaled image
      */
-    private static float findFitScale(int originalWidth, int originalHeight,
+    private static float findFitScale(int originalWidth,
+            int originalHeight,
             int containerWidth, int containerHeight) {
         if (originalWidth <= 0 || originalHeight <= 0
                 || containerWidth <= 0 || containerHeight <= 0) {
@@ -115,7 +117,8 @@ class ImageStatus {
     }
 
     public void centralize(int hostWidth, int hostHeight) {
-        applyOffset(findCentralizedOffset(rect.width(), rect.height(), hostWidth, hostHeight));
+        applyOffset(findCentralizedOffset(rect.width(), rect.height(),
+                hostWidth, hostHeight));
     }
 
     /**
@@ -229,6 +232,7 @@ public class ImageSwitcher extends View {
         final int playedTime = (int) (SquareInterpolator
                 .getInversed(interpolated) * DURATION);
         a.addListener(new SimpleAnimatorListener() {
+
             @Override
             public void onAnimationStart(Animator animator) {
                 if (animator instanceof ValueAnimator) {
@@ -253,7 +257,8 @@ public class ImageSwitcher extends View {
         }
     }
 
-    private static void updateImageStatus(ImageStatus imageStatus, int flags,
+    private static void updateImageStatus(ImageStatus imageStatus,
+            int flags,
             float animatedFraction, int hostWidth, int hostHeight) {
         if (!imageStatus.isValid()
                 || hostWidth == 0 || hostHeight == 0) {
@@ -268,8 +273,10 @@ public class ImageSwitcher extends View {
             float alphaStart = 0.4f;
             float alphaFinal = 1.0f;
             imageStatus.applyAlpha(isEnter
-                    ? (alphaFinal - alphaStart) * animatedFraction + alphaStart
-                    : (alphaStart - alphaFinal) * animatedFraction + alphaFinal);
+                    ? (alphaFinal - alphaStart) * animatedFraction
+                            + alphaStart
+                    : (alphaStart - alphaFinal) * animatedFraction
+                            + alphaFinal);
         } else {
             imageStatus.applyAlpha(1.0f);
         }
@@ -285,7 +292,8 @@ public class ImageSwitcher extends View {
                         // not be here yet, so no test
                     } else {
                         int endX = -imageStatus.rect.width();
-                        offsetX = (int) (totalX * (1f - animatedFraction)) + endX;
+                        offsetX = (int) (totalX * (1f - animatedFraction))
+                                + endX;
                     }
                     break;
                 }
@@ -294,7 +302,8 @@ public class ImageSwitcher extends View {
                     offsetY = imageStatus.rect.top;
                     if (isEnter) {
                         int startX = -imageStatus.rect.width();
-                        offsetX = (int) (totalX * animatedFraction) + startX;
+                        offsetX = (int) (totalX * animatedFraction)
+                                + startX;
                     } else {
                         // not be here yet, so no test
                     }
@@ -314,12 +323,15 @@ public class ImageSwitcher extends View {
             float scaleStart = 0.4f * imageStatus.getFitScale();
             float scaleFinal = 1.0f * imageStatus.getFitScale();
             imageStatus.applyScale(isEnter
-                    ? (scaleFinal - scaleStart) * animatedFraction + scaleStart
-                    : (scaleStart - scaleFinal) * animatedFraction + scaleFinal);
+                    ? (scaleFinal - scaleStart) * animatedFraction
+                            + scaleStart
+                    : (scaleStart - scaleFinal) * animatedFraction
+                            + scaleFinal);
 
             int w = imageStatus.rect.width();
             int h = imageStatus.rect.height();
-            imageStatus.applyOffset((hostWidth - w) / 2, (hostHeight - h) / 2);
+            imageStatus.applyOffset((hostWidth - w) / 2,
+                    (hostHeight - h) / 2);
         }
     }
 
@@ -352,7 +364,8 @@ public class ImageSwitcher extends View {
         }
 
         float maxScale = 64f;
-        float minScale = Math.min(1f * getWidth() / mImage.bitmap.getWidth(),
+        float minScale = Math.min(
+                1f * getWidth() / mImage.bitmap.getWidth(),
                 1f * getHeight() / mImage.bitmap.getHeight());
         minScale = Math.min(0.1f, minScale);
 
@@ -362,7 +375,8 @@ public class ImageSwitcher extends View {
             scale = minScale;
         }
 
-        if (scale >= 0.98f * mImage.getFitScale() && scale <= 1.02f * mImage.getFitScale()) {
+        if (scale >= 0.98f * mImage.getFitScale()
+                && scale <= 1.02f * mImage.getFitScale()) {
             scale = mImage.getFitScale();
         }
 
@@ -441,7 +455,8 @@ public class ImageSwitcher extends View {
                 startAnimatedFraction, 7749f);
     }
 
-    private void doSwitch(Bitmap bitmap, Bitmap comingBitmap, boolean asNext,
+    private void doSwitch(Bitmap bitmap, Bitmap comingBitmap,
+            boolean asNext,
             float startAnimatedFraction, final float endAnimatedFraction) {
 
         if (isSwitching()) {
@@ -456,9 +471,11 @@ public class ImageSwitcher extends View {
 
         ValueAnimator animator = getAnimator(startAnimatedFraction);
         animator.addUpdateListener(new AnimatorUpdateListener() {
+
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedFraction = valueAnimator.getAnimatedFraction();
+                float animatedFraction = valueAnimator
+                        .getAnimatedFraction();
                 if (animatedFraction >= endAnimatedFraction) {
                     mAnimatorSet.cancel();
                 }
@@ -476,9 +493,11 @@ public class ImageSwitcher extends View {
 
         mAnimatorSet = new AnimatorSet();
         mAnimatorSet.addListener(new SimpleAnimatorListener() {
+
             @Override
             public void onAnimationEnd(Animator animator) {
-                mImage.resetAndFit(mComingImage.bitmap, hostWidth, hostHeight);
+                mImage.resetAndFit(mComingImage.bitmap, hostWidth,
+                        hostHeight);
                 mComingImage.clear();
                 mScale = mImage.getFitScale();
                 invalidate();
@@ -503,9 +522,11 @@ public class ImageSwitcher extends View {
 
         ValueAnimator animator = getAnimator(0f);
         animator.addUpdateListener(new AnimatorUpdateListener() {
+
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedFraction = valueAnimator.getAnimatedFraction();
+                float animatedFraction = valueAnimator
+                        .getAnimatedFraction();
                 if (animatedFraction >= turnPointAnimatedFraction) {
                     valueAnimator.cancel();
                 }
@@ -523,9 +544,11 @@ public class ImageSwitcher extends View {
 
         ValueAnimator fallbackAnimator = getAnimator(1 - turnPointAnimatedFraction);
         fallbackAnimator.addUpdateListener(new AnimatorUpdateListener() {
+
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float animatedFraction = valueAnimator.getAnimatedFraction();
+                float animatedFraction = valueAnimator
+                        .getAnimatedFraction();
                 updateImageStatus(mImage,
                         getFlagsForAnim(true, !mComingAsNext),
                         animatedFraction,
@@ -546,6 +569,7 @@ public class ImageSwitcher extends View {
     public void firstLoad(final Bitmap bitmap) {
         if (getWidth() == 0 || getHeight() == 0) {
             mFirstLoadRunnable = new Runnable() {
+
                 @Override
                 public void run() {
                     firstLoad(bitmap);

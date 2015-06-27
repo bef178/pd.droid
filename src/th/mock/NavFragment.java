@@ -1,6 +1,5 @@
 package th.mock;
 
-import th.pd.R;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,9 +9,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import th.pd.R;
+
 public class NavFragment extends Fragment {
 
     interface ActionListener {
+
         boolean onNavItemSelected(Object actionArg);
     }
 
@@ -44,6 +46,7 @@ public class NavFragment extends Fragment {
         mNavList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mNavList.setAdapter(new NavListAdapter(getActivity()));
         mNavList.setOnItemClickListener(new OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> parent, View itemView,
                     int position, long id) {

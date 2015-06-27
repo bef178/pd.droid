@@ -1,9 +1,10 @@
 package th.mock;
 
-import th.pd.R;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+
+import th.pd.R;
 
 public class ContentFragment extends Fragment {
 

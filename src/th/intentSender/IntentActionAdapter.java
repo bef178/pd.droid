@@ -3,7 +3,6 @@ package th.intentSender;
 import java.util.ArrayList;
 import java.util.List;
 
-import th.pd.R;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -11,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import th.pd.R;
 
 public class IntentActionAdapter extends BaseAdapter {
 	public static final String ACTION_MANAGE_ROOT = "android.provider.action.MANAGE_ROOT";

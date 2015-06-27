@@ -13,13 +13,16 @@ import android.widget.VideoView;
  * @author tanghao
  */
 public class VideoPlayer {
+
     static interface Callback {
+
         public static final int ACTION_PLAY = 1;
         public static final int ACTION_PAUSE = 2;
         public static final int ACTION_UPDATE_PROGRESS = 3;
         public static final int ACTION_UPDATE_PROGRESS_TOTAL = 4;
 
         public boolean onAction(int actionId, int extra);
+
         public boolean onError(MediaPlayer mp, int what, int extra);
     }
 
@@ -27,6 +30,7 @@ public class VideoPlayer {
      * don't change status when polling
      */
     class StatusPoller implements Runnable {
+
         private static final int DELAY = 50;
 
         // switch state and update progress
@@ -85,7 +89,8 @@ public class VideoPlayer {
                     }
                     if (hasPurpose(PURPOSE_FLAG_EXPECT_DURATION)) {
                         clearPurpose(PURPOSE_FLAG_EXPECT_DURATION);
-                        mCallback.onAction(Callback.ACTION_UPDATE_PROGRESS_TOTAL,
+                        mCallback.onAction(
+                                Callback.ACTION_UPDATE_PROGRESS_TOTAL,
                                 mVideoView.getDuration());
                     }
                     break;
@@ -132,6 +137,7 @@ public class VideoPlayer {
         mVideoView = videoView;
         mVideoView.setOnClickListener(null);
         mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
                 return mCallback.onError(mp, what, extra);
@@ -139,6 +145,7 @@ public class VideoPlayer {
         });
         mVideoView.setOnPreparedListener(null);
         mVideoView.setOnCompletionListener(new OnCompletionListener() {
+
             @Override
             public void onCompletion(MediaPlayer mp) {
                 stop();
@@ -208,6 +215,7 @@ public class VideoPlayer {
 
     public void playDelayed(int delay) {
         mHandler.postDelayed(new Runnable() {
+
             @Override
             public void run() {
                 play();

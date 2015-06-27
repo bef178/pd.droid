@@ -1,11 +1,12 @@
 package th.demo;
 
-import th.common.widget.ProgressArc;
-import th.common.widget.ProgressArc.ProgressChangeListener;
-
 import android.os.Handler;
 
+import th.pd.common.android.ProgressArc;
+import th.pd.common.android.ProgressArc.ProgressChangeListener;
+
 public class ProgressArcDemo {
+
     private static final int MSG_INCREASE = 0;
 
     private ProgressArc mProgArc;
@@ -16,6 +17,7 @@ public class ProgressArcDemo {
         mProgArc = progArc;
         mProgArc.setListener(
                 new ProgressChangeListener() {
+
                     @Override
                     public void onChange(float value) {
                     }
@@ -27,6 +29,7 @@ public class ProgressArcDemo {
                 });
 
         mHandler = new Handler(progArc.getContext().getMainLooper()) {
+
             @Override
             public void handleMessage(android.os.Message msg) {
                 switch (msg.what) {

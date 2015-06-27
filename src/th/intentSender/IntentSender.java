@@ -5,7 +5,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
-import th.pd.R;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -19,6 +18,8 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import th.pd.R;
 
 /**
  * a tester to send kinds of intents, may with data
@@ -44,7 +45,8 @@ public class IntentSender {
         }
     }
 
-    private static byte[] getByteArray(InputStream stream) throws IOException {
+    private static byte[] getByteArray(InputStream stream)
+            throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int byteCount = 0;
@@ -54,7 +56,8 @@ public class IntentSender {
         return bytes.toByteArray();
     }
 
-    private static final String LOG_TAG = IntentSender.class.getSimpleName();
+    private static final String LOG_TAG = IntentSender.class
+            .getSimpleName();
 
     private TextView mTextLog;
 
@@ -71,6 +74,7 @@ public class IntentSender {
 
         mView.findViewById(R.id.btnSendIntent).setOnClickListener(
                 new View.OnClickListener() {
+
                     @Override
                     public void onClick(View v) {
                         sendIntent();
@@ -79,6 +83,7 @@ public class IntentSender {
 
         mView.findViewById(R.id.btnSendNotification).setOnClickListener(
                 new View.OnClickListener() {
+
                     @Override
                     public void onClick(View v) {
                         sendNotification();
@@ -131,11 +136,13 @@ public class IntentSender {
     }
 
     private void logIntent(Intent intent) {
-        println(LOG_TAG + ":\n\taction:" + intent.getAction() + ";\n\ttype:"
+        println(LOG_TAG + ":\n\taction:" + intent.getAction()
+                + ";\n\ttype:"
                 + intent.getType() + ";");
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode,
+            Intent data) {
         StringBuilder sb = new StringBuilder();
 
         appendLogEntry("requestCode", Integer.toString(requestCode), sb);

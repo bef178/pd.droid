@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import th.pd.R;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -13,7 +12,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import th.pd.R;
+
 final class NavActionItem extends NavItem {
+
     protected Uri uri = null;
 
     public NavActionItem(File file) {
@@ -27,12 +29,14 @@ final class NavActionItem extends NavItem {
 }
 
 final class NavHeaderItem extends NavItem {
+
     public NavHeaderItem(String label) {
         this.label = label;
     }
 }
 
 class NavItem {
+
     protected String label = null; // caption for display
 
     protected String getLabel() {

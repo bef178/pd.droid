@@ -4,12 +4,6 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import th.common.Cache;
-import th.common.MimeUtil;
-import th.media.ImageSwitcher;
-import th.media.GesturePipeline.Callback;
-import th.pd.R;
-
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -22,6 +16,11 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+
+import th.media.GesturePipeline.Callback;
+import th.pd.R;
+import th.pd.common.Cache;
+import th.pd.common.android.MimeTypeUtil;
 
 public class ImageActivity extends AbsMediaActivity {
 
@@ -43,6 +42,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private class UpdateCacheTaskArgument {
+
         private int pos;
         private Bitmap bitmap;
 
@@ -151,6 +151,7 @@ public class ImageActivity extends AbsMediaActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mImageSwitcher.postDelayed(new Runnable() {
+
             @Override
             public void run() {
                 mImageSwitcher.resetImage();
@@ -186,6 +187,7 @@ public class ImageActivity extends AbsMediaActivity {
 
     private void setupController() {
         mGesturePipeline = new GesturePipeline(this, new Callback() {
+
             @Override
             public boolean onDoubleTap() {
                 if (mImageSwitcher.isScaled()) {
@@ -194,10 +196,13 @@ public class ImageActivity extends AbsMediaActivity {
                     // scale to full screen fit
                     Rect imageRect = mImageSwitcher.getImageRect();
                     if (imageRect.width() < mImageSwitcher.getWidth()
-                            && imageRect.height() < mImageSwitcher.getHeight()) {
+                            && imageRect.height() < mImageSwitcher
+                                    .getHeight()) {
                         float scale = Math.min(
-                                1f * mImageSwitcher.getWidth() / imageRect.width(),
-                                1f * mImageSwitcher.getHeight() / imageRect.height());
+                                1f * mImageSwitcher.getWidth()
+                                        / imageRect.width(),
+                                1f * mImageSwitcher.getHeight()
+                                        / imageRect.height());
                         mImageSwitcher.doScale(scale);
                     }
                 }
@@ -237,15 +242,19 @@ public class ImageActivity extends AbsMediaActivity {
             }
 
             @Override
-            public boolean onScrollBy(int[] totalDiff, int[] lastDiff, int trend) {
+            public boolean onScrollBy(int[] totalDiff, int[] lastDiff,
+                    int trend) {
                 if (mImageSwitcher.isScaled()) {
                     Rect imageRect = mImageSwitcher.getImageRect();
                     if (imageRect.width() > mImageSwitcher.getWidth()
-                            || imageRect.height() > mImageSwitcher.getHeight()) {
+                            || imageRect.height() > mImageSwitcher
+                                    .getHeight()) {
                         imageRect.offset(-lastDiff[0], -lastDiff[1]);
-                        if (imageRect.contains(mImageSwitcher.getWidth() / 2,
+                        if (imageRect.contains(
+                                mImageSwitcher.getWidth() / 2,
                                 mImageSwitcher.getHeight() / 2)) {
-                            mImageSwitcher.doOffset(-lastDiff[0], -lastDiff[1]);
+                            mImageSwitcher.doOffset(-lastDiff[0],
+                                    -lastDiff[1]);
                         }
                     }
                     return true;
@@ -292,6 +301,7 @@ public class ImageActivity extends AbsMediaActivity {
 
         findViewById(R.id.btnNext).setOnClickListener(
                 new View.OnClickListener() {
+
                     @Override
                     public void onClick(View v) {
                         mImageSwitcher.resetImage();
@@ -301,6 +311,7 @@ public class ImageActivity extends AbsMediaActivity {
 
         findViewById(R.id.btnPrev).setOnClickListener(
                 new View.OnClickListener() {
+
                     @Override
                     public void onClick(View v) {
                         mImageSwitcher.resetImage();
@@ -325,6 +336,7 @@ public class ImageActivity extends AbsMediaActivity {
         mUpdateCacheTaskArgument.set(mCurrentPos, null);
 
         new UpdateCacheTask() {
+
             @Override
             protected Void doInBackground(UpdateCacheTaskArgument... params) {
                 UpdateCacheTaskArgument a = params[0];
@@ -462,8 +474,8 @@ class Model {
         File[] files = seedDiretory.listFiles();
         if (files != null) {
             for (File file : files) {
-                String mimeType = MimeUtil.mimeTypeByFile(file);
-                if (file.isFile() && MimeUtil.isImage(mimeType)) {
+                String mimeType = MimeTypeUtil.mimeTypeByFile(file);
+                if (file.isFile() && MimeTypeUtil.isImage(mimeType)) {
                     dataList.add(Uri.fromFile(file));
                 }
             }

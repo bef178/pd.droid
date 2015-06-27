@@ -1,7 +1,5 @@
 package th.media;
 
-import th.media.ElementalGestureDetector.OnTapListener;
-import th.media.GesturePipeline.Callback;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
@@ -9,6 +7,9 @@ import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
+
+import th.media.ElementalGestureDetector.OnTapListener;
+import th.media.GesturePipeline.Callback;
 
 class ElementalGestureDetector {
 
@@ -195,8 +196,8 @@ class GestureListener implements OnGestureListener,
     }
 
     @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-            float distanceY) {
+    public boolean onScroll(MotionEvent e1, MotionEvent e2,
+            float distanceX, float distanceY) {
         if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
             return false;
         }

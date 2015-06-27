@@ -1,11 +1,5 @@
 package th.demo;
 
-import th.demo.PageHeaderDemo;
-import th.demo.ProgressArcDemo;
-import th.intentSender.IntentSender;
-import th.pd.R;
-import th.common.widget.ProgressArc;
-
 import android.app.Activity;
 import android.content.AsyncQueryHandler;
 import android.content.Intent;
@@ -20,7 +14,12 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
+import th.intentSender.IntentSender;
+import th.pd.R;
+import th.pd.common.android.ProgressArc;
+
 public class Demo extends Activity {
+
     private static final String LOG_TAG = "Demo";
 
     private PageHeaderDemo mHeaderDemo;
@@ -96,6 +95,7 @@ public class Demo extends Activity {
 
         AsyncQueryHandler aqh = new AsyncQueryHandler(
                 getContentResolver()) {
+
             @Override
             protected void onQueryComplete(int token, Object cookie,
                     Cursor cursor) {
@@ -115,9 +115,7 @@ public class Demo extends Activity {
             }
         };
         aqh.startQuery(0, null, uri,
-                new String[] {
-                    OpenableColumns.DISPLAY_NAME
-                }, null, null,
+                new String[] { OpenableColumns.DISPLAY_NAME }, null, null,
                 null);
     }
 

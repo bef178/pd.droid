@@ -31,16 +31,17 @@ AAPT += package	\
 	-S $(RES_PATH)/progressarc	\
 	-S $(RES_PATH)/themeClassic
 
-.PHONY: all clean
-
+.PHONY: all
 all: $(TARGET)
 
+.PHONY: R
 R:
 	@-mkdir -p $(GEN_SRC)
 	@echo "Making common.R ..."
 	@$(AAPT) --custom-package "th.pd.common.android"	\
 		-m -J $(GEN_SRC)
 
+.PHONY: dot_class
 dot_class: R
 	@-mkdir -p $(GEN_BIN)
 	@echo "Compiling ..."
@@ -59,6 +60,7 @@ $(TARGET): dot_class
 	@-mkdir -p $(GEN_RES)
 	@cp -r $(RES_PATH)/*/* $(GEN_RES)
 
+.PHONY: clean
 clean:
 	@echo "Cleaning ... "
 	@-rm -rf $(GEN_PATH)

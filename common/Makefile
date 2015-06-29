@@ -8,7 +8,6 @@ endef
 
 ADT_HOME := $(HOME)/app/android-sdk-linux
 AAPT := $(ADT_HOME)/build-tools/22.0.1/aapt
-AAPT_ARGS := --auto-add-overlay -f -M ./AndroidManifest.xml
 AJAR := $(ADT_HOME)/platforms/android-19/android.jar
 
 GEN := ./gen
@@ -23,7 +22,7 @@ TARGET := pd-common.jar
 
 
 .PHONY: all
-all: $(TARGET)
+all: $(GEN)/$(TARGET)
 
 .PHONY: R
 R:
@@ -32,7 +31,8 @@ R:
 	@cp -r $(RES)/*/* $(GEN_RES)
 	@echo "Generating R ..."
 	@-mkdir -p $(GEN_SRC)
-	@$(AAPT) package $(AAPT_ARGS)	\
+	@$(AAPT) package	\
+		--auto-add-overlay -f -M ./AndroidManifest.xml	\
 		--custom-package "th.pd.common.android"	\
 		-I $(AJAR)	\
 		-S $(GEN_RES)	\
@@ -42,18 +42,16 @@ R:
 classes: R
 	@-mkdir -p $(GEN_OBJ)
 	@echo "Compiling ..."
-	@javac $(call all-typef, *.java, $(SRC)) $(call all-typef, *.java, $(GEN_SRC))	\
+	@javac $(call all-typef, *.java, $(SRC))	\
 		-sourcepath $(SRC):$(GEN_SRC)	\
 		-classpath $(AJAR)	\
 		-d $(GEN_OBJ)
 
-$(TARGET): classes
+$(GEN)/$(TARGET): classes
 	@echo "Packaging ..."
-	@$(AAPT) package $(AAPT_ARGS)	\
-		-I $(AJAR)	\
-		-S $(GEN_RES)	\
-		-F $(GEN)/$@	\
-		$(GEN_OBJ)
+# as lib, remove the R stuff
+	@-rm `find $(GEN_OBJ) -regex ".*/R\($$.+\)?\.class"`
+	@jar cf $@ -C $(GEN_OBJ) .
 
 .PHONY: clean
 clean:

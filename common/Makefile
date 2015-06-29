@@ -8,59 +8,54 @@ endef
 
 ADT_HOME := $(HOME)/app/android-sdk-linux
 AAPT := $(ADT_HOME)/build-tools/22.0.1/aapt
+AAPT_ARGS := --auto-add-overlay -f -M ./AndroidManifest.xml
 AJAR := $(ADT_HOME)/platforms/android-19/android.jar
 
-GEN_PATH := ./gen
-RES_PATH := ./res_mod
-SRC_PATH := ./src
+GEN := ./gen
+RES := ./res_mod
+SRC := ./src
 
-GEN_BIN := $(GEN_PATH)/bin
-GEN_RES := $(GEN_PATH)/res
-GEN_SRC := $(GEN_PATH)/src
+GEN_OBJ := $(GEN)/obj
+GEN_RES := $(GEN)/res
+GEN_SRC := $(GEN)/src
 
 TARGET := pd-common.jar
 
-AAPT += package	\
-	--auto-add-overlay	\
-	-f	\
-	-I $(AJAR)	\
-	-M ./AndroidManifest.xml	\
-	-S $(RES_PATH)/common	\
-	-S $(RES_PATH)/mime	\
-	-S $(RES_PATH)/pageheader	\
-	-S $(RES_PATH)/progressarc	\
-	-S $(RES_PATH)/themeClassic
 
 .PHONY: all
 all: $(TARGET)
 
 .PHONY: R
 R:
-	@-mkdir -p $(GEN_SRC)
-	@echo "Making common.R ..."
-	@$(AAPT) --custom-package "th.pd.common.android"	\
-		-m -J $(GEN_SRC)
-
-.PHONY: dot_class
-dot_class: R
-	@-mkdir -p $(GEN_BIN)
-	@echo "Compiling ..."
-	@javac $(call all-typef, *.java, $(SRC_PATH)) $(call all-typef, *.java, $(GEN_SRC))	\
-		-sourcepath $(SRC_PATH):$(GEN_SRC)	\
-		-classpath $(AJAR)	\
-		-d $(GEN_BIN)
-
-$(TARGET): dot_class
-	@echo "Packaging ..."
-	@$(AAPT)	\
-		-F $(GEN_PATH)/$@	\
-		$(GEN_BIN)
-# generate res to be included in apk
 	@echo "Generating res ..."
 	@-mkdir -p $(GEN_RES)
-	@cp -r $(RES_PATH)/*/* $(GEN_RES)
+	@cp -r $(RES)/*/* $(GEN_RES)
+	@echo "Generating R ..."
+	@-mkdir -p $(GEN_SRC)
+	@$(AAPT) package $(AAPT_ARGS)	\
+		--custom-package "th.pd.common.android"	\
+		-I $(AJAR)	\
+		-S $(GEN_RES)	\
+		-m -J $(GEN_SRC)
+
+.PHONY: classes
+classes: R
+	@-mkdir -p $(GEN_OBJ)
+	@echo "Compiling ..."
+	@javac $(call all-typef, *.java, $(SRC)) $(call all-typef, *.java, $(GEN_SRC))	\
+		-sourcepath $(SRC):$(GEN_SRC)	\
+		-classpath $(AJAR)	\
+		-d $(GEN_OBJ)
+
+$(TARGET): classes
+	@echo "Packaging ..."
+	@$(AAPT) package $(AAPT_ARGS)	\
+		-I $(AJAR)	\
+		-S $(GEN_RES)	\
+		-F $(GEN)/$@	\
+		$(GEN_OBJ)
 
 .PHONY: clean
 clean:
 	@echo "Cleaning ... "
-	@-rm -rf $(GEN_PATH)
+	@-rm -rf $(GEN)

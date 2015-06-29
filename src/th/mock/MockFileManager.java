@@ -90,27 +90,6 @@ public class MockFileManager extends Activity {
         setContentView(R.layout.mock_filemanager_layout);
 
         initializeFragments();
-
-        mListLeft = (ListView) findViewById(R.id.listLeft);
-        mListRight = (ListView) findViewById(R.id.listRight);
-        mListLeft.setAdapter(new MockAdapter(this, new String[] {
-                "1", "2", "3", "4"
-        }));
-        mListRight.setAdapter(new MockAdapter(this, new String[] {
-                "a", "b", "c", "d"
-        }));
-
-        mListDefLeft = (ListView) findViewById(R.id.listDefLeft);
-        mListDefRight = (ListView) findViewById(R.id.listDefRight);
-        mListDefLeft.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_single_choice,
-                new String[] {
-                        "1", "2", "3", "4"
-                }));
-        mListDefRight.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, new String[] {
-                        "a", "b", "c", "d"
-                }));
     }
 
 }

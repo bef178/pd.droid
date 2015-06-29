@@ -78,26 +78,6 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
-    <th.mock.StateListView
-        android:id="@+id/listLeft"
-        android:layout_width="100dp"
-        android:layout_height="match_parent"
-        android:background="@color/dev_gray6"
-        android:cacheColorHint="@android:color/transparent" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-
-        <th.mock.StateListView
-            android:id="@+id/listRight"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:background="@color/dev_grayC"
-            android:cacheColorHint="@android:color/transparent" />
-    </LinearLayout>
-
     <ListView
         android:id="@+id/listDefLeft"
         android:layout_width="100dp"

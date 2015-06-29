@@ -35,7 +35,6 @@ public class NavFragment extends Fragment {
                 R.layout.mock_filemanager_nav_fragment_layout,
                 container,
                 false);
-        mNavList = (ListView) view.findViewById(R.id.navList);
         return view;
     }
 
@@ -43,6 +42,9 @@ public class NavFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        if (mNavList == null) {
+            return;
+        }
         mNavList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mNavList.setAdapter(new NavListAdapter(getActivity()));
         mNavList.setOnItemClickListener(new OnItemClickListener() {

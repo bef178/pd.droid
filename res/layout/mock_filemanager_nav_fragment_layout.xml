@@ -4,11 +4,5 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <th.mock.StateListView
-        android:id="@+id/navList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/file_manager"
-        android:cacheColorHint="@android:color/transparent" />
 
 </FrameLayout>

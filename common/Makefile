@@ -33,6 +33,7 @@ R:
 	@-mkdir -p $(GEN_SRC)
 	@$(AAPT) package	\
 		--auto-add-overlay -f -M ./AndroidManifest.xml	\
+		--non-constant-id	\
 		--custom-package "th.pd.common.android"	\
 		-I $(AJAR)	\
 		-S $(GEN_RES)	\

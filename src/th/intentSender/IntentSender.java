@@ -242,7 +242,7 @@ public class IntentSender {
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setAutoCancel(true)
                 .setTicker("click to open Settings")
-                .setSmallIcon(R.drawable.mime_generic_file)
+                .setSmallIcon(R.drawable.mime_file)
                 .setContentTitle("contentTitle")
                 .setContentText("contentText")
                 .setContentIntent(PendingIntent.getActivity(context, 0,

@@ -25,12 +25,13 @@ TARGET := pd.apk
 .PHONY: all
 all: $(GEN)/$(TARGET)
 
-include ./common/include.mk
-PD_COMMON_JAR := common/$(PD_COMMON_JAR)
-PD_COMMON_RES := common/$(PD_COMMON_RES)
+PD_COMMON_DIR := ./common
+include $(PD_COMMON_DIR)/include.mk
+PD_COMMON_JAR := $(PD_COMMON_DIR)/$(PD_COMMON_JAR)
+PD_COMMON_RES := $(PD_COMMON_DIR)/$(PD_COMMON_RES)
 
 $(PD_COMMON_JAR) $(PD_COMMON_RES):
-	@make -C common
+	@make -C $(PD_COMMON_DIR)
 
 .PHONY: R
 R: $(RES) $(PD_COMMON_RES)
@@ -60,16 +61,17 @@ $(GEN)/$(TARGET): $(GEN)/$(DEX) $(PD_COMMON_RES)
 		-I $(AJAR)	\
 		-S $(RES)	\
 		-S $(PD_COMMON_RES)	\
-		-F $(GEN)/pd.ap1
-	@cd $(GEN) && $(AAPT) add pd.ap1 $(DEX)
+		-F $(GEN)/t.ap1
+	@cd $(GEN) && $(AAPT) add t.ap1 $(DEX)
 	@echo "Aligning ..."
-	@$(ADT_BUILD)/zipalign -f 4 $(GEN)/pd.ap1 $(GEN)/pd.ap2
+	@$(ADT_BUILD)/zipalign -f 4 $(GEN)/t.ap1 $(GEN)/t.ap2
 	@echo "Signing ..."
 	@jarsigner	\
 		-tsa http://timestamp.digicert.com	\
 		-keystore $(KEYSTORE)	\
 		-storepass android	\
-		-signedjar $@ $(GEN)/pd.ap2 $(CERT)
+		-signedjar $@	\
+		$(GEN)/t.ap2 $(CERT)
 
 .PHONY: install
 install:
@@ -79,5 +81,5 @@ install:
 clean:
 	@echo "Cleaning ... "
 	@-rm -rf $(GEN)
-	@make -C common clean
+	@make -C $(PD_COMMON_DIR) clean
 

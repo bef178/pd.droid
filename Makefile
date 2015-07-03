@@ -1,17 +1,9 @@
 #
 
-define all-typef
-	`find -L $(2) -type f -name "$(strip $(1))"`
-endef
-
-ADT_HOME := $(HOME)/app/android-sdk-linux
-ADT_BUILD := $(ADT_HOME)/build-tools/22.0.1
-AAPT := $(ADT_BUILD)/aapt
-AAPT_FLAGS := --auto-add-overlay -f -M ./AndroidManifest.xml
-DX := $(ADT_BUILD)/dx
-AJAR := $(ADT_HOME)/platforms/android-19/android.jar
-KEYSTORE := $(HOME)/conf/th.keystore
-CERT := cert
+PD_COMMON_DIR := ./common
+include $(PD_COMMON_DIR)/def.mk
+PD_COMMON_JAR := $(PD_COMMON_DIR)/$(PD_COMMON_JAR)
+PD_COMMON_RES := $(PD_COMMON_DIR)/$(PD_COMMON_RES)
 
 RES := ./res
 SRC := ./src
@@ -25,11 +17,6 @@ TARGET := pd.apk
 .PHONY: all
 all: $(GEN)/$(TARGET)
 
-PD_COMMON_DIR := ./common
-include $(PD_COMMON_DIR)/include.mk
-PD_COMMON_JAR := $(PD_COMMON_DIR)/$(PD_COMMON_JAR)
-PD_COMMON_RES := $(PD_COMMON_DIR)/$(PD_COMMON_RES)
-
 $(PD_COMMON_JAR) $(PD_COMMON_RES):
 	@make -C $(PD_COMMON_DIR)
 
@@ -37,8 +24,8 @@ $(PD_COMMON_JAR) $(PD_COMMON_RES):
 R: $(RES) $(PD_COMMON_RES)
 	@-mkdir -p $(GEN_SRC)
 	@echo "Generating R ..."
-	@$(AAPT) package $(AAPT_FLAGS)	\
-		--extra-packages $(PD_COMMON_R_PACKAGE)	\
+	@$(AAPT) $(AAPT_PACKAGE_FLAGS)	\
+		--extra-packages $(PD_COMMON_PKG)	\
 		-I $(AJAR)	\
 		-S $(RES)	\
 		-S $(PD_COMMON_RES)	\
@@ -57,14 +44,14 @@ $(GEN)/$(DEX): R $(PD_COMMON_JAR)
 $(GEN)/$(TARGET): $(GEN)/$(DEX) $(PD_COMMON_RES)
 	@echo "Packaging ..."
 	@-mkdir -p $(GEN)
-	@$(AAPT) package $(AAPT_FLAGS)	\
+	@$(AAPT) $(AAPT_PACKAGE_FLAGS)	\
 		-I $(AJAR)	\
 		-S $(RES)	\
 		-S $(PD_COMMON_RES)	\
 		-F $(GEN)/t.ap1
 	@cd $(GEN) && $(AAPT) add t.ap1 $(DEX)
 	@echo "Aligning ..."
-	@$(ADT_BUILD)/zipalign -f 4 $(GEN)/t.ap1 $(GEN)/t.ap2
+	@$(ZIPALIGN) -f 4 $(GEN)/t.ap1 $(GEN)/t.ap2
 	@echo "Signing ..."
 	@jarsigner	\
 		-tsa http://timestamp.digicert.com	\

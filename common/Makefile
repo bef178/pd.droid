@@ -15,9 +15,6 @@ SRC := ./src
 
 GEN_DIRS := $(GEN) $(GEN_OBJ) $(GEN_RES) $(GEN_R)
 
-#vpath "%.java" $(SRC):$(GEN_SRC)
-#vpath "%.class" $(GEN_OBJ)
-
 PKG := th.pd.common.android
 
 JAVA_SRC_FILES := $(call all-typef, "*.java", $(SRC))

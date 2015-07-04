@@ -33,7 +33,7 @@
     </style>
 
     <style name="compose_label.stateful">
-        <item name="android:background">@drawable/classic_button_plain_selector</item>
+        <item name="android:background">@drawable/classic_button0_selector</item>
     </style>
 
     <style name="compose_edit" parent="@style/themeClassic.edit">

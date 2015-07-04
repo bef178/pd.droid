@@ -2,7 +2,7 @@ package th.pd.mail.tidyface.compose;
 
 import android.net.Uri;
 
-import th.common.Flags;
+import th.pd.common.Flags;
 import th.pd.mail.dao.Message;
 
 import java.util.List;

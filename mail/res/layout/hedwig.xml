@@ -134,7 +134,7 @@
 
                     <TextView
                         android:id="@+id/btnAttach"
-                        style="@style/themeClassic.plainButton"
+                        style="@style/themeClassic.flatButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"

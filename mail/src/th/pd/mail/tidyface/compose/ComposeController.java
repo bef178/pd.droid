@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import th.common.widget.TabController;
+import th.pd.common.android.TabController;
 import th.pd.mail.R;
 
 import java.util.ArrayList;

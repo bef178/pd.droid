@@ -26,6 +26,7 @@ import javax.net.ssl.SSLException;
  * &emsp; rfc 2045-2047<br/>
  * rfc 2231<br/>
  * rfc 2387<br/>
+ * rfc 3461<br/>
  */
 public class SmtpWorker {
 	private SocketConn mSocketConn = new SocketConn();

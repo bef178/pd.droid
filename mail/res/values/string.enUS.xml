@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dmail">dmail</string>
+
+    <string name="compose">撰写</string>
+    <string name="subject">邮件主题</string>
+    <string name="recipient0">收件人...</string>
+    <string name="recipient">收件人</string>
+    <string name="cc">抄送</string>
+    <string name="bcc">密送</string>
+    <string name="attach">添加附件</string>
+    <string name="send">发送</string>
+    <string name="cannot_find_app_to_pick_file">无法添加附件</string>
+</resources>

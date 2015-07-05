@@ -1,7 +1,7 @@
 ########
-# pd
+# pd-mail
 
-PD_COMMON := ./common
+PD_COMMON := ../common
 include $(PD_COMMON)/def.mk
 PD_COMMON_JAR := $(PD_COMMON)/$(PD_COMMON_JAR)
 PD_COMMON_RES := $(PD_COMMON)/$(PD_COMMON_RES)
@@ -13,8 +13,8 @@ GEN := ./gen
 GEN_OBJ := $(GEN)/obj
 GEN_SRC := $(GEN)/src
 
-PKG := th.pd
-TARGET := $(GEN)/pd.apk
+PKG := th.pd.mail
+TARGET := $(GEN)/pd-mail.apk
 
 CLASSES_DEX := $(GEN)/classes.dex
 JAVA_SRC_FILES := $(call all-typef, "*.java", $(SRC))

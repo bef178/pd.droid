@@ -17,7 +17,7 @@
         android:id="@+id/controlPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent"
+        android:background="@android:color/transparent"
         android:orientation="vertical" >
 
         <View
@@ -65,6 +65,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="4dp"
                 android:layout_weight="1"
+                android:minHeight="2dp"
+                android:maxHeight="2dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:progressDrawable="@drawable/media_progress"

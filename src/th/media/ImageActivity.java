@@ -322,7 +322,7 @@ public class ImageActivity extends AbsMediaActivity {
 
     private void setupModel(Uri seedUri) {
         mModel = new Model();
-        mModel.initializeByUri(seedUri);
+        mModel.addAsSeed(seedUri);
         mCurrentPos = mModel.indexOf(seedUri);
     }
 
@@ -338,7 +338,8 @@ public class ImageActivity extends AbsMediaActivity {
         new UpdateCacheTask() {
 
             @Override
-            protected Void doInBackground(UpdateCacheTaskArgument... params) {
+            protected Void doInBackground(
+                    UpdateCacheTaskArgument... params) {
                 UpdateCacheTaskArgument a = params[0];
                 a.bitmap = createBitmap(a.pos);
                 mCache.roll(a.pos, a.bitmap);
@@ -439,6 +440,62 @@ class Model {
         clear();
     }
 
+    private void addDirectory(File diretory) {
+        if (diretory == null || !diretory.isDirectory()) {
+            return;
+        }
+        addFiles(diretory.listFiles());
+    }
+
+    private boolean addFile(File file) {
+        if (file != null) {
+            if (file.isFile()
+                    && MimeTypeUtil.isImage(
+                            MimeTypeUtil.mimeTypeByFile(file))) {
+                dataList.add(Uri.fromFile(file));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addFiles(File[] files) {
+        if (files != null) {
+            for (File file : files) {
+                addFile(file);
+            }
+        }
+    }
+
+    /**
+     * add all peer files
+     */
+    private void addAsSeed(File seedFile) {
+        if (seedFile == null) {
+            return;
+        }
+
+        if (seedFile.isFile()) {
+            File seedDirectory = seedFile.getParentFile();
+            if (seedDirectory == null) {
+                dataList.add(Uri.fromFile(seedFile));
+                return;
+            }
+            addDirectory(seedDirectory);
+        } else if (seedFile.isDirectory()) {
+            addDirectory(seedFile);
+        }
+    }
+
+    public void addAsSeed(Uri seedUri) {
+        if (seedUri.isAbsolute()
+                && !seedUri.getScheme().equals("file")) {
+            dataList.add(seedUri);
+            return;
+        }
+        addAsSeed(new File(seedUri.getPath()));
+    }
+
     public void clear() {
         if (dataList == null) {
             dataList = new LinkedList<Uri>();
@@ -464,52 +521,5 @@ class Model {
 
     public int indexOf(Uri uri) {
         return dataList.indexOf(uri);
-    }
-
-    private void initializeByDirectory(File seedDiretory) {
-        if (!seedDiretory.exists() || !seedDiretory.isDirectory()) {
-            return;
-        }
-
-        File[] files = seedDiretory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                String mimeType = MimeTypeUtil.mimeTypeByFile(file);
-                if (file.isFile() && MimeTypeUtil.isImage(mimeType)) {
-                    dataList.add(Uri.fromFile(file));
-                }
-            }
-        }
-    }
-
-    // add all peer files
-    private void initializeByFile(File seedFile) {
-        if (!seedFile.exists() || !seedFile.isFile()) {
-            return;
-        }
-        File seedDirectory = seedFile.getParentFile();
-        if (seedDirectory == null) {
-            dataList.add(Uri.fromFile(seedFile));
-            return;
-        }
-        initializeByDirectory(seedDirectory);
-    }
-
-    public void initializeByUri(Uri seedUri) {
-        clear();
-
-        if (seedUri.isAbsolute()) {
-            if (!seedUri.getScheme().equals("file")) {
-                dataList.add(seedUri);
-                return;
-            }
-        }
-
-        File seedFile = new File(seedUri.getPath());
-        if (seedFile.isFile()) {
-            initializeByFile(seedFile);
-        } else if (seedFile.isDirectory()) {
-            initializeByDirectory(seedFile);
-        }
     }
 }

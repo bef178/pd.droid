@@ -28,8 +28,7 @@ import th.pd.common.android.SquareInterpolator;
 class ImageStatus {
 
     private static int[] findCentralizedOffset(int imageWidth,
-            int imageHeight,
-            int containerWidth, int containerHeight) {
+            int imageHeight, int containerWidth, int containerHeight) {
         return new int[] {
                 (containerWidth - imageWidth) / 2,
                 (containerHeight - imageHeight) / 2
@@ -615,6 +614,15 @@ public class ImageSwitcher extends View {
         if (image.isValid()) {
             paint.setAlpha(image.getPaintOpacity());
             canvas.drawBitmap(image.bitmap, null, image.rect, paint);
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right,
+            int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (changed) {
+            resetImage();
         }
     }
 

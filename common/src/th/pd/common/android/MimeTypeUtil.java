@@ -66,12 +66,16 @@ public class MimeTypeUtil {
         return context.getResources().getDrawable(resId);
     }
 
+    public static int defaultResId() {
+        return resIdByMimeTypeExactly("*/*", mimeType2resId);
+    }
+
     public static boolean isAudio(String mimeType) {
-        return audio2resId.containsKey(mimeType);
+        return resIdByMimeType(mimeType, audio2resId) != null;
     }
 
     public static boolean isImage(String mimeType) {
-        return image2resId.containsKey(mimeType);
+        return resIdByMimeType(mimeType, image2resId) != null;
     }
 
     public static boolean isMedia(String mimeType) {
@@ -79,7 +83,11 @@ public class MimeTypeUtil {
     }
 
     public static boolean isVideo(String mimeType) {
-        return video2resId.containsKey(mimeType);
+        return resIdByMimeType(mimeType, video2resId) != null;
+    }
+
+    private static String majorMimeType(String mimeType) {
+        return divideMimeType(mimeType)[0] + "/*";
     }
 
     public static String mimeTypeByFile(File file) {
@@ -180,38 +188,43 @@ public class MimeTypeUtil {
      */
     public static int resIdByMimeType(String mimeType) {
         if (mimeType != null) {
-            Integer resId = resIdByMimeTypeExactly(mimeType);
+            Integer resId = null;
+            resId = resIdByMimeType(mimeType, mimeType2resId);
             if (resId != null) {
                 return resId;
             }
-
-            resId = resIdByMimeTypeExactly(divideMimeType(mimeType)[0]
-                    + "/*");
+            resId = resIdByMimeType(mimeType, audio2resId);
+            if (resId != null) {
+                return resId;
+            }
+            resId = resIdByMimeType(mimeType, video2resId);
+            if (resId != null) {
+                return resId;
+            }
+            resId = resIdByMimeType(mimeType, image2resId);
             if (resId != null) {
                 return resId;
             }
         }
-        return mimeType2resId.get("*/*");
+        return defaultResId();
     }
 
-    private static Integer resIdByMimeTypeExactly(String mimeType) {
-        if (mimeType != null) {
-            Integer resId = mimeType2resId.get(mimeType);
+    private static Integer resIdByMimeType(String mimeType, Map<String, Integer> map) {
+        if (mimeType != null && map != null) {
+            Integer resId = resIdByMimeTypeExactly(mimeType, map);
             if (resId != null) {
                 return resId;
             }
-            resId = audio2resId.get(mimeType);
-            if (resId != null) {
-                return resId;
-            }
-            resId = video2resId.get(mimeType);
-            if (resId != null) {
-                return resId;
-            }
-            resId = image2resId.get(mimeType);
-            if (resId != null) {
-                return resId;
-            }
+
+            resId = resIdByMimeTypeExactly(majorMimeType(mimeType), map);
+            return resId;
+        }
+        return null;
+    }
+
+    private static Integer resIdByMimeTypeExactly(String mimeType, Map<String, Integer> map) {
+        if (mimeType != null && map != null) {
+            return map.get(mimeType);
         }
         return null;
     }

@@ -45,7 +45,7 @@ public class ActionHandler {
             case android.R.id.home:
                 mActivity.finish();
                 return true;
-            case R.id.action_share: {
+            case R.id.actionShare: {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("image/jpeg");
                 // Uri uri = getIntent().getData();
@@ -57,8 +57,8 @@ public class ActionHandler {
                         intent, mActivity.getString(R.string.share_via)));
                 return true;
             }
-            case R.id.action_next:
-            case R.id.action_prev:
+            case R.id.actionNext:
+            case R.id.actionPrev:
                 break;
             case ACTION_CUSTOM_BUTTON:
 

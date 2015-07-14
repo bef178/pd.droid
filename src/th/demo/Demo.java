@@ -60,16 +60,10 @@ public class Demo extends Activity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
-        menu.add(0, R.id.action_share, 0, "share");
-        menu.add(0, R.id.action_next, 0, "next");
-        menu.add(0, R.id.action_prev, 0, "prev");
+        menu.add(0, R.id.actionShare, 0, "share");
+        menu.add(0, R.id.actionNext, 0, "next");
+        menu.add(0, R.id.actionPrev, 0, "prev");
         super.onCreateContextMenu(menu, v, menuInfo);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
     }
 
     @Override

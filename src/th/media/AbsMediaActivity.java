@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -61,6 +62,16 @@ public abstract class AbsMediaActivity extends Activity {
     protected void onPause() {
         mPageHeaderController.hideImmediately();
         super.onPause();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return onKeyEvent(keyCode, event)
+                || super.onKeyDown(keyCode, event);
+    }
+
+    protected boolean onKeyEvent(int keyCode, KeyEvent event) {
+        return false;
     }
 
     @Override

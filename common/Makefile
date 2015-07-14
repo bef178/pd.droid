@@ -19,8 +19,8 @@ PKG := th.pd.common.android
 TARGET_JAR := $(GEN)/pd-common.jar
 TARGET_RES := $(GEN)/res
 
-RES_FILES := $(wildcard $(RES)/*/*/*)
-TARGET_RES_FILES := $(foreach m,	\
+TARGET_RES_FILES := $(foreach		\
+		m,			\
 		$(wildcard $(RES)/*),	\
 		$(subst $m,		\
 			$(TARGET_RES),	\

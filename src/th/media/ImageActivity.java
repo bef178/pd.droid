@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -116,13 +118,11 @@ public class ImageActivity extends AbsMediaActivity {
         if (offset > 0) {
             mImageSwitcher.doSwitchAndFallback(
                     getBitmap(mCurrentPos), getBitmap(mCurrentPos + 1),
-                    true,
-                    turnPointAnimatedFraction);
+                    true, turnPointAnimatedFraction);
         } else if (offset < 0) {
             mImageSwitcher.doSwitchAndFallback(
                     getBitmap(mCurrentPos), getBitmap(mCurrentPos - 1),
-                    false,
-                    turnPointAnimatedFraction);
+                    false, turnPointAnimatedFraction);
         }
         mScrolledX = 0;
     }
@@ -148,6 +148,40 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     @Override
+    protected boolean onAction(int actionId) {
+        switch (actionId) {
+            case R.id.actionNext:
+                mImageSwitcher.resetImage();
+                switchOrFallback(1, true);
+                return true;
+            case R.id.actionPrev:
+                mImageSwitcher.resetImage();
+                switchOrFallback(-1, true);
+                return true;
+            case R.id.actionZoomIn:
+                mImageSwitcher.doScale(10f / 9);
+                return true;
+            case R.id.actionZoomOut:
+                mImageSwitcher.doScale(0.9f);
+                return true;
+            case R.id.actionZoomReset:
+                mImageSwitcher.resetImage();
+                return true;
+            case R.id.actionSetImageAs:
+                Uri currentUri = mModel.getData(mCurrentPos);
+                String mimeType = MimeTypeUtil.mimeTypeByFile(new File(
+                        currentUri.getPath()));
+                Intent intent = new Intent(Intent.ACTION_ATTACH_DATA)
+                        .setDataAndType(currentUri, mimeType)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(Intent.createChooser(intent, null));
+                return true;
+        }
+        return super.onAction(actionId);
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mImageSwitcher.postDelayed(new Runnable() {
@@ -166,7 +200,7 @@ public class ImageActivity extends AbsMediaActivity {
             finish();
         }
 
-        onCreate(savedInstanceState, R.layout.image_main);
+        super.onCreate(savedInstanceState, R.layout.image_main);
 
         findScreenSize(this, mScreenSize);
 
@@ -175,6 +209,36 @@ public class ImageActivity extends AbsMediaActivity {
         setupController();
 
         startInitializeTask();
+    }
+
+    @Override
+    protected boolean onKeyEvent(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_0:
+                if (event.isCtrlPressed()
+                        && onAction(R.id.actionZoomReset)) {
+                    return true;
+                }
+                break;
+            case KeyEvent.KEYCODE_EQUALS:
+                if (event.isCtrlPressed()
+                        && onAction(R.id.actionZoomIn)) {
+                    return true;
+                }
+                break;
+            case KeyEvent.KEYCODE_MINUS:
+                if (event.isCtrlPressed() && onAction(R.id.actionZoomOut)) {
+                    return true;
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                return onAction(R.id.actionPrev);
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                return onAction(R.id.actionNext);
+            default:
+                break;
+        }
+        return super.onKeyEvent(keyCode, event);
     }
 
     @Override
@@ -304,8 +368,7 @@ public class ImageActivity extends AbsMediaActivity {
 
                     @Override
                     public void onClick(View v) {
-                        mImageSwitcher.resetImage();
-                        switchOrFallback(1, true);
+                        onAction(R.id.actionNext);
                     }
                 });
 
@@ -314,8 +377,7 @@ public class ImageActivity extends AbsMediaActivity {
 
                     @Override
                     public void onClick(View v) {
-                        mImageSwitcher.resetImage();
-                        switchOrFallback(-1, true);
+                        onAction(R.id.actionPrev);
                     }
                 });
     }

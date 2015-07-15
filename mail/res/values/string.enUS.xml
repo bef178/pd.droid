@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="dmail">dmail</string>
+    <string name="app_label">pd-mail</string>
 
     <string name="compose">撰写</string>
     <string name="subject">邮件主题</string>

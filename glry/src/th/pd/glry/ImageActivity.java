@@ -1,4 +1,4 @@
-package th.media;
+package th.pd.glry;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -19,10 +19,9 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import th.media.GesturePipeline.Callback;
-import th.pd.R;
 import th.pd.common.Cache;
 import th.pd.common.android.MimeTypeUtil;
+import th.pd.glry.GesturePipeline.Callback;
 
 public class ImageActivity extends AbsMediaActivity {
 

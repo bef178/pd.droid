@@ -8,10 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
-import android.view.View;
 import android.widget.TextView;
 
 import th.intentSender.IntentSender;
@@ -55,15 +52,6 @@ public class Demo extends Activity {
 
         new ProgressArcDemo(
                 (ProgressArc) findViewById(R.id.progressArc_demo)).start();
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenuInfo menuInfo) {
-        menu.add(0, R.id.actionShare, 0, "share");
-        menu.add(0, R.id.actionNext, 0, "next");
-        menu.add(0, R.id.actionPrev, 0, "prev");
-        super.onCreateContextMenu(menu, v, menuInfo);
     }
 
     @Override

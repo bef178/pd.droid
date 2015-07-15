@@ -32,7 +32,7 @@ R_SRC_FILE := $(foreach f, $(subst .,/,$(LOCAL_PACKAGE)), $(GEN_SRC)/$(f)/R.java
 .PHONY: all
 all: lib $(LOCAL_TARGET)
 
-$(LOCAL_TARGET): $(CLASSES_DEX) $(RES) $(PD_COMMON_RES)
+$(LOCAL_TARGET): $(LOCAL_MANIFEST) $(CLASSES_DEX) $(RES) $(PD_COMMON_RES)
 	@echo "Packaging ..."
 	@$(AAPT) $(AAPT_PACKAGE_FLAGS)	\
 		-I $(AJAR)	\
@@ -54,7 +54,7 @@ $(CLASSES_DEX): $(JAVA_SRC_FILES) $(R_SRC_FILE) $(PD_COMMON_JAR)
 		$(GEN_OBJ) $(PD_COMMON_JAR)
 
 # also generates lib's R
-$(R_SRC_FILE): $(RES_FILES) $(PD_COMMON_RES)
+$(R_SRC_FILE): $(LOCAL_MANIFEST) $(RES_FILES) $(PD_COMMON_RES)
 	@echo "Generating R ..."
 	@-mkdir -p $(GEN_SRC)
 	@$(AAPT) $(AAPT_PACKAGE_FLAGS)	\

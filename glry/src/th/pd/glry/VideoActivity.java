@@ -1,4 +1,4 @@
-package th.media;
+package th.pd.glry;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,7 +10,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import th.pd.R;
 import th.pd.common.FormatUtil;
 
 public class VideoActivity extends AbsMediaActivity {

@@ -3,8 +3,6 @@ package th.pd;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -60,15 +58,6 @@ public class Main extends Activity {
                 clickListener);
         findViewById(R.id.action_startMockFileManager).setOnClickListener(
                 clickListener);
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenuInfo menuInfo) {
-        menu.add(0, R.id.actionShare, 0, "share");
-        menu.add(0, R.id.actionNext, 0, "next");
-        menu.add(0, R.id.actionPrev, 0, "prev");
-        super.onCreateContextMenu(menu, v, menuInfo);
     }
 
     @Override

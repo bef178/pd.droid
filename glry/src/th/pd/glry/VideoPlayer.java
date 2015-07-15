@@ -1,4 +1,4 @@
-package th.media;
+package th.pd.glry;
 
 import android.content.Intent;
 import android.media.MediaPlayer;

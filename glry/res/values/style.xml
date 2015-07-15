@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <style name="AppTheme" parent="@style/themeClassic"></style>
+
+  <style name="appTheme" parent="android:Theme.Holo.Light"/>
+
+  <style name="mediaPlayTheme" parent="@style/appTheme">
+    <item name="android:activityOpenEnterAnimation">@null</item>
+    <item name="android:activityOpenExitAnimation">@null</item>
+    <item name="android:activityCloseEnterAnimation">@null</item>
+    <item name="android:activityCloseExitAnimation">@null</item>
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowNoTitle">true</item>
+  </style>
 </resources>

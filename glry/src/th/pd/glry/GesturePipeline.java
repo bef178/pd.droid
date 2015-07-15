@@ -1,4 +1,4 @@
-package th.media;
+package th.pd.glry;
 
 import android.content.Context;
 import android.view.GestureDetector;
@@ -8,8 +8,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
-import th.media.ElementalGestureDetector.OnTapListener;
-import th.media.GesturePipeline.Callback;
+import th.pd.glry.ElementalGestureDetector.OnTapListener;
+import th.pd.glry.GesturePipeline.Callback;
 
 class ElementalGestureDetector {
 

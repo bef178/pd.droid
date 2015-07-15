@@ -1,4 +1,4 @@
-package th.media;
+package th.pd.glry;
 
 import java.io.File;
 
@@ -16,7 +16,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import th.pd.R;
 import th.pd.common.android.PageHeaderController;
 import th.pd.common.android.SystemUiUtil;
 

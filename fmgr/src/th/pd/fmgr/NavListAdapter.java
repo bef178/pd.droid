@@ -1,4 +1,4 @@
-package th.mock;
+package th.pd.fmgr;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,8 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
-import th.pd.R;
 
 final class NavActionItem extends NavItem {
 

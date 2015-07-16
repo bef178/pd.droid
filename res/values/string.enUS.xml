@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_label">pd</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="share_via">Share via</string>
-    <string name="file_manager">file manager</string>
-
+  <string name="app_label">pd</string>
+  <string name="hello_world">Hello world!</string>
+  <string name="share_via">Share via</string>
 </resources>

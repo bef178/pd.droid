@@ -1,6 +1,5 @@
-package th.mock;
+package th.pd.fmgr;
 
-import th.pd.R;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -57,9 +56,9 @@ class MockAdapter extends BaseAdapter {
  * It reads file manager but actually is two-column layout and fragment and list
  * view investigation.<br/>
  * <br/>
- * Activity works as view manager while Controller has workflow.
+ * Activity works as view manager while Controller identifies workflow.
  */
-public class MockFileManager extends Activity {
+public class FileManager extends Activity {
 
     ListView mListDefLeft;
     ListView mListDefRight;
@@ -69,14 +68,12 @@ public class MockFileManager extends Activity {
     private void initializeFragments() {
         FragmentManager fragmentManager = getFragmentManager();
 
-        // nav fragment
         Fragment fragment = new NavFragment();
         FragmentTransaction fragmentTransaction =
                 fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.navFragment, fragment);
         fragmentTransaction.commitAllowingStateLoss();
 
-        // content fragment
         fragment = new ContentFragment();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.contentFragment, fragment);
@@ -86,7 +83,7 @@ public class MockFileManager extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mock_filemanager_layout);
+        setContentView(R.layout.filemanager);
 
         initializeFragments();
     }

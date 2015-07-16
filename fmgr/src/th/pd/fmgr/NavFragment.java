@@ -1,4 +1,4 @@
-package th.mock;
+package th.pd.fmgr;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-
-import th.pd.R;
 
 public class NavFragment extends Fragment {
 
@@ -31,9 +29,7 @@ public class NavFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View view = inflater.inflate(
-                R.layout.mock_filemanager_nav_fragment_layout,
-                container,
+        View view = inflater.inflate(R.layout.nav_fragment, container,
                 false);
         return view;
     }

@@ -4,7 +4,6 @@
 LOCAL_PD_COMMON := ../common
 
 LOCAL_GEN := ./gen
-LOCAL_MANIFEST := ./AndroidManifest.xml
 LOCAL_PACKAGE := th.pd.glry
 LOCAL_TARGET := $(LOCAL_GEN)/pd-glry.apk
 

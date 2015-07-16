@@ -16,6 +16,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
+import th.pd.common.android.OnActionCallback;
 import th.pd.common.android.PageHeaderController;
 import th.pd.common.android.SystemUiUtil;
 
@@ -26,7 +27,8 @@ import th.pd.common.android.SystemUiUtil;
  *
  * @author tanghao
  */
-public abstract class AbsMediaActivity extends Activity {
+public abstract class AbsMediaActivity extends Activity implements
+        OnActionCallback {
 
     static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
     static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
@@ -39,7 +41,8 @@ public abstract class AbsMediaActivity extends Activity {
         return this.getClass().getName();
     }
 
-    protected boolean onAction(int actionId) {
+    @Override
+    public boolean onAction(int actionId, Bundle extra) {
         switch (actionId) {
             case R.id.actionPageHeaderBack:
                 onBackPressed();
@@ -169,15 +172,7 @@ public abstract class AbsMediaActivity extends Activity {
 
     private void setupPageHeaderController() {
         mPageHeaderController = new PageHeaderController(
-                findViewById(R.id.pageHeader));
-        mPageHeaderController
-                .setCallback(new PageHeaderController.Callback() {
-
-                    @Override
-                    public boolean onAction(int actionId) {
-                        return AbsMediaActivity.this.onAction(actionId);
-                    }
-                });
+                findViewById(R.id.pageHeader), this);
 
         findViewById(R.id.btnToggleHeader).setOnClickListener(
                 new OnClickListener() {

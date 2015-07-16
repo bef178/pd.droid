@@ -18,11 +18,6 @@ import android.widget.TextView;
 
 public class PageHeaderController {
 
-    public interface Callback {
-
-        public boolean onAction(int actionId);
-    }
-
     private static final int DEFAULT_DISPLAY_TIMEOUT = 2000;
 
     private static final int MSG_HIDE_WITH_ANIM = 7749;
@@ -46,7 +41,7 @@ public class PageHeaderController {
 
     private Animator mOnGoingAnimation;
 
-    private Callback mCallback;
+    private OnActionCallback mCallback;
 
     private Handler mHandler;
 
@@ -56,7 +51,7 @@ public class PageHeaderController {
                 @Override
                 public void onClick(View v) {
                     if (mCallback != null) {
-                        mCallback.onAction(v.getId());
+                        mCallback.onAction(v.getId(), null);
                     }
                 }
             };
@@ -112,9 +107,10 @@ public class PageHeaderController {
                 }
             };
 
-    public PageHeaderController(View headerView) {
+    public PageHeaderController(View headerView, OnActionCallback callback) {
         mContext = headerView.getContext();
         findViews(headerView);
+        setCallback(callback);
 
         mHandler = new Handler(mContext.getMainLooper()) {
 
@@ -136,7 +132,7 @@ public class PageHeaderController {
 
     private void findViews(View headerView) {
         mHeader = headerView;
-        headerView.findViewById(R.id.actionPageHeaderBack)
+        mHeader.findViewById(R.id.actionPageHeaderBack)
                 .setOnClickListener(mOnClickListener);
         mHeaderOptionContainer = (ViewGroup) headerView
                 .findViewById(R.id.pageheader_option_container);
@@ -193,9 +189,7 @@ public class PageHeaderController {
         }
 
         float endingY = -mHeader.getHeight();
-        int topLeft[] = {
-                0, 0
-        };
+        int topLeft[] = { 0, 0 };
         mHeader.getLocationInWindow(topLeft);
         endingY -= topLeft[1];
 
@@ -228,7 +222,7 @@ public class PageHeaderController {
         return mHeader != null && mFinallyVisible;
     }
 
-    public void setCallback(Callback callback) {
+    public void setCallback(OnActionCallback callback) {
         mCallback = callback;
     }
 

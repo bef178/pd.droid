@@ -19,7 +19,7 @@ public class VideoPlayer {
         public static final int ACTION_PLAY = 1;
         public static final int ACTION_PAUSE = 2;
         public static final int ACTION_UPDATE_PROGRESS = 3;
-        public static final int ACTION_UPDATE_PROGRESS_TOTAL = 4;
+        public static final int ACTION_UPDATE_TOTAL_PROGRESS = 4;
 
         public boolean onAction(int actionId, int extra);
 
@@ -90,7 +90,7 @@ public class VideoPlayer {
                     if (hasPurpose(PURPOSE_FLAG_EXPECT_DURATION)) {
                         clearPurpose(PURPOSE_FLAG_EXPECT_DURATION);
                         mCallback.onAction(
-                                Callback.ACTION_UPDATE_PROGRESS_TOTAL,
+                                Callback.ACTION_UPDATE_TOTAL_PROGRESS,
                                 mVideoView.getDuration());
                     }
                     break;

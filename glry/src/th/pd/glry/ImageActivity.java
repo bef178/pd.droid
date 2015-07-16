@@ -147,7 +147,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     @Override
-    protected boolean onAction(int actionId) {
+    public boolean onAction(int actionId, Bundle extra) {
         switch (actionId) {
             case R.id.actionNext:
                 mImageSwitcher.resetImage();
@@ -177,7 +177,7 @@ public class ImageActivity extends AbsMediaActivity {
                 startActivity(Intent.createChooser(intent, null));
                 return true;
         }
-        return super.onAction(actionId);
+        return super.onAction(actionId, extra);
     }
 
     @Override
@@ -215,25 +215,26 @@ public class ImageActivity extends AbsMediaActivity {
         switch (keyCode) {
             case KeyEvent.KEYCODE_0:
                 if (event.isCtrlPressed()
-                        && onAction(R.id.actionZoomReset)) {
+                        && onAction(R.id.actionZoomReset, null)) {
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_EQUALS:
                 if (event.isCtrlPressed()
-                        && onAction(R.id.actionZoomIn)) {
+                        && onAction(R.id.actionZoomIn, null)) {
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_MINUS:
-                if (event.isCtrlPressed() && onAction(R.id.actionZoomOut)) {
+                if (event.isCtrlPressed()
+                        && onAction(R.id.actionZoomOut, null)) {
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                return onAction(R.id.actionPrev);
+                return onAction(R.id.actionPrev, null);
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                return onAction(R.id.actionNext);
+                return onAction(R.id.actionNext, null);
             default:
                 break;
         }
@@ -367,7 +368,7 @@ public class ImageActivity extends AbsMediaActivity {
 
                     @Override
                     public void onClick(View v) {
-                        onAction(R.id.actionNext);
+                        onAction(R.id.actionNext, null);
                     }
                 });
 
@@ -376,7 +377,7 @@ public class ImageActivity extends AbsMediaActivity {
 
                     @Override
                     public void onClick(View v) {
-                        onAction(R.id.actionPrev);
+                        onAction(R.id.actionPrev, null);
                     }
                 });
     }

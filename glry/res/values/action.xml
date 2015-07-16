@@ -3,6 +3,11 @@
   <item name="actionNext" type="id"/>
   <item name="actionPrev" type="id"/>
 
+  <item name="actionPlay" type="id"/>
+  <item name="actionPause" type="id"/>
+  <item name="actionUpdateProgress" type="id"/>
+  <item name="actionUpdateTotalProgress" type="id"/>
+
   <item name="actionSetImageAs" type="id"/>
   <item name="actionShare" type="id"/>
 

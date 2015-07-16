@@ -11,7 +11,7 @@ public class PageHeaderDemo {
     private PageHeaderController mPageHeaderController;
 
     public PageHeaderDemo(View headerView, View demoButton) {
-        mPageHeaderController = new PageHeaderController(headerView);
+        mPageHeaderController = new PageHeaderController(headerView, null);
         demoButton.setOnClickListener(new OnClickListener() {
 
             @Override

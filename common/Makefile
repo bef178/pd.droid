@@ -6,6 +6,7 @@
 # - lib's package name is required when apk generating lib's R
 # so provide package name, jar(classes) and res
 
+LOCAL_MANIFEST := ./AndroidManifest.xml
 include ./def.mk
 
 RES := ./res_mod

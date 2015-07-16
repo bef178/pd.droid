@@ -46,7 +46,7 @@ public class VideoActivity extends AbsMediaActivity {
                             .formatTimespan(progress / 1000));
                     return true;
                 }
-                case ACTION_UPDATE_PROGRESS_TOTAL: {
+                case ACTION_UPDATE_TOTAL_PROGRESS: {
                     int total = extra;
                     SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
                     TextView tvTimeTotal = (TextView) findViewById(R.id.tvTimeTotal);

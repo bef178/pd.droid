@@ -1,0 +1,22 @@
+<resources>
+  <color name="item_pressed">@color/dev_light_magenta</color>
+  <color name="item_focused">@color/dev_light_red</color>
+  <color name="item_selected">@color/dev_light_green</color>
+  <color name="item_default">@color/dev_light_yellow</color>
+
+  <style name="itemStateDefault">
+    <item name="android:background">@android:color/white</item>
+    <item name="android:textColor">#B3000000</item>
+    <item name="android:textSize">12sp</item>
+  </style>
+
+  <declare-styleable name="Stateful">
+    <attr name="itemAsIfFocused" format="boolean"/>
+    <attr name="itemChecked" format="boolean"/>
+    <attr name="itemDisabled" format="boolean"/>
+    <attr name="itemFocused" format="boolean"/>
+    <attr name="itemHovered" format="boolean"/>
+    <attr name="itemPressed" format="boolean"/>
+    <attr name="itemVisited" format="boolean"/>
+  </declare-styleable>
+</resources>

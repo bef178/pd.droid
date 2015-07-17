@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import th.demo.Demo;
-import th.mock.MockFileManager;
 
 public class Main extends Activity {
 
@@ -21,9 +20,6 @@ public class Main extends Activity {
                 return true;
             }
             case R.id.action_startMockFileManager: {
-                Intent intent = new Intent();
-                intent.setClass(Main.this, MockFileManager.class);
-                startActivity(intent);
                 return true;
             }
         }

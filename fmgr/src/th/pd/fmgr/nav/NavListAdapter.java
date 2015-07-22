@@ -1,46 +1,17 @@
-package th.pd.fmgr;
+package th.pd.fmgr.nav;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Environment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-final class NavActionItem extends NavItem {
-
-    protected Uri uri = null;
-
-    public NavActionItem(File file) {
-        this.uri = Uri.fromFile(file);
-        this.label = file.getName();
-    }
-
-    public Uri getUri() {
-        return uri;
-    }
-}
-
-final class NavHeaderItem extends NavItem {
-
-    public NavHeaderItem(String label) {
-        this.label = label;
-    }
-}
-
-class NavItem {
-
-    protected String label = null; // caption for display
-
-    protected String getLabel() {
-        return label;
-    }
-}
+import th.pd.fmgr.R;
 
 public final class NavListAdapter extends BaseAdapter {
 
@@ -61,9 +32,9 @@ public final class NavListAdapter extends BaseAdapter {
                         Environment.DIRECTORY_DOWNLOADS),
         };
         List<NavItem> list = new ArrayList<NavItem>(p.length + 1);
-        list.add(new NavHeaderItem("favorite"));
+        list.add(new NavHeaderItem("Favorite"));
         for (File file : p) {
-            list.add(new NavActionItem(file));
+            list.add(new NavItem().initializeBy(file));
         }
         return list;
     }
@@ -106,24 +77,15 @@ public final class NavListAdapter extends BaseAdapter {
             return null;
         }
 
-        if (convertView == null) {
-            convertView = View.inflate(mContext,
-                    R.layout.mock_filemanager_nav_item_layout, null);
-        }
         if (navItem instanceof NavHeaderItem) {
-            View headerLabel = convertView.findViewById(R.id.headerLabel);
-            View actionLabel = convertView.findViewById(R.id.actionLabel);
-            headerLabel.setVisibility(View.VISIBLE);
-            actionLabel.setVisibility(View.GONE);
-            ((TextView) headerLabel).setText(navItem.getLabel());
-        } else if (navItem instanceof NavActionItem) {
-            View headerLabel = convertView.findViewById(R.id.headerLabel);
-            View actionLabel = convertView.findViewById(R.id.actionLabel);
-            headerLabel.setVisibility(View.GONE);
-            actionLabel.setVisibility(View.VISIBLE);
-            ((TextView) actionLabel).setText(navItem.getLabel());
+            convertView = View.inflate(mContext, R.layout.nav_header_item,
+                    null);
+        } else if (navItem instanceof NavItem) {
+            convertView = View.inflate(mContext, R.layout.nav_item,
+                    null);
         }
-
+        View caption = convertView.findViewById(android.R.id.title);
+        ((TextView) caption).setText(navItem.getCaption());
         return convertView;
     }
 

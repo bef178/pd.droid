@@ -147,7 +147,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     @Override
-    public boolean onAction(int actionId, Bundle extra) {
+    public boolean onAction(int actionId, Object extra) {
         switch (actionId) {
             case R.id.actionNext:
                 mImageSwitcher.resetImage();

@@ -1,7 +1,5 @@
 package th.pd.common.android;
 
-import android.os.Bundle;
-
 /**
  * a standard api to transit commands among controllers<br/>
  * <br/>
@@ -13,5 +11,5 @@ import android.os.Bundle;
  */
 public interface OnActionCallback {
 
-    public boolean onAction(int actionId, Bundle extra);
+    public boolean onAction(int actionId, Object extra);
 }

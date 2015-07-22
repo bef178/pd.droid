@@ -1,3 +1,4 @@
 <resources>
   <color name="file_manager">#1F594B</color>
+  <item name="actionNavItemClicked" type="id"/>
 </resources>

@@ -42,7 +42,7 @@ public abstract class AbsMediaActivity extends Activity implements
     }
 
     @Override
-    public boolean onAction(int actionId, Bundle extra) {
+    public boolean onAction(int actionId, Object extra) {
         switch (actionId) {
             case R.id.actionPageHeaderBack:
                 onBackPressed();

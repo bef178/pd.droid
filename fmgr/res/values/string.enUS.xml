@@ -2,13 +2,4 @@
 <resources>
   <string name="app_label">pd-fmgr</string>
   <string name="file_manager">File manager</string>
-
-  <string name="item_checked">checked item_c</string>
-  <string name="item_disabled">disabled item_d</string>
-  <string name="item_pressed">item pressed</string>
-  <string name="item_hovered">item hovered</string>
-  <string name="item_focused">item focused</string>
-  <string name="item_as_if_focused">item as focused</string>
-  <string name="item_selected">item selected</string>
-  <string name="item_default">default item</string>
 </resources>

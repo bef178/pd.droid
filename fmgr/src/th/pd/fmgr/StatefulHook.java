@@ -10,7 +10,7 @@ public class StatefulHook implements Stateful {
     private int[] states = new int[] {
             -R.attr.itemAsIfFocused,
             -R.attr.itemChecked,
-            -R.attr.itemDisabled,
+            -R.attr.itemEnabled,
             -R.attr.itemFocused,
             -R.attr.itemHovered,
             -R.attr.itemPressed,
@@ -23,6 +23,7 @@ public class StatefulHook implements Stateful {
                 state = -state;
             }
         }
+        states[INDEX_ENABLED] = - states[INDEX_ENABLED];
     }
 
     /**

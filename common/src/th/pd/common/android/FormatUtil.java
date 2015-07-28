@@ -44,6 +44,9 @@ public class FormatUtil {
     }
 
     public static String formatTime(long timestamp) {
+        if (timestamp < 0) {
+            return null;
+        }
         return new SimpleDateFormat("HH:mm", Locale.ROOT).format(new Date(
                 timestamp));
     }

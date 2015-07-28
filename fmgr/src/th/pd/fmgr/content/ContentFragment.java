@@ -6,17 +6,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 import th.pd.common.android.OnActionCallback;
 import th.pd.fmgr.R;
-import th.pd.fmgr.nav.NavListAdapter;
 
 public class ContentFragment extends Fragment {
 
     private OnActionCallback mCallback = null;
-    private NavListAdapter mContentListAdapter = null;
+    private ContentListAdapter mContentListAdapter = null;
 
     public ContentFragment(OnActionCallback callback) {
         mCallback = callback;
@@ -32,7 +31,7 @@ public class ContentFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mContentListAdapter = new NavListAdapter(getActivity());
+        mContentListAdapter = new ContentListAdapter(getActivity());
         ListView listView = (ListView) getView().findViewById(
                 android.R.id.list);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);

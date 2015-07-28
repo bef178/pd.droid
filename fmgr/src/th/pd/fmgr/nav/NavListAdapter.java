@@ -15,10 +15,10 @@ import th.pd.fmgr.R;
 
 public final class NavListAdapter extends BaseAdapter {
 
-    private static final List<NavItem> EMPTY_DATA_SET =
-            new ArrayList<NavItem>(0);
+    private static final List<NavItemEntry> EMPTY_DATA_SET =
+            new ArrayList<NavItemEntry>(0);
 
-    private static List<NavItem> getDefaultDataSet() {
+    private static List<NavItemEntry> getDefaultDataSet() {
         File[] p = new File[] {
                 Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOCUMENTS),
@@ -31,23 +31,23 @@ public final class NavListAdapter extends BaseAdapter {
                 Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
         };
-        List<NavItem> list = new ArrayList<NavItem>(p.length + 1);
-        list.add(new NavHeaderItem("Favorite"));
+        List<NavItemEntry> list = new ArrayList<NavItemEntry>(p.length + 1);
+        list.add(new NavHeaderItemEntry().by("Favorite"));
         for (File file : p) {
-            list.add(new NavItem().initializeBy(file));
+            list.add(new NavItemEntry().by(file));
         }
         return list;
     }
 
     private Context mContext;
 
-    private List<NavItem> mDataSet;
+    private List<NavItemEntry> mDataSet;
 
     public NavListAdapter(Context context) {
         this(context, getDefaultDataSet());
     }
 
-    public NavListAdapter(Context context, List<NavItem> dataSet) {
+    public NavListAdapter(Context context, List<NavItemEntry> dataSet) {
         mContext = context;
         mDataSet = dataSet != null ? dataSet : EMPTY_DATA_SET;
     }
@@ -58,7 +58,7 @@ public final class NavListAdapter extends BaseAdapter {
     }
 
     @Override
-    public NavItem getItem(int position) {
+    public NavItemEntry getItem(int position) {
         if (position >= 0 && position < mDataSet.size()) {
             return mDataSet.get(position);
         }
@@ -72,15 +72,15 @@ public final class NavListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        NavItem navItem = getItem(position);
+        NavItemEntry navItem = getItem(position);
         if (navItem == null) {
             return null;
         }
 
-        if (navItem instanceof NavHeaderItem) {
+        if (navItem instanceof NavHeaderItemEntry) {
             convertView = View.inflate(mContext, R.layout.nav_header_item,
                     null);
-        } else if (navItem instanceof NavItem) {
+        } else if (navItem instanceof NavItemEntry) {
             convertView = View.inflate(mContext, R.layout.nav_item,
                     null);
         }
@@ -89,7 +89,7 @@ public final class NavListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setDataSet(List<NavItem> dataSet) {
+    public void setDataSet(List<NavItemEntry> dataSet) {
         if (dataSet == null) {
             dataSet = EMPTY_DATA_SET;
         }

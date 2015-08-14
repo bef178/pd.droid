@@ -1,63 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="th.pd.mail"
-    android:versionCode="1"
-    android:versionName="1.0" >
-
-    <uses-sdk
-        android:minSdkVersion="19"
-        android:targetSdkVersion="21" />
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
-
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_label"
-        android:theme="@style/AppTheme" >
-
-        <activity
-            android:name=".MainActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_label"
-            android:theme="@style/themeMailCompose" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <provider
-            android:name=".fastsync.MailProvider"
-            android:authorities="@string/authority"
-            android:exported="true" />
-
-        <service
-            android:name=".fastsync.SyncService"
-            android:exported="true"
-            android:process=":sync" >
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
-        <service
-            android:name="AuthenticatationService"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-    </application>
+  package="th.pd.mail"
+  android:versionCode="1"
+  android:versionName="1.0">
+  <uses-sdk
+    android:minSdkVersion="19"
+    android:targetSdkVersion="22"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+  <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+  <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+  <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+  <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+  <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+  <application
+    android:allowBackup="true"
+    android:label="@string/app_label"
+    android:theme="@style/appTheme">
+    <activity
+      android:name=".MainActivity"
+      android:label="@string/app_label">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+    <activity
+      android:name=".tidyface.compose.ComposeActivity"
+      android:configChanges="orientation|keyboardHidden|screenSize"
+      android:launchMode="singleTask"
+      android:taskAffinity=".tidyface.compose"
+      android:theme="@style/themeMailCompose"/>
+    <provider
+      android:name=".fastsync.MailProvider"
+      android:authorities="@string/authority"
+      android:exported="false"/>
+    <service
+      android:name=".fastsync.SyncService"
+      android:exported="false"
+      android:process=":sync">
+      <intent-filter>
+        <action android:name="android.content.SyncAdapter"/>
+      </intent-filter>
+      <meta-data
+        android:name="android.content.SyncAdapter"
+        android:resource="@xml/syncadapter"/>
+    </service>
+    <service
+      android:name="AuthenticatationService"
+      android:exported="false">
+      <intent-filter>
+        <action android:name="android.accounts.AccountAuthenticator"/>
+      </intent-filter>
+      <meta-data
+        android:name="android.accounts.AccountAuthenticator"
+        android:resource="@xml/authenticator"/>
+    </service>
+  </application>
 </manifest>

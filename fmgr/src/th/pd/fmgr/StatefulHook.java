@@ -34,8 +34,8 @@ public class StatefulHook implements Stateful {
     }
 
     @Override
-    public void setState(int index, boolean active) {
-        if (active ^ (states[index] >= 0)) {
+    public void setState(int index, boolean isActive) {
+        if (isActive ^ (states[index] >= 0)) {
             states[index] = -states[index];
         }
     }

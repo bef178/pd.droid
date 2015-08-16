@@ -1,6 +1,5 @@
 package th.pd.mail.tidyface.compose;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,13 +8,10 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import th.pd.common.android.DoubleClickListener;
-import th.pd.common.android.titlebar.TitlebarController;
-import th.pd.common.android.titlebar.TitlebarDragListener;
+import th.pd.common.android.titlebar.TitlebarActivity;
 import th.pd.mail.R;
 
-public class ComposeActivity extends Activity implements
-        TitlebarController.Listener {
+public class ComposeActivity extends TitlebarActivity {
 
     private boolean isOutOfBounds(Context context, MotionEvent event) {
         final int x = (int) event.getX();
@@ -29,22 +25,22 @@ public class ComposeActivity extends Activity implements
     }
 
     @Override
-    public void onClickClose(View btnClose) {
+    public void onClickClose(View view) {
         finish();
     }
 
     @Override
-    public void onClickMaximize(View btnMaximize) {
+    public void onClickMaximize(View view) {
         Toast.makeText(this, "max", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onClickMinimize(View btnMinimize) {
-        this.moveTaskToBack(true);
+    public void onClickMinimize(View view) {
+        moveTaskToBack(true);
     }
 
     @Override
-    public void onClickResize(View btnResize) {
+    public void onClickResize(View view) {
         Toast.makeText(this, "resize", Toast.LENGTH_SHORT).show();
     }
 
@@ -52,50 +48,21 @@ public class ComposeActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose);
+        setTitlebarDragMargin(new int[] {
+                getResources().getDimensionPixelOffset(
+                        R.dimen.compose_titlebar_move_margin_top),
+                getResources().getDimensionPixelOffset(
+                        R.dimen.compose_titlebar_move_margin_right),
+                getResources().getDimensionPixelOffset(
+                        R.dimen.compose_titlebar_move_margin_bottom),
+                getResources().getDimensionPixelOffset(
+                        R.dimen.compose_titlebar_move_margin_left),
+        });
+    }
 
-        TitlebarController.newInstance(findViewById(android.R.id.content),
-                this)
-                .setTitlebarTouchListener(
-                        new View.OnTouchListener() {
-
-                            private DoubleClickListener mDoubleClickListener =
-                                    new DoubleClickListener() {
-
-                                        @Override
-                                        public void onDoubleClick() {
-                                            onClickMaximize(null);
-                                        }
-                                    };
-                            private TitlebarDragListener mMoveListener = new TitlebarDragListener(
-                                    ComposeActivity.this,
-                                    new int[] {
-                                            getResources()
-                                                    .getDimensionPixelOffset(
-                                                            R.dimen.compose_titlebar_move_margin_top),
-                                            getResources()
-                                                    .getDimensionPixelOffset(
-                                                            R.dimen.compose_titlebar_move_margin_right),
-                                            getResources()
-                                                    .getDimensionPixelOffset(
-                                                            R.dimen.compose_titlebar_move_margin_bottom),
-                                            getResources()
-                                                    .getDimensionPixelOffset(
-                                                            R.dimen.compose_titlebar_move_margin_left)
-                                    });
-
-                            @Override
-                            public boolean onTouch(View view,
-                                    MotionEvent event) {
-                                boolean handled = false;
-                                handled = mDoubleClickListener.onTouch(
-                                        view, event)
-                                        | handled;
-                                handled = mMoveListener
-                                        .onTouch(view, event)
-                                        | handled;
-                                return handled;
-                            }
-                        });
+    @Override
+    public void onDoubleClick(View view) {
+        onClickMaximize(null);
     }
 
     @Override

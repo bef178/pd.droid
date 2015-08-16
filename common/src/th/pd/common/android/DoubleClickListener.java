@@ -14,17 +14,17 @@ public abstract class DoubleClickListener implements View.OnTouchListener {
     private Point mFirstTouchPoint = new Point();
     private int mDoubleClickStep = 0;
 
-    public abstract void onDoubleClick();
+    public abstract void onDoubleClick(View view);
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouch(View view, MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 onTouchDown(event);
                 mLastActionTimestamp = SystemClock.elapsedRealtime();
                 return true;
             case MotionEvent.ACTION_UP:
-                onTouchUp(event);
+                onTouchUp(view, event);
                 mLastActionTimestamp = SystemClock.elapsedRealtime();
                 return true;
         }
@@ -54,7 +54,7 @@ public abstract class DoubleClickListener implements View.OnTouchListener {
         }
     }
 
-    private void onTouchUp(MotionEvent event) {
+    private void onTouchUp(View view, MotionEvent event) {
         if (!testTimestamp()
                 || !testPosition((int) event.getRawX(),
                         (int) event.getRawY())) {
@@ -67,7 +67,7 @@ public abstract class DoubleClickListener implements View.OnTouchListener {
             mDoubleClickStep = 0;
 
             // trigger double click
-            onDoubleClick();
+            onDoubleClick(view);
         }
     }
 

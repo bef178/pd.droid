@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * an agent for mail-compose header &amp; content<br/>
  * models store data and status and no logic<br/>
- * views are honest to models<br/>
+ * views just represent models<br/>
  */
 class ComposeController implements TabController.Callback {
 	interface Listener {

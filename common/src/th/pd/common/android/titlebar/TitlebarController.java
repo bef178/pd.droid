@@ -1,15 +1,18 @@
 package th.pd.common.android.titlebar;
 
 import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import th.pd.common.android.DoubleClickListener;
 import th.pd.common.android.R;
 
 public class TitlebarController {
 
-    public interface Listener {
+    public interface ActionListener {
 
         void onClickClose(View btnClose);
 
@@ -18,9 +21,12 @@ public class TitlebarController {
         void onClickMinimize(View btnMinimize);
 
         void onClickResize(View btnResize);
+
+        void onDoubleClick(View titlebar);
     }
 
-    private Listener mListener;
+    private ActionListener mActionListener;
+    private TitlebarDragListener mDragListener;
 
     private View mTitlebar;
 
@@ -31,42 +37,14 @@ public class TitlebarController {
     private View mBtnMaximize;
     private View mBtnClose;
 
-    public TitlebarController(View view, Listener listener) {
-        setupHolders(view);
-        setListener(listener);
+    public TitlebarController(Window window, int[] dragMargin,
+            ActionListener actionListener, View view) {
+        mDragListener = new TitlebarDragListener(window, dragMargin);
+        mActionListener = actionListener;
+        bindViews(view);
     }
 
-    public void setEnableButtonMaximize(boolean enabled) {
-        mBtnMaximize.setEnabled(enabled);
-    }
-
-    public void setEnableButtonMinimize(boolean enabled) {
-        mBtnMinimize.setEnabled(enabled);
-    }
-
-    public void setIcon(Drawable drawable) {
-        if (mIcon != null) {
-            mIcon.setImageDrawable(drawable);
-        }
-    }
-
-    private void setListener(Listener listener) {
-        mListener = listener;
-    }
-
-    public void setTitle(CharSequence text) {
-        if (mTitle != null) {
-            mTitle.setText(text);
-        }
-    }
-
-    public void setTitlebarTouchListener(View.OnTouchListener touchListener) {
-        if (mTitlebar != null) {
-            mTitlebar.setOnTouchListener(touchListener);
-        }
-    }
-
-    private void setupHolders(View view) {
+    private void bindViews(View view) {
         mTitlebar = (view.getId() == R.id.titlebar)
                 ? view
                 : view.findViewById(R.id.titlebar);
@@ -80,12 +58,37 @@ public class TitlebarController {
         mBtnMaximize = view.findViewById(R.id.btnMaximize);
         mBtnClose = view.findViewById(R.id.btnClose);
 
+        mTitlebar.setOnTouchListener(new View.OnTouchListener() {
+
+            private DoubleClickListener mDoubleClickListener =
+                    new DoubleClickListener() {
+
+                        @Override
+                        public void onDoubleClick(View view) {
+                            if (mActionListener != null) {
+                                mActionListener.onDoubleClick(view);
+                            }
+                        }
+                    };
+
+            @Override
+            public boolean onTouch(View view,
+                    MotionEvent event) {
+                boolean handled = false;
+                handled = mDoubleClickListener.onTouch(view, event)
+                        | handled;
+                handled = mDragListener.onTouch(view, event)
+                        | handled;
+                return handled;
+            }
+        });
+
         mBtnResize.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onClickResize(view);
+                if (mActionListener != null) {
+                    mActionListener.onClickResize(view);
                 }
             }
         });
@@ -94,8 +97,8 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onClickMinimize(view);
+                if (mActionListener != null) {
+                    mActionListener.onClickMinimize(view);
                 }
             }
         });
@@ -104,8 +107,8 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onClickMaximize(view);
+                if (mActionListener != null) {
+                    mActionListener.onClickMaximize(view);
                 }
             }
         });
@@ -114,10 +117,34 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mListener != null) {
-                    mListener.onClickClose(view);
+                if (mActionListener != null) {
+                    mActionListener.onClickClose(view);
                 }
             }
         });
+    }
+
+    public void setEnableButtonMaximize(boolean enabled) {
+        mBtnMaximize.setEnabled(enabled);
+    }
+
+    public void setEnableButtonMinimize(boolean enabled) {
+        mBtnMinimize.setEnabled(enabled);
+    }
+
+    public void setDragMargin(int[] dragMargin) {
+        mDragListener.setDragMargin(dragMargin);
+    }
+
+    public void setIcon(Drawable drawable) {
+        if (mIcon != null) {
+            mIcon.setImageDrawable(drawable);
+        }
+    }
+
+    public void setTitle(CharSequence text) {
+        if (mTitle != null) {
+            mTitle.setText(text);
+        }
     }
 }

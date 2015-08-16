@@ -108,7 +108,7 @@ class MessageExporter {
 		// "To"
 		// "cc"
 
-		// TODO body and attachement
+		// TODO body and attachment
 
 		ostream.flush();
 	}

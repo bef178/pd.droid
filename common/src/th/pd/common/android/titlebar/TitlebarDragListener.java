@@ -1,10 +1,10 @@
 package th.pd.common.android.titlebar;
 
-import android.app.Activity;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.Display;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 
 import th.pd.common.android.DragListener;
@@ -17,9 +17,8 @@ public class TitlebarDragListener extends DragListener {
 
     private static final int SNAP_OFFSET = 12;
 
-    private Activity mActivity;
-    private int[] mMargin;
-    private View mDecorView;
+    private Window mWindow;
+    private int[] mDragMargin;
     private WindowManager.LayoutParams mLayoutParams;
 
     private Rect mAcceptableAnchorRect = new Rect();
@@ -41,43 +40,41 @@ public class TitlebarDragListener extends DragListener {
 
     private int[] mScreenSize = new int[2];
 
-    public TitlebarDragListener(Activity a) {
-        this(a, new int[] {
+    public TitlebarDragListener(Window window, int[] dragMargin) {
+        mWindow = window;
+        mDragMargin = new int[] {
                 0,
                 0,
                 0,
                 0
-        });
-    }
-
-    public TitlebarDragListener(Activity a, int[] margin) {
-        mActivity = a;
-        mDecorView = a.getWindow().getDecorView();
-        mMargin = margin;
+        };
+        setDragMargin(dragMargin);
     }
 
     private void findAcceptableRectForWindowAnchor(View handleView) {
         // the boundary for the anchor point;
-        // for determine whether the window goes beyoud the boundary
-        mAcceptableAnchorRect.top = -handleView.getTop() + mMargin[0];
+        // for determine whether the window goes beyond the boundary
+        View decorView = mWindow.getDecorView();
+        mAcceptableAnchorRect.top = -handleView.getTop() + mDragMargin[0];
         mAcceptableAnchorRect.right =
-                mScreenSize[0] - handleView.getRight() - mMargin[1];
+                mScreenSize[0] - handleView.getRight() - mDragMargin[1];
         mAcceptableAnchorRect.bottom =
-                mScreenSize[1] - handleView.getBottom() - mMargin[2];
-        mAcceptableAnchorRect.left = -handleView.getLeft() + mMargin[3];
-        mAcceptableAnchorRect.offset(mDecorView.getWidth() / 2,
-                mDecorView.getHeight() / 2);
+                mScreenSize[1] - handleView.getBottom() - mDragMargin[2];
+        mAcceptableAnchorRect.left = -handleView.getLeft() + mDragMargin[3];
+        mAcceptableAnchorRect.offset(decorView.getWidth() / 2,
+                decorView.getHeight() / 2);
     }
 
-    private void findScreenSize(Activity a, int[] screenSize) {
-        Display defDisplay = a.getWindowManager().getDefaultDisplay();
+    private static void findScreenSize(Window window,
+            int[] screenSize) {
+        Display defDisplay = window.getWindowManager().getDefaultDisplay();
         Point p = new Point();
         defDisplay.getSize(p);
         screenSize[0] = p.x;
         screenSize[1] = p.y;
     }
 
-    private void findWindowAnchor(View decorView,
+    private static void findWindowAnchor(View decorView,
             int[] anchorFromTopleft, int[] rawWindowAnchorCoord) {
         // take the center point as anchor point
         anchorFromTopleft[0] = decorView.getWidth() / 2;
@@ -113,13 +110,13 @@ public class TitlebarDragListener extends DragListener {
         int dx = rawWindowAnchorX - mRawAnchor[0];
         int dy = rawWindowAnchorY - mRawAnchor[1];
 
-        mLayoutParams = (WindowManager.LayoutParams) mDecorView
+        mLayoutParams = (WindowManager.LayoutParams) mWindow.getDecorView()
                 .getLayoutParams();
         mLayoutParams.x += dx;
         mLayoutParams.y += dy;
         mLayoutParams.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-        mActivity.getWindowManager().updateViewLayout(
-                mDecorView, mLayoutParams);
+        mWindow.getWindowManager().updateViewLayout(
+                mWindow.getDecorView(), mLayoutParams);
 
         mRawAnchor[0] += dx;
         mRawAnchor[1] += dy;
@@ -127,9 +124,9 @@ public class TitlebarDragListener extends DragListener {
 
     @Override
     public void onDragBegin(View view, int rawX, int rawY) {
-        findWindowAnchor(mDecorView, mAnchorFromTopleft,
+        findWindowAnchor(mWindow.getDecorView(), mAnchorFromTopleft,
                 mRawAnchor);
-        findScreenSize(mActivity, mScreenSize);
+        findScreenSize(mWindow, mScreenSize);
         findAcceptableRectForWindowAnchor(view);
         mTouchPointFromWindowAnchor[0] = rawX - mRawAnchor[0];
         mTouchPointFromWindowAnchor[1] = rawY - mRawAnchor[1];
@@ -140,13 +137,17 @@ public class TitlebarDragListener extends DragListener {
         // dummy
     }
 
-    public void setMargin(int[] margin) {
-        mMargin = margin;
+    public void setDragMargin(int[] dragMargin) {
+        if (dragMargin != null) {
+            for (int i = 0; i < 4; i++) {
+                mDragMargin[i] = dragMargin[i];
+            }
+        }
     }
 
     private int snapX(int rawWindowAnchorX) {
         int left = rawWindowAnchorX - mAnchorFromTopleft[0];
-        int right = left + mDecorView.getWidth();
+        int right = left + mWindow.getDecorView().getWidth();
         if (Math.abs(left) < SNAP_OFFSET) {
             rawWindowAnchorX -= left;
         } else if (Math.abs(mScreenSize[0] - right) < SNAP_OFFSET) {
@@ -157,7 +158,7 @@ public class TitlebarDragListener extends DragListener {
 
     private int snapY(int rawWindowAnchorY) {
         int top = rawWindowAnchorY - mAnchorFromTopleft[1];
-        int bottom = top + mDecorView.getHeight();
+        int bottom = top + mWindow.getDecorView().getHeight();
         if (Math.abs(top) < SNAP_OFFSET) {
             rawWindowAnchorY -= top;
         } else if (Math.abs(mScreenSize[1] - bottom) < SNAP_OFFSET) {

@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:background="@drawable/classic_window"
   android:orientation="vertical">
+  <include layout="@layout/classic_titlebar"/>
   <fragment
     android:id="@+id/dummy"
     android:name="th.pd.mail.tidyface.compose.Hedwig"

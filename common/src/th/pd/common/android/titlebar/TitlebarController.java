@@ -1,9 +1,11 @@
-package th.pd.common.android;
+package th.pd.common.android.titlebar;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import th.pd.common.android.R;
 
 public class TitlebarController {
 
@@ -18,23 +20,21 @@ public class TitlebarController {
         void onClickResize(View btnResize);
     }
 
-    public static TitlebarController newInstance(View view,
-            Listener listener) {
-        TitlebarController instance = new TitlebarController();
-        instance.setupHolders(view);
-        instance.setListener(listener);
-        return instance;
-    }
-
     private Listener mListener;
 
     private View mTitlebar;
+
     private ImageView mIcon;
     private TextView mTitle;
     private View mBtnResize;
     private View mBtnMinimize;
     private View mBtnMaximize;
     private View mBtnClose;
+
+    public TitlebarController(View view, Listener listener) {
+        setupHolders(view);
+        setListener(listener);
+    }
 
     public void setEnableButtonMaximize(boolean enabled) {
         mBtnMaximize.setEnabled(enabled);

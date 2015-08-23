@@ -1,6 +1,5 @@
 package th.pd.mail.fastsync.network;
 
-import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -116,7 +115,7 @@ class MessageExporter {
     private static String generateBoundary() {
         return new StringBuilder().append(getPackageName()).append('-')
                 .append(getVersionCode()).append('-')
-                .append(System.nanoTime()).append('-')
+                .append(System.currentTimeMillis()).append('-')
                 .append(SystemClock.elapsedRealtime()).toString();
     }
 
@@ -151,7 +150,9 @@ class MessageExporter {
     }
 
     /**
-     * taking start position means obeying MAX_LINE_LENGTH
+     * taking start position means it being header and obeying {@link #MAX_LINE_LENGTH}<br/>
+     * <br/>
+     * encapsulate with "<code> =?UTF-8?B?</code>" and "<code>?=</code>"<br/>
      */
     private static void putBase64Encoded(OutputStream ostream,
             String s, int start) throws IOException {
@@ -166,7 +167,7 @@ class MessageExporter {
         // always use base64 rather than quoted-printable: very few people read the raw mail
 
         byte[] utf8Bytes = getUtf8Bytes(s);
-        int capacity = (maxLength - start - 1) * 3 / 4; // ':' and SP
+        int capacity = (maxLength - start) * 3 / 4;
         int i = 0;
         int j = 0;
         while (i < utf8Bytes.length) {
@@ -178,18 +179,20 @@ class MessageExporter {
                     break;
                 }
                 if (next - i > capacity) {
-                    // too many
+                    // enough for this line
                     break;
                 }
                 j = next;
             }
             if (j > i) {
-                ostream.write(' ');
+                if (i != 0) {
+                    putLineEnd(ostream);
+                    ostream.write(' ');
+                }
                 ostream.write(prefixBytes);
                 ostream.write(Base64.encode(utf8Bytes, i, j - i,
                         Base64.NO_WRAP));
                 ostream.write(suffixBytes);
-                putLineEnd(ostream);
             }
 
             capacity = (maxLength - 1) * 3 / 4; // SP
@@ -247,6 +250,7 @@ class MessageExporter {
     private static void putHeaderContentTransferEncoding(
             OutputStream ostream) throws IOException {
         putString(ostream, "Content-Transfer-Encoding: base64");
+        putLineEnd(ostream);
     }
 
     private static void putHeaderContentType(OutputStream ostream,
@@ -281,7 +285,9 @@ class MessageExporter {
         final byte[] keyBytes = getUtf8Bytes(key);
         ostream.write(keyBytes);
         ostream.write(':');
-        putBase64Encoded(ostream, value, keyBytes.length + 1);
+        ostream.write(' ');
+        putBase64Encoded(ostream, value, keyBytes.length + 2);
+        putLineEnd(ostream);
     }
 
     private static void putLineEnd(OutputStream ostream) throws IOException {
@@ -289,7 +295,7 @@ class MessageExporter {
         ostream.write('\n');
     }
 
-    static void putMessage(BufferedOutputStream ostream, Message message)
+    static void putMessage(OutputStream ostream, Message message)
             throws IOException {
 
         // rfc 822 4.1
@@ -324,7 +330,8 @@ class MessageExporter {
             putHeaderContentTransferEncoding(ostream);
             putLineEnd(ostream);
 
-            putBase64Encoded(ostream, part.text, 0);
+            ostream.write(Base64.encode(getUtf8Bytes(part.text),
+                    Base64.CRLF));
             putLineEnd(ostream);
         } else if (part.isCalendarEvent()) {
             // TODO
@@ -362,10 +369,9 @@ class MessageExporter {
         }
 
         String boundary = generateBoundary();
-
         putHeaderContentType(ostream, "multipart/alternative", null, null,
                 boundary);
-        for (Part p = part; p != null; p = part.alternative) {
+        for (Part p = part; p != null; p = p.alternative) {
             putBoundary(ostream, boundary);
             putMessagePart(ostream, p);
         }
@@ -385,7 +391,7 @@ class MessageExporter {
         putHeaderContentType(ostream, "multipart/mixed", null, null,
                 boundary);
         putLineEnd(ostream);
-        for (Part p = part; p != null; p = part.mixed) {
+        for (Part p = part; p != null; p = p.mixed) {
             putBoundary(ostream, boundary);
             putMessagePartForAlternative(ostream, p);
         }

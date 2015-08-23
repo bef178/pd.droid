@@ -14,6 +14,7 @@
   <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
   <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
   <application
+    android:name="th.pd.mail.MailApp"
     android:allowBackup="true"
     android:label="@string/app_label"
     android:theme="@style/appTheme">

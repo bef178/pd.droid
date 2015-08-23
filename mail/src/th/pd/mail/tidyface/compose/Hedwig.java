@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import th.pd.common.android.QueryUtil;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;
 import th.pd.mail.dao.MessageForSend;
@@ -49,7 +51,13 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         Uri contentUri = data.getData();
-                        mComposeController.addAttachment(contentUri);
+                        final ContentResolver resolver = getActivity()
+                                .getContentResolver();
+                        String mimeType = resolver.getType(contentUri);
+                        String displayName = QueryUtil.queryDisplayName(
+                                contentUri, resolver);
+                        mComposeController.addAttachment(contentUri,
+                                mimeType, displayName, getActivity());
                         break;
                 }
                 break;
@@ -88,11 +96,11 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        Intent wrapperIntent = Intent.createChooser(intent,
+                "Select a File to Upload");
 
         try {
-            startActivityForResult(
-                    Intent.createChooser(intent, "Select a File to Upload"),
-                    REQUEST_CODE_PICK_FILE);
+            startActivityForResult(wrapperIntent, REQUEST_CODE_PICK_FILE);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getActivity(),
                     R.string.cannot_find_app_to_pick_file,
@@ -211,7 +219,8 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
                 (WindowManager.LayoutParams) decorView.getLayoutParams();
         layoutParams.x = 0;
         layoutParams.y = 0;
-        layoutParams.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+        layoutParams.flags |=
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
         getActivity().getWindowManager().updateViewLayout(
                 decorView, layoutParams);
     }

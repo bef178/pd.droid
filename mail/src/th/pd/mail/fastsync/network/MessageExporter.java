@@ -116,7 +116,7 @@ class MessageExporter {
         return new StringBuilder().append(getPackageName()).append('-')
                 .append(getVersionCode()).append('-')
                 .append(System.currentTimeMillis()).append('-')
-                .append(SystemClock.elapsedRealtime()).toString();
+                .append(SystemClock.elapsedRealtimeNanos()).toString();
     }
 
     private static final String getAppName() {

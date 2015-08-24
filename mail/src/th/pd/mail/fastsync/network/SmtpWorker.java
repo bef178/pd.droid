@@ -126,8 +126,8 @@ public class SmtpWorker {
         Const.logd("RESP--- " + resp);
         if (!resp.isEmpty()) {
             switch (resp.charAt(0)) {
-                case '4':
-                case '5':
+                case '4': // 4xx
+                case '5': // 5xx
                     throw new MessengerException(resp);
             }
         }

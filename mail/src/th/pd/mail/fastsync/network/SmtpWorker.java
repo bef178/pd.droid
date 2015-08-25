@@ -6,8 +6,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import javax.net.ssl.SSLException;
-
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Base64;
@@ -33,44 +31,38 @@ public class SmtpWorker {
     private SocketConn mSocketConn = new SocketConn();
 
     private void conn(SocketAddress remoteAddr, String user, String pass)
-            throws AuthFailedException, MessengerException, IOException {
+            throws IOException, MessengerException {
         connEnd(); // start from a clean state
 
-        try {
-            Const.logd("CONN--- " + remoteAddr);
-            mSocketConn.conn(remoteAddr);
+        Const.logd("CONN--- " + remoteAddr);
+        mSocketConn.conn(remoteAddr);
 
-            // consume the server banner and welcome message
-            String resp = getResp();
-            Const.logd("RESP--- " + resp);
+        // consume the server banner and welcome message
+        String resp = getResp();
+        Const.logd("RESP--- " + resp);
 
-            resp = onCommandEhlo(getLocalHost());
+        resp = onCommandEhlo(getLocalHost());
 
-            // TODO try tls "STARTTLS"
+        // TODO try tls "STARTTLS"
 
-            if (!user.isEmpty()) {
-                if (!pass.isEmpty()) {
-                    if (resp.matches("(?s).*AUTH.*PLAIN.*")) {
-                        onCommandAuthPlain(user, pass);
-                    } else if (resp.matches("(?s).*AUTH.*LOGIN.*")) {
-                        onCommandAuthLogin(user, pass);
-                    } else {
-                        String s1 =
-                                "No valid authentication mechanism found.";
-                        String s2 =
-                                "Authentication is required but the server did not support it.";
-                        throw new MessengerException(s1 + " " + s2);
-                    }
-                } else if (true) {
-                    // TODO above condition: oauth support
-                    // TODO
+        if (!user.isEmpty()) {
+            if (!pass.isEmpty()) {
+                if (resp.matches("(?s).*AUTH.*PLAIN.*")) {
+                    onCommandAuthPlain(user, pass);
+                } else if (resp.matches("(?s).*AUTH.*LOGIN.*")) {
+                    onCommandAuthLogin(user, pass);
+                } else {
+                    String s1 = "No valid authentication mechanism found.";
+                    String s2 =
+                            "Authentication is required but the server did not support it.";
+                    throw new MessengerException(s1 + " " + s2);
                 }
-            } else {
-                // TODO no user
+            } else if (true) {
+                // TODO above condition: oauth support
+                // TODO
             }
-        } catch (SSLException e) {
-            // TODO
-            throw new MessengerException(e.toString());
+        } else {
+            // TODO no user
         }
     }
 
@@ -116,8 +108,8 @@ public class SmtpWorker {
         return resp;
     }
 
-    private String onCommand(String command) throws IOException,
-            MessengerException {
+    private String onCommand(String command)
+            throws IOException, MessengerException {
         if (command != null) {
             Const.logd("CMND--- " + command);
             mSocketConn.putLine(command);
@@ -128,78 +120,59 @@ public class SmtpWorker {
             switch (resp.charAt(0)) {
                 case '4': // 4xx
                 case '5': // 5xx
-                    throw new MessengerException(resp);
+                    throw new MessengerException(resp,
+                            MessengerException.TYPE_SMTP);
             }
         }
         return resp;
     }
 
     private void onCommandAuthLogin(String user, String pass)
-            throws IOException, MessengerException, AuthFailedException {
-        try {
-            onCommand("AUTH LOGIN");
-            onCommand(Base64
-                    .encodeToString(user.getBytes(), Base64.NO_WRAP));
-            onCommand(Base64
-                    .encodeToString(pass.getBytes(), Base64.NO_WRAP));
-        } catch (MessengerException e) {
-            String msg = e.getMessage();
-            if (!msg.isEmpty() && msg.charAt(1) == '3') {
-                throw new AuthFailedException(msg);
-            } else {
-                throw e;
-            }
-        }
+            throws IOException, MessengerException {
+        onCommand("AUTH LOGIN");
+        onCommand(Base64.encodeToString(user.getBytes(), Base64.NO_WRAP));
+        onCommand(Base64.encodeToString(pass.getBytes(), Base64.NO_WRAP));
     }
 
     private void onCommandAuthPlain(String user, String pass)
-            throws IOException, MessengerException, AuthFailedException {
+            throws IOException, MessengerException {
         byte[] bytes = Base64.encode(
                 ('\000' + user + '\000' + pass).getBytes(), Base64.NO_WRAP);
-        try {
-            onCommand("AUTH PLAIN " + new String(bytes));
-        } catch (MessengerException e) {
-            String msg = e.getMessage();
-            if (!msg.isEmpty() && msg.charAt(1) == '3') {
-                throw new AuthFailedException(msg);
-            } else {
-                throw e;
-            }
-        }
+        onCommand("AUTH PLAIN " + new String(bytes));
     }
 
-    private void onCommandData(Message message) throws IOException,
-            MessengerException {
+    private void onCommandData(Message message)
+            throws IOException, MessengerException {
         onCommand("DATA");
         MessageExporter.putMessage(mSocketConn.getBufferedOutputStream(),
                 message);
         onCommand(".");
     }
 
-    private String onCommandEhlo(String localHost) throws IOException,
-            MessengerException {
+    private String onCommandEhlo(String localHost)
+            throws IOException, MessengerException {
         return onCommand("EHLO " + localHost);
     }
 
     private void onCommandMailFrom(Rfc822Token[] tokens)
-            throws IOException,
-            MessengerException {
+            throws IOException, MessengerException {
         onCommand("MAIL FROM: <" + tokens[0].getAddress() + ">");
     }
 
-    private void onCommandQuit() throws IOException, MessengerException {
+    private void onCommandQuit()
+            throws IOException, MessengerException {
         onCommand("QUIT");
     }
 
-    private void onCommandRcptTo(Rfc822Token[] tokens) throws IOException,
-            MessengerException {
+    private void onCommandRcptTo(Rfc822Token[] tokens)
+            throws IOException, MessengerException {
         for (Rfc822Token token : tokens) {
             onCommand("RCPT TO: <" + token.getAddress() + ">");
         }
     }
 
     public void sendMessage(MessageForSend syncMessage)
-            throws MessengerException, AuthFailedException {
+            throws IOException, MessengerException {
 
         Message message = syncMessage.getMessage();
         Rfc822Token[] from = Rfc822Tokenizer.tokenize(message.getSender());
@@ -213,8 +186,6 @@ public class SmtpWorker {
         SocketAddress remoteAddr = new InetSocketAddress(
                 serverAuth.getHost(), serverAuth.getPort());
 
-        // TODO test network
-
         try {
             conn(remoteAddr, serverAuth.getLogin(), serverAuth.getPin());
             onCommandMailFrom(from);
@@ -223,8 +194,6 @@ public class SmtpWorker {
             onCommandRcptTo(bcc);
             onCommandData(message);
             onCommandQuit();
-        } catch (IOException e) {
-            throw new MessengerException(e.toString());
         } finally {
             connEnd();
         }

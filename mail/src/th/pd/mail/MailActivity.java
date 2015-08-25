@@ -14,7 +14,7 @@ import th.pd.mail.fastsync.MailProvider;
 import th.pd.mail.fastsync.Mailbox;
 import th.pd.mail.tidyface.compose.ComposeActivity;
 
-public class MainActivity extends Activity {
+public class MailActivity extends Activity {
 
     private void bindViews() {
         findViewById(R.id.btnCompose).setOnClickListener(

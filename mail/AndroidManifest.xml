@@ -19,7 +19,7 @@
     android:label="@string/app_label"
     android:theme="@style/appTheme">
     <activity
-      android:name=".MainActivity"
+      android:name=".MailActivity"
       android:label="@string/app_label">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

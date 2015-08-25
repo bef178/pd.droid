@@ -3,6 +3,7 @@ package th.pd.mail;
 import java.util.Locale;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -10,6 +11,8 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
 public class MailApp extends Application {
+
+    public static Context appContext;
 
     public static String appName = "pd.mail";
     public static String packageName = "unknown";
@@ -22,6 +25,8 @@ public class MailApp extends Application {
     }
 
     private void setInfo() {
+        appContext = getApplicationContext();
+
         Resources defRes = getResources();
         AssetManager assets = defRes.getAssets();
         DisplayMetrics metrics = defRes.getDisplayMetrics();

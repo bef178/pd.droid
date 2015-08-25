@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * of threads
  */
 public class SyncController {
+
 	private static final int NUM_THREADS = 3;
 
 	private static SyncController controller = null;

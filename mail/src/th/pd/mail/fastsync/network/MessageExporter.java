@@ -172,6 +172,7 @@ class MessageExporter {
         int j = 0;
         while (i < utf8Bytes.length) {
             while (true) {
+                // make sure bytes from a single utf8 graph are in the same line
                 int next = nextUtf8(utf8Bytes, j);
                 if (next < 0) {
                     // write the rest bytes
@@ -186,7 +187,7 @@ class MessageExporter {
             }
             if (j > i) {
                 if (i != 0) {
-                    putLineEnd(ostream);
+                    putNewLine(ostream);
                     ostream.write(' ');
                 }
                 ostream.write(prefixBytes);
@@ -205,7 +206,7 @@ class MessageExporter {
         ostream.write('-');
         ostream.write('-');
         putString(ostream, boundary);
-        putLineEnd(ostream);
+        putNewLine(ostream);
     }
 
     private static void putBoundaryEnd(OutputStream ostream, String boundary)
@@ -215,7 +216,7 @@ class MessageExporter {
         putString(ostream, boundary);
         ostream.write('-');
         ostream.write('-');
-        putLineEnd(ostream);
+        putNewLine(ostream);
     }
 
     private static void putHeader(OutputStream ostream, String key,
@@ -227,30 +228,30 @@ class MessageExporter {
             ostream.write(':');
             ostream.write(' ');
             putString(ostream, value);
-            putLineEnd(ostream);
+            putNewLine(ostream);
         }
     }
 
     private static void putHeaderContentDisposition(OutputStream ostream,
             String filename, long size) throws IOException {
         putString(ostream, "Content-Disposition: attachment;");
-        putLineEnd(ostream);
+        putNewLine(ostream);
         if (filename != null && !filename.isEmpty()) {
             putString(ostream, " filename*=utf-8''");
             putUrlEncoded(ostream, getUtf8Bytes(filename));
-            putLineEnd(ostream);
+            putNewLine(ostream);
         }
         if (size >= 0) {
             putString(ostream, " size=");
             putString(ostream, Long.toString(size));
-            putLineEnd(ostream);
+            putNewLine(ostream);
         }
     }
 
     private static void putHeaderContentTransferEncoding(
             OutputStream ostream) throws IOException {
         putString(ostream, "Content-Transfer-Encoding: base64");
-        putLineEnd(ostream);
+        putNewLine(ostream);
     }
 
     private static void putHeaderContentType(OutputStream ostream,
@@ -266,18 +267,18 @@ class MessageExporter {
             putString(ostream, charset);
         }
         if (name != null && !name.isEmpty()) {
-            putLineEnd(ostream);
+            putNewLine(ostream);
             putString(ostream, " name=\"");
             putBase64Encoded(ostream, name, 7);
             ostream.write('"');
         }
         if (boundary != null && !boundary.isEmpty()) {
-            putLineEnd(ostream);
+            putNewLine(ostream);
             putString(ostream, " boundary=\"");
             putString(ostream, boundary);
             ostream.write('"');
         }
-        putLineEnd(ostream);
+        putNewLine(ostream);
     }
 
     private static void putHeaderEncoded(OutputStream ostream, String key,
@@ -287,12 +288,7 @@ class MessageExporter {
         ostream.write(':');
         ostream.write(' ');
         putBase64Encoded(ostream, value, keyBytes.length + 2);
-        putLineEnd(ostream);
-    }
-
-    private static void putLineEnd(OutputStream ostream) throws IOException {
-        ostream.write('\r');
-        ostream.write('\n');
+        putNewLine(ostream);
     }
 
     static void putMessage(OutputStream ostream, Message message)
@@ -328,11 +324,11 @@ class MessageExporter {
             putHeaderContentType(ostream, part.mimeType, "utf-8", null,
                     null);
             putHeaderContentTransferEncoding(ostream);
-            putLineEnd(ostream);
+            putNewLine(ostream);
 
             ostream.write(Base64.encode(getUtf8Bytes(part.text),
                     Base64.CRLF));
-            putLineEnd(ostream);
+            putNewLine(ostream);
         } else if (part.isCalendarEvent()) {
             // TODO
         } else {
@@ -341,7 +337,7 @@ class MessageExporter {
             putHeaderContentType(ostream, part.mimeType, null,
                     part.getNameOfAttachment(), null);
             putHeaderContentTransferEncoding(ostream);
-            putLineEnd(ostream);
+            putNewLine(ostream);
 
             Base64OutputStream os =
                     new Base64OutputStream(ostream, Base64.CRLF
@@ -355,7 +351,7 @@ class MessageExporter {
             is.close();
             os.flush();
             os.close();
-            putLineEnd(ostream);
+            putNewLine(ostream);
         }
         ostream.flush();
     }
@@ -390,12 +386,17 @@ class MessageExporter {
 
         putHeaderContentType(ostream, "multipart/mixed", null, null,
                 boundary);
-        putLineEnd(ostream);
+        putNewLine(ostream);
         for (Part p = part; p != null; p = p.mixed) {
             putBoundary(ostream, boundary);
             putMessagePartForAlternative(ostream, p);
         }
         putBoundaryEnd(ostream, boundary);
+    }
+
+    private static void putNewLine(OutputStream ostream) throws IOException {
+        ostream.write('\r');
+        ostream.write('\n');
     }
 
     private static void putString(OutputStream ostream, String s)

@@ -9,13 +9,15 @@ import java.util.Arrays;
 public class InstallmentByteBuffer {
 
     private static final int INSTALLMENT_BITS = 10;
+    private static final int INSTALLMENT_BYTES = 1 << INSTALLMENT_BITS;
+    private static final int INSTALLMENT_MASK = INSTALLMENT_BYTES - 1;
 
-    private byte[] bytes;
+    private byte[] savings;
     private int used = 0;
 
     private int reader = 0;
 
-    private boolean ro = false;
+    private boolean readonly = false;
 
     public InstallmentByteBuffer() {
         this(1 << INSTALLMENT_BITS);
@@ -25,41 +27,52 @@ public class InstallmentByteBuffer {
         setupCapacity(capacity);
     }
 
-    public InstallmentByteBuffer(byte[] ba, int used, boolean readonly) {
-        assert ba != null;
-        this.bytes = ba;
+    public InstallmentByteBuffer(byte[] a, int used, boolean readonly) {
+        assert a != null;
+        this.savings = a;
         this.used = used;
-        this.ro = readonly;
+        this.readonly = readonly;
     }
 
-    public void append(byte b) {
-        pushByte(b);
+    public InstallmentByteBuffer append(byte b) {
+		if (!readonly()) {
+			setupCapacity(used + 1);
+			savings[used++] = b;
+		}
+        return this;
     }
 
-    public void append(byte[] ba) {
-        pushBytes(ba, 0, ba.length);
+    public InstallmentByteBuffer append(byte[] a) {
+        return append(a, 0, a.length);
     }
 
-    public void append(byte[] ba, int start, int length) {
-        pushBytes(ba, start, length);
+    public InstallmentByteBuffer append(byte[] a, int start, int length) {
+        if (readonly()) {
+            return this;
+        }
+
+        setupCapacity(used + a.length);
+        System.arraycopy(a, start, savings, used, length);
+        used += length;
+        return this;
     }
 
     /**
      * @return a copy of valid in bounds byte array
      */
     private byte[] array() {
-        return Arrays.copyOf(bytes, used);
+        return Arrays.copyOf(savings, used);
     }
 
     /**
      * @return the inner byte array
      */
     public byte[] bytes() {
-        return bytes;
+        return savings;
     }
 
     public int capacity() {
-        return bytes.length;
+        return savings.length;
     }
 
     public boolean hasNext() {
@@ -72,7 +85,7 @@ public class InstallmentByteBuffer {
 
     public byte next() {
         if (hasNext()) {
-            return bytes[reader++];
+            return savings[reader++];
         } else {
             throw new IndexOutOfBoundsException();
         }
@@ -98,55 +111,38 @@ public class InstallmentByteBuffer {
      */
     public byte peek() {
         if (hasNext()) {
-            return bytes[reader];
+            return savings[reader];
         } else {
             throw new IndexOutOfBoundsException();
         }
     }
 
-    private void pushByte(byte b) {
-        if (readonly()) {
-            return;
-        }
-        setupCapacity(used + 1);
-        bytes[used++] = b;
-    }
-
-    private void pushBytes(byte[] ba, int start, int length) {
-        if (readonly()) {
-            return;
-        }
-        setupCapacity(used + ba.length);
-        System.arraycopy(ba, start, bytes, used, length);
-        used += length;
-    }
-
     public boolean readonly() {
-        return ro;
+        return readonly;
     }
 
     /**
      * Writable to read only is a one-way street.
      */
     public void readonly(boolean readonly) {
-        if (this.ro) {
+        if (this.readonly) {
             return;
         }
-        this.ro = readonly;
+        this.readonly = readonly;
     }
 
     /**
      * For writing, simply reset size.<br/>
      */
     public void reset() {
-        if (ro) {
+        if (readonly) {
             return;
         }
         used = 0;
     }
 
     public void reset(int n) {
-        if (ro) {
+        if (readonly) {
             return;
         }
         if (n >= 0 && n < used) {
@@ -164,16 +160,15 @@ public class InstallmentByteBuffer {
     }
 
     private void setupCapacity(int newLength) {
-        if (bytes == null) {
-            bytes = new byte[0];
+        if (savings == null) {
+            savings = new byte[0];
         }
-        if (newLength > bytes.length) {
-            int installment = 1 << INSTALLMENT_BITS;
-            int newCapacity = newLength & ~(installment - 1);
+        if (newLength > savings.length) {
+            int newCapacity = newLength & ~INSTALLMENT_MASK;
             if (newCapacity < newLength) {
-                newCapacity += installment;
+                newCapacity += INSTALLMENT_BYTES;
             }
-            bytes = Arrays.copyOf(bytes, newCapacity);
+            savings = Arrays.copyOf(savings, newCapacity);
         }
     }
 
@@ -191,10 +186,10 @@ public class InstallmentByteBuffer {
      * For writing, erase every slot's content and reset size.<br/>
      */
     public void wipe() {
-        if (ro) {
+        if (readonly) {
             return;
         }
-        Arrays.fill(bytes, (byte) 0);
+        Arrays.fill(savings, (byte) 0);
         used = 0;
     }
 }

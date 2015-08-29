@@ -19,7 +19,48 @@ class FormatCodecBase64 {
             '8', '9', '+', '/'
     };
 
-    byte[] encode(byte[] a, int i, int n, int bytesPerLine,
+    private static InstallmentByteBuffer encode(byte[] a, int i, int n) {
+        // encode
+        InstallmentByteBuffer ibb = new InstallmentByteBuffer();
+        int j = i + n;
+        while (i + 3 <= j) {
+            ibb.append(encode3(a, i));
+            i += 3;
+        }
+        switch (j - i) {
+            case 2:
+                ibb.append(encode3(new byte[] {
+                        a[i], a[i + 1], 0
+                }, i));
+                ibb.append('=');
+                break;
+            case 1:
+                ibb.append(encode3(new byte[] {
+                        a[i], 0, 0
+                }, i));
+                ibb.append('=');
+                ibb.append('=');
+                break;
+        }
+        return ibb;
+    }
+
+    public static byte[] encode(byte[] a, int bytesPerLine,
+            int firstOffset,
+            byte[] prefix, byte[] suffix) throws IOException {
+        return encode(a, 0, a.length, bytesPerLine, firstOffset, prefix,
+                suffix);
+    }
+
+    public static OutputStream encode(byte[] a, int bytesPerLine,
+            int firstOffset,
+            byte[] prefix, byte[] suffix, OutputStream o)
+            throws IOException {
+        return encode(a, 0, a.length, bytesPerLine, firstOffset, prefix,
+                suffix, o);
+    }
+
+    public static byte[] encode(byte[] a, int i, int n, int bytesPerLine,
             int firstOffset, byte[] prefix, byte[] suffix)
             throws IOException {
         InstallmentByteBuffer o = new InstallmentByteBuffer();
@@ -30,7 +71,8 @@ class FormatCodecBase64 {
     /**
      * it is user who should put the prefix/suffix before/after invoke this method if necessary
      */
-    OutputStream encode(byte[] a, int i, int n, int bytesPerLine,
+    public static OutputStream encode(byte[] a, int i, int n,
+            int bytesPerLine,
             int firstOffset, byte[] prefix, byte[] suffix, OutputStream o)
             throws IOException {
         assert a != null;
@@ -83,37 +125,11 @@ class FormatCodecBase64 {
         return o;
     }
 
-    private InstallmentByteBuffer encode(byte[] a, int i, int n) {
-        // encode
-        InstallmentByteBuffer ibb = new InstallmentByteBuffer();
-        int j = i + n;
-        while (i + 3 <= j) {
-            ibb.append(encode3(a, i));
-            i += 3;
-        }
-        switch (j - i) {
-            case 2:
-                ibb.append(encode3(new byte[] {
-                        a[i], a[i + 1], 0
-                }, i));
-                ibb.append('=');
-                break;
-            case 1:
-                ibb.append(encode3(new byte[] {
-                        a[i], 0, 0
-                }, i));
-                ibb.append('=');
-                ibb.append('=');
-                break;
-        }
-        return ibb;
-    }
-
-    private byte[] encode3(byte[] a, int i) {
+    private static byte[] encode3(byte[] a, int i) {
         return encode3(a, i, new byte[4], 0);
     }
 
-    private byte[] encode3(byte[] a, int i, byte[] result, int offset) {
+    private static byte[] encode3(byte[] a, int i, byte[] result, int offset) {
         assert a != null;
         assert i >= 0 && i + 3 < a.length;
         assert result != null;

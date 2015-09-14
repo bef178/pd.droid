@@ -11,14 +11,66 @@ import java.util.Arrays;
  */
 public class InstallmentByteBuffer extends OutputStream {
 
+    public class Reader {
+
+        private int read = 0;
+
+        public boolean hasNext() {
+            return read >= 0 && read < used;
+        }
+
+        public int next() {
+            if (hasNext()) {
+                return get(read++) & 0xFF;
+            } else {
+                return -1;
+            }
+        }
+
+        /**
+         * For reading, get the cursor's offset.
+         */
+        public int offset() {
+            return read;
+        }
+
+        public void offset(int offset) {
+            if (read + offset >= 0 && read + offset < used) {
+                read += offset;
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        /**
+         * may throw IndexOutOfBoundsException
+         */
+        public int peek() {
+            if (hasNext()) {
+                return get(read) & 0xFF;
+            } else {
+                return -1;
+            }
+        }
+
+        /**
+         * Rewind for reading.
+         */
+        public void rewind() {
+            read = 0;
+        }
+
+        public int size() {
+            return InstallmentByteBuffer.this.size();
+        }
+    }
+
     private static final int INSTALLMENT_BITS = 10;
     private static final int INSTALLMENT_BYTES = 1 << INSTALLMENT_BITS;
     private static final int INSTALLMENT_MASK = INSTALLMENT_BYTES - 1;
 
     private ArrayList<byte[]> savings = new ArrayList<>();
     private int used = 0;
-
-    private int reader = 0;
 
     private boolean readonly = false;
 
@@ -28,14 +80,6 @@ public class InstallmentByteBuffer extends OutputStream {
 
     public InstallmentByteBuffer(int capacity) {
         setupCapacity(capacity);
-    }
-
-    public InstallmentByteBuffer append(int b) {
-        if (!readonly()) {
-            setupCapacity(used + 1);
-            put(used++, (byte) (b & 0x3F));
-        }
-        return this;
     }
 
     public InstallmentByteBuffer append(byte[] a) {
@@ -81,6 +125,14 @@ public class InstallmentByteBuffer extends OutputStream {
         return this;
     }
 
+    public InstallmentByteBuffer append(int b) {
+        if (!readonly()) {
+            setupCapacity(used + 1);
+            put(used++, (byte) (b & 0x3F));
+        }
+        return this;
+    }
+
     /**
      * @return a copy of valid in bounds byte array
      */
@@ -105,50 +157,16 @@ public class InstallmentByteBuffer extends OutputStream {
         return savings.get(pos >> INSTALLMENT_BITS)[pos & INSTALLMENT_MASK];
     }
 
-    public boolean hasNext() {
-        return reader >= 0 && reader < used;
-    }
-
     public boolean isEmpty() {
         return used == 0;
     }
 
-    public int next() {
-        if (hasNext()) {
-            return get(reader++) & 0xFF;
-        } else {
-            return -1;
-        }
-    }
-
-    /**
-     * For reading, get the cursor's offset.
-     */
-    public int offset() {
-        return reader;
-    }
-
-    public void offset(int offset) {
-        if (reader + offset >= 0 && reader + offset < used) {
-            reader += offset;
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    /**
-     * may throw IndexOutOfBoundsException
-     */
-    public int peek() {
-        if (hasNext()) {
-            return get(reader) & 0xFF;
-        } else {
-            return -1;
-        }
-    }
-
     private void put(int pos, byte b) {
         savings.get(pos >> INSTALLMENT_BITS)[pos & INSTALLMENT_MASK] = b;
+    }
+
+    public Reader reader() {
+        return new Reader();
     }
 
     public boolean readonly() {
@@ -184,13 +202,6 @@ public class InstallmentByteBuffer extends OutputStream {
         } else {
             throw new IllegalArgumentException();
         }
-    }
-
-    /**
-     * Rewind for reading.
-     */
-    public void rewind() {
-        reader = 0;
     }
 
     private void setupCapacity(int newLength) {

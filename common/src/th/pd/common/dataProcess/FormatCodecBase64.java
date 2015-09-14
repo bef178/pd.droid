@@ -1,14 +1,9 @@
-package th.pd.common.android;
+package th.pd.common.dataProcess;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import android.annotation.SuppressLint;
-
-import th.pd.common.dataProcess.InstallmentByteBuffer;
-
-@SuppressLint("Assert")
-class FormatCodecBase64 {
+public class FormatCodecBase64 {
 
     private static final char[] ENCODE_ALPHABET = {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
@@ -46,15 +41,14 @@ class FormatCodecBase64 {
     }
 
     public static byte[] encode(byte[] a, int bytesPerLine,
-            int firstOffset,
-            byte[] prefix, byte[] suffix) throws IOException {
+            int firstOffset, byte[] prefix, byte[] suffix)
+            throws IOException {
         return encode(a, 0, a.length, bytesPerLine, firstOffset, prefix,
                 suffix);
     }
 
     public static OutputStream encode(byte[] a, int bytesPerLine,
-            int firstOffset,
-            byte[] prefix, byte[] suffix, OutputStream o)
+            int firstOffset, byte[] prefix, byte[] suffix, OutputStream o)
             throws IOException {
         return encode(a, 0, a.length, bytesPerLine, firstOffset, prefix,
                 suffix, o);
@@ -72,8 +66,8 @@ class FormatCodecBase64 {
      * it is user who should put the prefix/suffix before/after invoke this method if necessary
      */
     public static OutputStream encode(byte[] a, int i, int n,
-            int bytesPerLine,
-            int firstOffset, byte[] prefix, byte[] suffix, OutputStream o)
+            int bytesPerLine, int firstOffset, byte[] prefix,
+            byte[] suffix, OutputStream o)
             throws IOException {
         assert a != null;
         assert i >= 0 && i < a.length;
@@ -87,9 +81,10 @@ class FormatCodecBase64 {
             assert bytesPerLine > prefix.length + suffix.length;
         }
 
-        InstallmentByteBuffer ibb = encode(a, i, n);
-        ibb.rewind();
-        int m = ibb.size();
+        InstallmentByteBuffer.Reader ibbr = encode(a, i, n).reader();
+
+        ibbr.rewind();
+        int m = ibbr.size();
 
         // the first line
         int rest = bytesPerLine - firstOffset - suffix.length;
@@ -97,7 +92,7 @@ class FormatCodecBase64 {
             rest = m;
         }
         for (int j = 0; j < rest; ++i) {
-            o.write(ibb.next());
+            o.write(ibbr.next());
         }
         m -= rest;
         if (m > 0) {
@@ -109,7 +104,7 @@ class FormatCodecBase64 {
         while (m >= rest) {
             o.write(prefix);
             while (rest-- > 0) {
-                o.write(ibb.next());
+                o.write(ibbr.next());
             }
             o.write(suffix);
             m -= rest;
@@ -119,7 +114,7 @@ class FormatCodecBase64 {
             rest = m;
             o.write(prefix);
             while (rest-- > 0) {
-                o.write(ibb.next());
+                o.write(ibbr.next());
             }
         }
         return o;

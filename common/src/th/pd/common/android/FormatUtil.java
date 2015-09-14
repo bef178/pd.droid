@@ -9,6 +9,9 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
 
+import th.pd.common.dataProcess.FormatCodecBase64;
+import th.pd.common.dataProcess.FormatCodecUri;
+
 public final class FormatUtil {
 
     public static final class Url extends FormatCodecUri {

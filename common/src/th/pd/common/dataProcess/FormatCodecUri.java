@@ -1,16 +1,13 @@
-package th.pd.common.android;
+package th.pd.common.dataProcess;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.BitSet;
 
 /**
  * rfc3986
  */
-class FormatCodecUri {
-
-    public static final byte[] DIGIT = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
-            'C', 'D', 'E', 'F'
-    };
+public class FormatCodecUri {
 
     private static final BitSet ENCODE_ALPHABET_EXCLUDED =
             new BitSet(128);
@@ -45,11 +42,10 @@ class FormatCodecUri {
         return !ENCODE_ALPHABET_EXCLUDED.get(ch);
     }
 
-    public static byte getHi(int ch) {
-        return DIGIT[0x0F & (ch >> 4)];
-    }
-
-    public static byte getLo(int ch) {
-        return DIGIT[0x0F & ch];
+    public static OutputStream encodeAndPut(byte b, OutputStream ostream)
+            throws IOException {
+        ostream.write('%');
+        ostream.write(FormatCodecUnicode.toHexBytes(b));
+        return ostream;
     }
 }

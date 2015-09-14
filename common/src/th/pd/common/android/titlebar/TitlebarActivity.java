@@ -23,7 +23,7 @@ public abstract class TitlebarActivity extends Activity implements
 
     @Override
     public void setContentView(int layoutResId) {
-        ViewGroup viewGroup = (ViewGroup) findViewById(R.id.titlebar_activity_content);
+        ViewGroup viewGroup = (ViewGroup) findViewById(R.id.placeholder);
         View.inflate(this, layoutResId, viewGroup);
     }
 

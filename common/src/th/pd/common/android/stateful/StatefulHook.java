@@ -1,9 +1,9 @@
-package th.pd.fmgr;
+package th.pd.common.android.stateful;
+
+import th.pd.common.android.R;
 
 /**
  * hook is flexible and achieves kind of multiple inheritance
- *
- * @author tanghao
  */
 public class StatefulHook implements Stateful {
 
@@ -23,7 +23,7 @@ public class StatefulHook implements Stateful {
                 state = -state;
             }
         }
-        states[INDEX_ENABLED] = - states[INDEX_ENABLED];
+        states[INDEX_ENABLED] = -states[INDEX_ENABLED];
     }
 
     /**

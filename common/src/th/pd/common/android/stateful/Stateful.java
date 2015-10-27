@@ -1,10 +1,9 @@
-package th.pd.fmgr;
+package th.pd.common.android.stateful;
+
+import th.pd.common.android.R;
 
 public interface Stateful {
 
-    /**
-     * item appears as focused; it has the same appearance with focused
-     */
     public static final int INDEX_AS_IF_FOCUSED = R.styleable.Stateful_itemAsIfFocused;
     public static final int INDEX_CHECKED = R.styleable.Stateful_itemChecked;
     public static final int INDEX_ENABLED = R.styleable.Stateful_itemEnabled;

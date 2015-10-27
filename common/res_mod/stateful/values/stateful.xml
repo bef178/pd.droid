@@ -1,0 +1,36 @@
+<resources>
+  <color name="stateful_item_fg">@color/dev_gray3</color>
+  <color name="stateful_item_fg_disabled">@color/dev_grayC</color>
+  <color name="stateful_item_fg_visited">@color/dev_light_blue</color>
+
+  <color name="stateful_item_bg">@color/dev_light_yellow</color>
+  <color name="stateful_item_bg_checked">@color/dev_light_green</color>
+  <color name="stateful_item_bg_focused">@color/dev_light_red</color>
+  <color name="stateful_item_bg_hovered">@color/dev_light_cyan</color>
+  <color name="stateful_item_bg_pressed">@color/dev_light_magenta</color>
+
+  <style name="statefulItem">
+    <item name="android:background">@drawable/stateful_item_bg_selector</item>
+    <item name="android:textColor">@drawable/stateful_item_text_selector</item>
+    <item name="android:textSize">12sp</item>
+  </style>
+
+  <declare-styleable name="Stateful">
+    <attr name="itemAsIfFocused" format="boolean"/>
+    <attr name="itemChecked" format="boolean"/>
+    <attr name="itemEnabled" format="boolean"/>
+    <attr name="itemFocused" format="boolean"/>
+    <attr name="itemHovered" format="boolean"/>
+    <attr name="itemPressed" format="boolean"/>
+    <attr name="itemVisited" format="boolean"/>
+  </declare-styleable>
+
+  <string name="stateful_item_as_if_focused">as if focused item_f</string>
+  <string name="stateful_item_checked">checked item_c</string>
+  <string name="stateful_item_disabled">enabled item_d</string>
+  <string name="stateful_item_focused">focused item_f</string>
+  <string name="stateful_item_hovered">hovered item_h</string>
+  <string name="stateful_item_pressed">pressed item_p</string>
+  <string name="stateful_item_visited">visited item_v</string>
+  <string name="stateful_item_default">default item</string>
+</resources>

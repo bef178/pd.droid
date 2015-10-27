@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:stateful="http://schemas.android.com/apk/th.pd.fmgr">
-  <item android:drawable="@color/item_fg_disabled" android:state_enabled="false"/>
-  <item android:drawable="@color/item_fg_visited" stateful:state_visited="true"/>
-  <item android:drawable="@color/item_fg"/>
-</selector>

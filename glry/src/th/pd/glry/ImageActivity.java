@@ -84,7 +84,7 @@ public class ImageActivity extends AbsMediaActivity {
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(uri.getPath(), options);
             int invSampleScale =
-                    Math.min(options.outWidth / mScreenSize[0],
+                    Math.max(options.outWidth / mScreenSize[0],
                             options.outHeight / mScreenSize[1]);
             options.inJustDecodeBounds = false;
             options.inSampleSize = invSampleScale;

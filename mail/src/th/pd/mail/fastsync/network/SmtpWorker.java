@@ -11,7 +11,7 @@ import android.text.util.Rfc822Tokenizer;
 import android.util.Base64;
 
 import th.pd.mail.dao.Message;
-import th.pd.mail.dao.MessageForSend;
+import th.pd.mail.dao.SmtpSyncable;
 import th.pd.mail.fastsync.Const;
 import th.pd.mail.fastsync.MailServerAuth;
 
@@ -28,6 +28,53 @@ import th.pd.mail.fastsync.MailServerAuth;
  */
 public class SmtpWorker {
 
+    private static String getLocalHost(SocketConn conn) {
+        String host = "localhost";
+        InetAddress addr = conn.getLocalAddress();
+        if (addr != null) {
+            // rfc 2821 4.1.3
+            StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            if (addr instanceof Inet6Address) {
+                sb.append("IPv6:");
+            }
+            sb.append(addr.getHostAddress());
+            sb.append(']');
+            host = sb.toString();
+        }
+        return host;
+    }
+
+    private static String getResp(SocketConn conn)
+            throws IOException, MessengerException {
+        String s = conn.getLine();
+        String resp = s;
+        while (s.length() > 3 && s.charAt(3) == '-') {
+            s = conn.getLine();
+            resp += "\n  ";
+            resp += s;
+        }
+
+        if (!resp.isEmpty()) {
+            switch (resp.charAt(0)) {
+                case '4': // 4xx
+                case '5': // 5xx
+                    throw new MessengerException(resp,
+                            MessengerException.TYPE_SMTP);
+            }
+        }
+        return resp;
+    }
+
+    static void putLine(SocketConn conn, String commandLine)
+            throws IOException, MessengerException {
+        assert conn != null;
+        if (commandLine != null) {
+            Const.logd("CMND--- " + commandLine);
+            conn.putLine(commandLine);
+        }
+    }
+
     private SocketConn mSocketConn = new SocketConn();
 
     private void conn(SocketAddress remoteAddr, String user, String pass)
@@ -38,10 +85,10 @@ public class SmtpWorker {
         mSocketConn.conn(remoteAddr);
 
         // consume the server banner and welcome message
-        String resp = getResp();
+        String resp = getResp(mSocketConn);
         Const.logd("RESP--- " + resp);
 
-        resp = onCommandEhlo(getLocalHost());
+        resp = onCommandEhlo(getLocalHost(mSocketConn));
 
         // TODO try tls "STARTTLS"
 
@@ -52,10 +99,8 @@ public class SmtpWorker {
                 } else if (resp.matches("(?s).*AUTH.*LOGIN.*")) {
                     onCommandAuthLogin(user, pass);
                 } else {
-                    String s1 = "No valid authentication mechanism found.";
-                    String s2 =
-                            "Authentication is required but the server did not support it.";
-                    throw new MessengerException(s1 + " " + s2);
+                    throw new MessengerException(
+                            "Unknown authentication mechanism.");
                 }
             } else if (true) {
                 // TODO above condition: oauth support
@@ -71,60 +116,10 @@ public class SmtpWorker {
         mSocketConn.connEnd();
     }
 
-    private String getLocalHost() {
-        String host = "localhost";
-        InetAddress addr = mSocketConn.getLocalAddress();
-        if (addr != null) {
-            // rfc 2821 4.1.3
-            StringBuilder sb = new StringBuilder();
-            sb.append('[');
-            if (addr instanceof Inet6Address) {
-                sb.append("IPv6:");
-            }
-            sb.append(addr.getHostAddress());
-            sb.append(']');
-            host = sb.toString();
-        }
-        return host;
-    }
-
-    private String getResp() throws IOException {
-        String s = mSocketConn.getLine();
-        String resp = s;
-        while (s.length() > 3 && s.charAt(3) == '-') {
-            s = mSocketConn.getLine();
-            resp += "\n  ";
-            resp += s;
-        }
-
-        if (!resp.isEmpty()) {
-            switch (resp.charAt(0)) {
-                case '4':
-                case '5':
-                    // TODO error, throw exception
-                    break;
-            }
-        }
-        return resp;
-    }
-
     private String onCommand(String command)
             throws IOException, MessengerException {
-        if (command != null) {
-            Const.logd("CMND--- " + command);
-            mSocketConn.putLine(command);
-        }
-        String resp = getResp();
-        Const.logd("RESP--- " + resp);
-        if (!resp.isEmpty()) {
-            switch (resp.charAt(0)) {
-                case '4': // 4xx
-                case '5': // 5xx
-                    throw new MessengerException(resp,
-                            MessengerException.TYPE_SMTP);
-            }
-        }
-        return resp;
+        putLine(mSocketConn, command);
+        return getResp(mSocketConn);
     }
 
     private void onCommandAuthLogin(String user, String pass)
@@ -171,9 +166,8 @@ public class SmtpWorker {
         }
     }
 
-    public void sendMessage(MessageForSend syncMessage)
+    public void sendMessage(SmtpSyncable syncMessage)
             throws IOException, MessengerException {
-
         Message message = syncMessage.getMessage();
         Rfc822Token[] from = Rfc822Tokenizer.tokenize(message.getSender());
         Rfc822Token[] to = Rfc822Tokenizer.tokenize(message.getRecipient());

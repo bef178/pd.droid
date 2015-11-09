@@ -1,10 +1,17 @@
 package th.pd.mail.dao;
 
+import th.pd.mail.fastsync.Const;
 import th.pd.mail.fastsync.MailServerAuth;
 
-public class MessageForSend extends SyncableMessage {
+public class SmtpSyncable extends Syncable {
 
-    private MailServerAuth serverAuth;
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof SmtpSyncable) {
+            // TODO
+        }
+        return false;
+    }
 
     public boolean hasContent() {
         return !getMessage().getContent().isEmpty();
@@ -23,20 +30,10 @@ public class MessageForSend extends SyncableMessage {
     }
 
     @Override
-    public void setMessage(Message message) {
-        super.setMessage(message);
-        parse();
-    }
-
-    private void parse() {
-        // TODO parse message so set attributes needed for send
-    }
-
-    public MailServerAuth getServerAuth() {
-        return serverAuth;
-    }
-
     public void setServerAuth(MailServerAuth serverAuth) {
-        this.serverAuth = serverAuth;
+        if (Const.PROTOCOL_SMTP.equals(serverAuth.getProtocol())) {
+            this.serverAuth = serverAuth;
+        }
+        throw new IllegalArgumentException("expect smtp server auth");
     }
 }

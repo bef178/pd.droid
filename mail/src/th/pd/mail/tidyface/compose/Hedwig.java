@@ -20,8 +20,8 @@ import android.widget.Toast;
 import th.pd.common.android.QueryUtil;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;
-import th.pd.mail.dao.MessageForSend;
-import th.pd.mail.fastsync.MailObjectCache;
+import th.pd.mail.dao.SmtpSyncable;
+import th.pd.mail.fastsync.Const;
 import th.pd.mail.fastsync.MailServerAuth;
 
 public class Hedwig extends Fragment implements ComposeController.Listener {
@@ -38,7 +38,7 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
 
             @Override
             public void onClick(View view) {
-                onSendMessage();
+                onClickSend();
             }
         });
     }
@@ -70,6 +70,25 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
         this.getActivity().finish();
     }
 
+    private void onClickSend() {
+        SmtpSyncable syncMessage = new SmtpSyncable();
+        syncMessage.setMessage(
+                mComposeController.getUpdatedModel().getMessage());
+        int errorCode = processSendMessage(syncMessage, true, true);
+        switch (errorCode) {
+            case -2:
+                Toast.makeText(getActivity(), "no sender",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            case -1:
+                Toast.makeText(getActivity(), "no recipient",
+                        Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         relayout();
@@ -84,7 +103,7 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
 
         View view = inflater.inflate(R.layout.hedwig, container, false);
         mComposeController = ComposeController.newInstance(view, this,
-                FastSyncAccess.getCurrentUser());
+                FastSyncAccess.findCurrentMailbox(getActivity()).getAddr());
         mBtnSend = view.findViewById(R.id.btnSend);
 
         return view;
@@ -109,29 +128,10 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
         }
     }
 
-    private void onSendMessage() {
-        MessageForSend syncMessage = new MessageForSend();
-        syncMessage.setMessage(
-                mComposeController.getUpdatedModel().getMessage());
-        int errorCode = processSendMessage(syncMessage, true, true);
-        switch (errorCode) {
-            case -2:
-                Toast.makeText(getActivity(), "no sender",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case -1:
-                Toast.makeText(getActivity(), "no recipient",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                break;
-        }
-    }
-
     /**
      * @return an error code to tell which is incorrect
      */
-    private int processSendMessage(final MessageForSend syncMessage,
+    private int processSendMessage(final SmtpSyncable syncMessage,
             final boolean willCheckEmptySubject,
             final boolean willCheckEmptyContent) {
         if (!syncMessage.hasSender()) {
@@ -190,17 +190,16 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
 
         // TODO add serverAuth according to sender address
         // TODO ... and other necessary stuff
-        MailServerAuth serverAuth = MailObjectCache.getInstance()
-                .findMailServerAuth(syncMessage.getMessage().getSender(),
-                        "smtp");
+        MailServerAuth serverAuth = FastSyncAccess.findServerAuth(
+                getActivity(), syncMessage.getMessage().getSender(),
+                Const.PROTOCOL_SMTP);
         syncMessage.setServerAuth(serverAuth);
 
         if (ActivityManager.isUserAMonkey()) {
             // monkey user
             return -9;
         }
-        FastSyncAccess.addMessageForSend(syncMessage);
-        FastSyncAccess.awakeWorkerIfNecessary();
+        FastSyncAccess.addMessage(syncMessage);
 
         // successfully enqueued
         return 1;

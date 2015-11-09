@@ -410,9 +410,7 @@ class MessageExporter {
             throws IOException {
         for (byte b : a) {
             if (FormatUtil.Url.shouldEncode(b)) {
-                ostream.write('%');
-                ostream.write(FormatUtil.Url.getHi(b));
-                ostream.write(FormatUtil.Url.getLo(b));
+                FormatUtil.Url.encodeAndPut(b, ostream);
             } else {
                 ostream.write(b);
             }

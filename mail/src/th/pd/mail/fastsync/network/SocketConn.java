@@ -12,100 +12,123 @@ import java.net.SocketAddress;
 import javax.net.ssl.SSLException;
 
 public class SocketConn {
-	private static final int SOCKET_CONN_TIMEOUT = 10000;
-	private static final int SOCKET_READ_TIMEOUT = 60000;
 
-	private Socket mSocket;
-	private BufferedInputStream mIstream;
-	private BufferedOutputStream mOstream;
+    private static final int SOCKET_CONN_TIMEOUT = 10000;
+    private static final int SOCKET_READ_TIMEOUT = 60000;
 
-	void conn(SocketAddress remoteAddr) {
-		Socket socket = new Socket();
-		BufferedInputStream is = null;
-		BufferedOutputStream os = null;
-		try {
-			socket.connect(remoteAddr, SOCKET_CONN_TIMEOUT);
-			socket.setSoTimeout(SOCKET_READ_TIMEOUT);
-			is = new BufferedInputStream(socket.getInputStream(), 1024);
-			os = new BufferedOutputStream(socket.getOutputStream(), 512);
-		} catch (SSLException e) {
-			// TODO
-			Const.logd("SSLException " + e.getMessage());
-		} catch (IOException e) {
-			// TODO
-			Const.logd("IOException " + e.getMessage());
-		} catch (IllegalArgumentException e) {
-			// TODO
-			Const.logd("IllegalArgumentException " + e.getMessage());
-		}
+    private Socket mSocket;
+    private BufferedInputStream mIstream;
+    private BufferedOutputStream mOstream;
 
-		mSocket = socket;
-		mIstream = is;
-		mOstream = os;
-	}
+    void conn(SocketAddress remoteAddr) {
+        Socket socket = new Socket();
+        BufferedInputStream is = null;
+        BufferedOutputStream os = null;
+        try {
+            socket.connect(remoteAddr, SOCKET_CONN_TIMEOUT);
+            socket.setSoTimeout(SOCKET_READ_TIMEOUT);
+            is = new BufferedInputStream(socket.getInputStream(), 1024);
+            os = new BufferedOutputStream(socket.getOutputStream(), 512);
+        } catch (SSLException e) {
+            // TODO
+            Const.logd("SSLException " + e.getMessage());
+        } catch (IOException e) {
+            // TODO
+            Const.logd("IOException " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            // TODO
+            Const.logd("IllegalArgumentException " + e.getMessage());
+        }
 
-	void connEnd() {
-		if (mIstream != null) {
-			try {
-				mIstream.close();
-			} catch (Exception e) {
-				// dummy
-			}
-		}
+        mSocket = socket;
+        mIstream = is;
+        mOstream = os;
+    }
 
-		if (mOstream != null) {
-			try {
-				mOstream.close();
-			} catch (Exception e) {
-				// dummy
-			}
-		}
+    void connEnd() {
+        if (mIstream != null) {
+            try {
+                mIstream.close();
+            } catch (Exception e) {
+                // dummy
+            }
+        }
 
-		if (mSocket != null) {
-			try {
-				mSocket.close();
-			} catch (Exception e) {
-				// dummy
-			}
-		}
+        if (mOstream != null) {
+            try {
+                mOstream.close();
+            } catch (Exception e) {
+                // dummy
+            }
+        }
 
-		mIstream = null;
-		mOstream = null;
-		mSocket = null;
-	}
+        if (mSocket != null) {
+            try {
+                mSocket.close();
+            } catch (Exception e) {
+                // dummy
+            }
+        }
 
-	BufferedOutputStream getBufferedOutputStream() {
-		return mOstream;
-	}
+        mIstream = null;
+        mOstream = null;
+        mSocket = null;
+    }
 
-	String getLine() throws IOException {
-		StringBuffer sb = new StringBuffer();
-		int c = -1;
-		L: while ((c = mIstream.read()) != -1) {
-			switch (c) {
-				case '\r':
-					break;
-				case '\n':
-					break L;
-				default:
-					sb.append((char) c);
-			}
-		}
-		// TODO c == -1 may be an error state, log it
-		return sb.toString();
-	}
+    BufferedInputStream getBufferedInputStream() {
+        return mIstream;
+    }
 
-	InetAddress getLocalAddress() {
-		if (mSocket != null && mSocket.isConnected() && !mSocket.isClosed()) {
-			return mSocket.getLocalAddress();
-		}
-		return null;
-	}
+    BufferedOutputStream getBufferedOutputStream() {
+        return mOstream;
+    }
 
-	void putLine(String s) throws IOException {
-		mOstream.write(s.getBytes());
-		mOstream.write('\r');
-		mOstream.write('\n');
-		mOstream.flush();
-	}
+    String getLine() throws IOException {
+        StringBuffer sb = new StringBuffer();
+        int c = -1;
+        L: while ((c = mIstream.read()) != -1) {
+            switch (c) {
+                case '\r':
+                    // break switch so ignore '\r'
+                    break;
+                case '\n':
+                    // break while so return
+                    break L;
+                default:
+                    sb.append((char) c);
+            }
+        }
+        // TODO c == -1 may be an error state, log it
+        return sb.toString();
+    }
+
+    String getWord() throws IOException {
+        StringBuffer sb = new StringBuffer();
+        int c = -1;
+        L: while ((c = mIstream.read()) != -1) {
+            switch (c) {
+                case ' ':
+                    // break while so return
+                    break L;
+                default:
+                    sb.append((char) c);
+            }
+        }
+        // TODO c == -1 may be an error state, log it
+        return sb.toString();
+    }
+
+    InetAddress getLocalAddress() {
+        if (mSocket != null && mSocket.isConnected() && !mSocket.isClosed()) {
+            return mSocket.getLocalAddress();
+        }
+        return null;
+    }
+
+    void putLine(String s) throws IOException {
+        mOstream.write(s.getBytes());
+        mOstream.write('\r');
+        mOstream.write('\n');
+        mOstream.flush();
+    }
 }

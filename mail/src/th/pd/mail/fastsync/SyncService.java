@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 import th.pd.mail.dao.FastSyncAccess;
-import th.pd.mail.darkroom.DbCache;
 
 /**
  * main entrance of the sync service
@@ -41,9 +40,8 @@ public class SyncService extends Service {
             }
 
             // TODO multi-thread and extract extras
-            for (int internalIdOfMailFolder : findInternalIdOfMailFolder(extras)) {
-                MailFolder mailFolder = DbCache.getInstance(getContext())
-                        .getMailFolder(internalIdOfMailFolder, client);
+            for (MailFolder mailFolder : FastSyncAccess.getMailFolders(
+                    getContext(), mailbox)) {
                 if (mailFolder == null) {
                     continue;
                 }
@@ -56,13 +54,6 @@ public class SyncService extends Service {
 
     private static ThreadedSyncAdapter sSyncAdapter;
     private static Object sSyncAdapterLock = new Object();
-
-    private static int[] findInternalIdOfMailFolder(Bundle extras) {
-        // TODO
-        return new int[] {
-                13
-        };
-    }
 
     private static void performSync(Context context, Mailbox mailbox,
             MailFolder mailFolder, Bundle extras, SyncResult syncResult) {

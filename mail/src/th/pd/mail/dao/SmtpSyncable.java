@@ -33,6 +33,7 @@ public class SmtpSyncable extends Syncable {
     public void setServerAuth(MailServerAuth serverAuth) {
         if (Const.PROTOCOL_SMTP.equals(serverAuth.getProtocol())) {
             this.serverAuth = serverAuth;
+            return;
         }
         throw new IllegalArgumentException("expect smtp server auth");
     }

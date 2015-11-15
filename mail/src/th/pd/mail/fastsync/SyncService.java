@@ -32,19 +32,16 @@ public class SyncService extends Service {
                 SyncResult syncResult) {
             Const.logd("performSync--begin--");
 
-            Mailbox mailbox = FastSyncAccess.findMailbox(
-                    getContext(), account.name);
+            Mailbox mailbox = FastSyncAccess.getMailboxSequence(
+                    getContext()).get(account.name);
             if (mailbox == null) {
                 Const.logd("performSync--end---- with null mailbox");
                 return;
             }
 
             // TODO multi-thread and extract extras
-            for (MailFolder mailFolder : FastSyncAccess.getMailFolders(
+            for (MailFolder mailFolder : FastSyncAccess.findMailFolders(
                     getContext(), mailbox)) {
-                if (mailFolder == null) {
-                    continue;
-                }
                 performSync(getContext(), mailbox, mailFolder, extras,
                         syncResult);
             }
@@ -63,8 +60,8 @@ public class SyncService extends Service {
 
         // TODO should not sync local only mail folder
 
-        Uri uri = Uri.parse(MailFolder.CONTENT_URI + "/"
-                + mailFolder.getInternalId());
+        Uri uri = Uri.parse(MailProvider.CONTENT_URI + "/mailFolder/"
+                + mailFolder.getAutoId());
         ContentValues values = new ContentValues();
         values.put(Const.SYNC_FLAGS, Const.SYNC_RUN_IN_BACKGROUND);
 

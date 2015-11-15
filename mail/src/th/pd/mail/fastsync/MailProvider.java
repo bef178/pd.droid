@@ -56,16 +56,15 @@ public class MailProvider extends ContentProvider {
     }
 
     private void requestSyncFolder(int id) {
-        MailFolder mailFolder = FastSyncAccess.getMailFolder(getContext(),
+        MailFolder mailFolder = FastSyncAccess.findMailFolder(getContext(),
                 id);
         if (mailFolder == null) {
             return;
         }
 
-        Account account = new Account(mailFolder.getMailboxAddr(),
-                Const.ACCOUNT_TYPE);
         Bundle extras = new Bundle();
-        ContentResolver.requestSync(account, Const.AUTHORITY, extras);
+        ContentResolver.requestSync(new Account(mailFolder.getAddr(),
+                Const.ACCOUNT_TYPE), Const.AUTHORITY, extras);
     }
 
     @Override

@@ -5,7 +5,7 @@
   android:versionName="1.0">
   <uses-sdk
     android:minSdkVersion="19"
-    android:targetSdkVersion="22"/>
+    android:targetSdkVersion="23"/>
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
   <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
@@ -13,19 +13,23 @@
   <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
   <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
   <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+  <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
   <application
     android:name="th.pd.mail.MailApp"
     android:allowBackup="true"
+    android:icon="@android:drawable/sym_def_app_icon"
     android:label="@string/app_label"
     android:theme="@style/appTheme">
     <activity
-      android:name=".MailActivity"
+      android:name=".tinyface.MailMain"
       android:label="@string/app_label">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
+    <activity android:name=".tinyface.SetupWizzard"/>
     <activity
       android:name=".tidyface.compose.ComposeActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"

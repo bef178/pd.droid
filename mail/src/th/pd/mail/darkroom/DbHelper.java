@@ -10,7 +10,7 @@ import th.pd.mail.fastsync.Const;
 import th.pd.mail.fastsync.MailServerAuth;
 import th.pd.mail.fastsync.Mailbox;
 
-class DbHelper {
+public class DbHelper {
 
     static class SqliteDbHelper extends SQLiteOpenHelper {
 
@@ -24,6 +24,7 @@ class DbHelper {
         public void onCreate(SQLiteDatabase db) {
             Const.logd(TAG, "create db");
             DbHeader.Box.createTable(db);
+            DbHeader.Folder.createTable(db);
             DbHeader.ServerAuth.createTable(db);
             // TODO other tables
         }
@@ -39,8 +40,19 @@ class DbHelper {
 
     private static final String DB_NAME = "mail.db";
     private static SQLiteDatabase sSqliteDb;
+    private static DbHelper sInstance = null;
 
-    private static synchronized SQLiteDatabase getSqliteDb(Context context) {
+    /**
+     * opens for DAO only
+     */
+    public static DbHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new DbHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    private static SQLiteDatabase getSqliteDb(Context context) {
         if (sSqliteDb == null) {
             SqliteDbHelper helper = new SqliteDbHelper(context, DB_NAME);
             sSqliteDb = helper.getWritableDatabase();
@@ -49,12 +61,30 @@ class DbHelper {
         return sSqliteDb;
     }
 
-    public static synchronized List<Mailbox> queryMailbox(Context context) {
-        return DbHeader.Box.queryAll(getSqliteDb(context));
+    private Context appContext;
+
+    private DbHelper(Context appContext) {
+        this.appContext = appContext;
     }
 
-    public static synchronized List<MailServerAuth> queryServerAuth(
-            Context context) {
-        return DbHeader.ServerAuth.queryAll(getSqliteDb(context));
+    public List<Mailbox> getMailboxes() {
+        return DbHeader.Box.queryAll(getSqliteDb(appContext));
+    }
+
+    public List<MailServerAuth> getServerAuths() {
+        return DbHeader.ServerAuth.queryAll(getSqliteDb(appContext));
+    }
+
+    public long insert(Mailbox mailbox) {
+        return DbHeader.Box.insert(getSqliteDb(appContext), mailbox);
+    }
+
+    public long insert(MailServerAuth serverAuth) {
+        return DbHeader.ServerAuth.insert(getSqliteDb(appContext),
+                serverAuth);
+    }
+
+    public int remove(Mailbox mailbox) {
+        return DbHeader.Box.remove(getSqliteDb(appContext), mailbox);
     }
 }

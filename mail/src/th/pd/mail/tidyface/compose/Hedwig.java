@@ -103,7 +103,8 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
 
         View view = inflater.inflate(R.layout.hedwig, container, false);
         mComposeController = ComposeController.newInstance(view, this,
-                FastSyncAccess.findCurrentMailbox(getActivity()).getAddr());
+                FastSyncAccess.getMailboxSequence(getActivity())
+                        .getCurrent().getAddr());
         mBtnSend = view.findViewById(R.id.btnSend);
 
         return view;
@@ -123,8 +124,7 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getActivity(),
                     R.string.cannot_find_app_to_pick_file,
-                    Toast.LENGTH_SHORT)
-                    .show();
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -193,13 +193,18 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
         MailServerAuth serverAuth = FastSyncAccess.findServerAuth(
                 getActivity(), syncMessage.getMessage().getSender(),
                 Const.PROTOCOL_SMTP);
+        if (serverAuth == null) {
+            // TODO make error number const
+            return -3;
+        }
+
         syncMessage.setServerAuth(serverAuth);
 
         if (ActivityManager.isUserAMonkey()) {
             // monkey user
             return -9;
         }
-        FastSyncAccess.addMessage(syncMessage);
+        FastSyncAccess.enqueueMessage(syncMessage);
 
         // successfully enqueued
         return 1;

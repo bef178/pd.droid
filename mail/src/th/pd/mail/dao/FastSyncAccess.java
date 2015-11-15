@@ -1,14 +1,14 @@
 package th.pd.mail.dao;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import th.pd.mail.darkroom.DbCache;
+import th.pd.mail.darkroom.DbHelper;
 import th.pd.mail.fastsync.Const;
 import th.pd.mail.fastsync.MailFolder;
 import th.pd.mail.fastsync.MailServerAuth;
@@ -18,47 +18,54 @@ import th.pd.mail.fastsync.SyncController;
 // TODO move the sync stuff into a service
 public class FastSyncAccess {
 
+    /**
+     * also a cache for Mailbox
+     */
     public static class MailboxSequence {
 
         private static LinkedList<Mailbox> reload(Context context) {
-            Map<String, Mailbox> m = DbCache.getInstance(context)
+            List<Mailbox> source = DbHelper.getInstance(context)
                     .getMailboxes();
 
             // filter by known account
             LinkedList<Mailbox> l = new LinkedList<Mailbox>();
             for (Account acc : AccountManager.get(context)
                     .getAccountsByType(Const.ACCOUNT_TYPE)) {
-                Mailbox mailbox = m.get(acc.name);
-                if (mailbox != null) {
-                    l.add(mailbox);
+                for (Mailbox mailbox : source) {
+                    if (mailbox.getAddr().equals(acc.name)) {
+                        l.add(mailbox);
+                        break;
+                    }
                 }
-                l.add(mailbox);
             }
             return l;
         }
 
-        private LinkedList<Mailbox> mailboxCache;
+        private LinkedList<Mailbox> collection;
         private Mailbox current = null;
 
         private MailboxSequence(Context context) {
-            mailboxCache = reload(context);
-            // TODO restore the stored current mailbox
-            Mailbox stored = null;
-            if (setCurrent(indexOf(stored))) {
-                setCurrent(0);
+            invalidate(context);
+        }
+
+        public void add(Mailbox mailbox) {
+            if (get(mailbox.getAddr()) == null) {
+                collection.add(mailbox);
+                if (collection.size() == 1 || current == null) {
+                    current = collection.get(0);
+                }
             }
-            // TODO save current
         }
 
         public Mailbox get(int index) {
-            if (index >= 0 && index < this.mailboxCache.size()) {
-                return this.mailboxCache.get(index);
+            if (index >= 0 && index < this.collection.size()) {
+                return this.collection.get(index);
             }
             return null;
         }
 
         public Mailbox get(String addr) {
-            for (Mailbox mailbox : mailboxCache) {
+            for (Mailbox mailbox : collection) {
                 if (mailbox.getAddr().equals(addr)) {
                     return mailbox;
                 }
@@ -67,33 +74,56 @@ public class FastSyncAccess {
         }
 
         public int getCount() {
-            if (this.mailboxCache == null) {
+            if (this.collection == null) {
                 return 0;
             }
-            return this.mailboxCache.size();
+            return this.collection.size();
         }
 
         public Mailbox getCurrent() {
-            if (current == null && !mailboxCache.isEmpty()) {
-                current = mailboxCache.get(0);
+            if (current == null && !collection.isEmpty()) {
+                current = collection.get(0);
             }
             return current;
         }
 
         private int indexOf(Mailbox mailbox) {
-            if (this.mailboxCache != null) {
-                return this.mailboxCache.indexOf(mailbox);
+            if (this.collection != null) {
+                return this.collection.indexOf(mailbox);
             }
             return -2;
         }
 
+        // TODO not exact: invalidate does not mean reload
         public void invalidate(Context context) {
-            mailboxCache = reload(context);
+            collection = reload(context);
+            // TODO restore the stored current mailbox
+            Mailbox stored = null;
+            if (!setCurrent(indexOf(stored))) {
+                setCurrent(0);
+            }
+            // TODO save current to stored
+        }
+
+        public boolean remove(String addr) {
+            Iterator<Mailbox> it = collection.iterator();
+            while (it.hasNext()) {
+                Mailbox mailbox = it.next();
+                if (mailbox.getAddr().equals(addr)) {
+                    it.remove();
+                    if (!setCurrent(current)) {
+                        setCurrent(0);
+                    }
+                    // TODO save to stored
+                    return true;
+                }
+            }
+            return false;
         }
 
         public boolean setCurrent(int index) {
-            if (index >= 0 && index < this.mailboxCache.size()) {
-                current = this.mailboxCache.get(index);
+            if (index >= 0 && index < this.collection.size()) {
+                current = this.collection.get(index);
                 return true;
             }
             return false;
@@ -106,21 +136,40 @@ public class FastSyncAccess {
 
     private static MailboxSequence mailboxSequence;
 
-    public static void addMessage(SmtpSyncable syncMessage) {
+    public static void add(Context context, Mailbox mailbox) {
+        if (DbHelper.getInstance(context).insert(mailbox) != -1) {
+            getMailboxSequence(context).add(mailbox);
+        }
+    }
+
+    public static void add(Context context, MailServerAuth serverAuth) {
+        if (DbHelper.getInstance(context).insert(serverAuth) != -1) {
+            // deal with cache
+        }
+    }
+
+    public static void enqueueMessage(SmtpSyncable syncMessage) {
         SyncController.getInstance().addTask(syncMessage);
     }
 
-    public static Mailbox findCurrentMailbox(Context context) {
-        return getMailboxSequence(context).getCurrent();
+    public static MailFolder findMailFolder(Context context, int id) {
+        //        ContentProviderClient client = context.getContentResolver()
+        //                .acquireContentProviderClient(
+        //                        Uri.parse(MailFolder.CONTENT_URI));
+        // TODO
+        return MailFolder.fromFake(-1);
     }
 
-    public static Mailbox findMailbox(Context context, String addr) {
-        return getMailboxSequence(context).get(addr);
+    public static List<MailFolder> findMailFolders(Context context,
+            Mailbox mailbox) {
+        LinkedList<MailFolder> l = new LinkedList<>();
+        // TODO
+        return l;
     }
 
     public static MailServerAuth findServerAuth(Context context,
             String addr, String protocol) {
-        for (MailServerAuth serverAuth : DbCache.getInstance(context)
+        for (MailServerAuth serverAuth : DbHelper.getInstance(context)
                 .getServerAuths()) {
             if (serverAuth.getLogin().equals(addr)
                     && serverAuth.getProtocol().equals(protocol)) {
@@ -137,30 +186,9 @@ public class FastSyncAccess {
         return mailboxSequence;
     }
 
-    public static MailFolder getMailFolder(Context context, int id) {
-        //        ContentProviderClient client = context.getContentResolver()
-        //                .acquireContentProviderClient(
-        //                        Uri.parse(MailFolder.CONTENT_URI));
-        // TODO
-        return null;
-    }
-
-    public static List<MailFolder> getMailFolders(Context context,
-            Mailbox mailbox) {
-        LinkedList<MailFolder> l = new LinkedList<>();
-        // TODO
-        return l;
-    }
-
-    public static MailServerAuth getServerAuth(Context context,
-            String addr, String protocol) {
-        for (MailServerAuth serverAuth : DbCache.getInstance(context)
-                .getServerAuths()) {
-            if (serverAuth.getLogin().equals(addr)
-                    && serverAuth.getProtocol().equals(protocol)) {
-                return serverAuth;
-            }
+    public static void remove(Context context, Mailbox mailbox) {
+        if (DbHelper.getInstance(context).remove(mailbox) > 0) {
+            getMailboxSequence(context).remove(mailbox.getAddr());
         }
-        return null;
     }
 }

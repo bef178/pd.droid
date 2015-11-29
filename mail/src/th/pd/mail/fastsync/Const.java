@@ -8,9 +8,15 @@ import android.util.Log;
  */
 public class Const {
 
+    static enum SyncTask {
+        SYNC_ELEMENTAL,
+        SYNC_SPECIFIC_FOLDER,
+        SYNC_MAIL_FLAGS
+    }
+
     // must sync with const.xml
     public static final String ACCOUNT_TYPE = "th.pd.mail";
-    public static final String AUTHORITY = "th.pd.mail.provider";
+    public static final String AUTHORITY = "th.pd.mail.authority";
 
     public static final String PROTOCOL_EAS = "eas";
     public static final String PROTOCOL_IMAP = "imap";

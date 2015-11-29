@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import th.pd.common.android.OnActionCallback;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;
 import th.pd.mail.fastsync.Const;
@@ -17,9 +18,11 @@ import th.pd.mail.fastsync.Mailbox;
 import th.pd.mail.tidyface.compose.ComposeActivity;
 import th.pd.mail.tidyface.leftmost.LeftmostFragment;
 
-public class MailMain extends Activity {
+public class MailMain extends Activity implements OnActionCallback {
 
-    private final int SETUP_WIZZARD_REQ_CODE = 7749;
+    private static final String TAG = MailMain.class.getSimpleName();
+
+    private static final int REQUEST_CODE_SETUP_WIZZARD = 7749;
 
     private void bindViews() {
         findViewById(R.id.btnCompose).setOnClickListener(
@@ -27,23 +30,56 @@ public class MailMain extends Activity {
 
                     @Override
                     public void onClick(View v) {
-                        startActivity(new Intent().setClass(
-                                getApplicationContext(),
-                                ComposeActivity.class));
+                        onAction(R.id.actionRequestCompose, null);
                     }
                 });
+        findViewById(R.id.btnSync).setOnClickListener(
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        onAction(R.id.actionRequestSync, null);
+                    }
+                });
+    }
+
+    @Override
+    public boolean onAction(int actionId, Object extra) {
+        switch (actionId) {
+            case R.id.actionRequestCompose: {
+                startActivity(new Intent().setClass(
+                        getApplicationContext(),
+                        ComposeActivity.class));
+                return true;
+            }
+            case R.id.actionRequestSync: {
+                Mailbox mailbox = (Mailbox) extra;
+                if (mailbox == null) {
+                    mailbox = FastSyncAccess.getMailboxSequence(this)
+                            .getCurrent();
+                }
+                Account account = new Account(mailbox.getAddr(),
+                        Const.ACCOUNT_TYPE);
+                Bundle extras = new Bundle();
+                extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+                ContentResolver.requestSync(account, Const.AUTHORITY,
+                        extras);
+                return true;
+            }
+            default:
+                break;
+        }
+        return false;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
             Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SETUP_WIZZARD_REQ_CODE) {
-            Const.logd("req code" + resultCode);
+        if (requestCode == REQUEST_CODE_SETUP_WIZZARD) {
             switch (resultCode) {
                 case RESULT_OK:
                     onCreateContinued();
-                    // TODO trigger a sync immediately
                     return;
             }
         }
@@ -57,9 +93,10 @@ public class MailMain extends Activity {
         Mailbox mailbox = FastSyncAccess.getMailboxSequence(this)
                 .getCurrent();
         if (mailbox == null) {
-            startActivityForResult(new Intent()
-                    .setClass(this, SetupWizzard.class),
-                    SETUP_WIZZARD_REQ_CODE);
+            Const.logd(TAG + ": start SetupWizzard");
+            startActivityForResult(
+                    new Intent().setClass(this, SetupWizzard.class),
+                    REQUEST_CODE_SETUP_WIZZARD);
             return;
         }
 
@@ -70,7 +107,7 @@ public class MailMain extends Activity {
         setContentView(R.layout.activity_main);
         bindViews();
 
-        requestSync(FastSyncAccess.getMailboxSequence(this).getCurrent());
+        onAction(R.id.actionRequestSync, null);
 
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragment = new LeftmostFragment();
@@ -78,12 +115,5 @@ public class MailMain extends Activity {
                 fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.vLeftmost, fragment);
         fragmentTransaction.commitAllowingStateLoss();
-    }
-
-    private void requestSync(Mailbox mailbox) {
-        Account account = new Account(mailbox.getAddr(),
-                Const.ACCOUNT_TYPE);
-        Bundle extras = new Bundle();
-        ContentResolver.requestSync(account, Const.AUTHORITY, extras);
     }
 }

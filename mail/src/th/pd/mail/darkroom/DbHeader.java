@@ -20,9 +20,9 @@ final class DbHeader {
     /**
      * fall through in index order
      */
-    public static class Box {
+    static class Acc {
 
-        public static final String TABLE = "mailbox";
+        public static final String TABLE = "mail_acc";
         public static final String COLUMN_ADDR = "addr";
         public static final String COLUMN_CAPTION = "caption";
 
@@ -82,11 +82,11 @@ final class DbHeader {
         }
     }
 
-    public static class Folder {
+    static class Dir {
 
-        public static final String TABLE = "mail_folder";
-        public static final String COLUMN_ADDR = Box.COLUMN_ADDR;
-        public static final String COLUMN_CAPTION = Box.COLUMN_CAPTION;
+        public static final String TABLE = "mail_dir";
+        public static final String COLUMN_ADDR = Acc.COLUMN_ADDR;
+        public static final String COLUMN_CAPTION = "caption";
         public static final String COLUMN_PATH = "path";
         public static final String COLUMN_LAST_SYNC = "last_sync";
         public static final String COLUMN_SYNC_STATUS = "sync_status";
@@ -131,10 +131,10 @@ final class DbHeader {
             return mailFolder;
         }
 
-        static void insert(SQLiteDatabase db,
+        static long insert(SQLiteDatabase db,
                 MailFolder mailFolder) {
             synchronized (LOCK) {
-                db.insert(TABLE, null, toContentValues(mailFolder));
+                return db.insert(TABLE, null, toContentValues(mailFolder));
             }
         }
 
@@ -166,13 +166,17 @@ final class DbHeader {
         }
     }
 
-    public static class ServerAuth {
+    static class Ent {
+        // TODO
+    }
+
+    static class ServerAuth {
 
         public static final String TABLE = "server_auth";
         public static final String COLUMN_PROTOCOL = "protocol";
         public static final String COLUMN_HOST = "host";
         public static final String COLUMN_PORT = "port";
-        public static final String COLUMN_USER = "user";
+        public static final String COLUMN_ADDR = Acc.COLUMN_ADDR;
         public static final String COLUMN_PASS = "pass";
         public static final String COLUMN_FLAGS = "flags";
 
@@ -185,7 +189,7 @@ final class DbHeader {
                     .append(COLUMN_PROTOCOL).append(" TEXT,")
                     .append(COLUMN_HOST).append(" TXET,")
                     .append(COLUMN_PORT).append(" INTEGER,")
-                    .append(COLUMN_USER).append(" TEXT,")
+                    .append(COLUMN_ADDR).append(" TEXT,")
                     .append(COLUMN_PASS).append(" TEXT,")
                     .append(COLUMN_FLAGS).append(" INTEGER")
                     .append(");")
@@ -205,7 +209,7 @@ final class DbHeader {
             serverAuth.setPort(c.getInt(
                     c.getColumnIndex(COLUMN_PORT)));
             serverAuth.setLogin(c.getString(
-                    c.getColumnIndex(COLUMN_USER)));
+                    c.getColumnIndex(COLUMN_ADDR)));
             serverAuth.setPin(c.getString(
                     c.getColumnIndex(COLUMN_PASS)));
             serverAuth.setFlags(c.getInt(
@@ -241,7 +245,7 @@ final class DbHeader {
             cv.put(COLUMN_PROTOCOL, serverAuth.getProtocol());
             cv.put(COLUMN_HOST, serverAuth.getHost());
             cv.put(COLUMN_PORT, serverAuth.getPort());
-            cv.put(COLUMN_USER, serverAuth.getLogin());
+            cv.put(COLUMN_ADDR, serverAuth.getLogin());
             cv.put(COLUMN_PASS, serverAuth.getPin());
             cv.put(COLUMN_FLAGS, serverAuth.getFlags());
             return cv;

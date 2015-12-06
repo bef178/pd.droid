@@ -4,11 +4,9 @@ import android.accounts.Account;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -39,11 +37,12 @@ public class SyncService extends Service {
                 return;
             }
 
+            // TODO sync mailbox
+
             // TODO multi-thread and extract extras
             for (MailFolder mailFolder : FastSyncAccess.findMailFolders(
                     getContext(), mailbox)) {
-                performSync(getContext(), mailbox, mailFolder, extras,
-                        syncResult);
+                syncFolder(getContext(), mailFolder, extras, syncResult);
             }
             Const.logd("performSync--end---- done");
         }
@@ -52,21 +51,17 @@ public class SyncService extends Service {
     private static ThreadedSyncAdapter sSyncAdapter;
     private static Object sSyncAdapterLock = new Object();
 
-    private static void performSync(Context context, Mailbox mailbox,
-            MailFolder mailFolder, Bundle extras, SyncResult syncResult) {
-        if (mailbox == null || mailFolder == null) {
+    private static void syncFolder(Context context, MailFolder mailFolder,
+            Bundle extras, SyncResult syncResult) {
+        if (mailFolder == null) {
             return;
         }
 
         // TODO should not sync local only mail folder
 
-        Uri uri = Uri.parse(MailProvider.CONTENT_URI + "/mailFolder/"
-                + mailFolder.getAutoId());
-        ContentValues values = new ContentValues();
-        values.put(Const.SYNC_FLAGS, Const.SYNC_RUN_IN_BACKGROUND);
+        // what to sync depends on the extras param
 
-        // to inform it's syncing
-        context.getContentResolver().update(uri, values, null, null);
+        // TODO to inform it's syncing
     }
 
     @Override

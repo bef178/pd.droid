@@ -7,8 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.MailServerAuth;
 import th.pd.mail.fastsync.Mailbox;
+import th.pd.mail.fastsync.MailFolder;
+import th.pd.mail.fastsync.MailServerAuth;
 
 public class DbHelper {
 
@@ -23,8 +24,8 @@ public class DbHelper {
         @Override
         public void onCreate(SQLiteDatabase db) {
             Const.logd(TAG, "create db");
-            DbHeader.Box.createTable(db);
-            DbHeader.Folder.createTable(db);
+            DbHeader.Acc.createTable(db);
+            DbHeader.Dir.createTable(db);
             DbHeader.ServerAuth.createTable(db);
             // TODO other tables
         }
@@ -68,7 +69,11 @@ public class DbHelper {
     }
 
     public List<Mailbox> getMailboxes() {
-        return DbHeader.Box.queryAll(getSqliteDb(appContext));
+        return DbHeader.Acc.queryAll(getSqliteDb(appContext));
+    }
+
+    public List<MailFolder> getMailFolders() {
+        return DbHeader.Dir.queryAll(getSqliteDb(appContext));
     }
 
     public List<MailServerAuth> getServerAuths() {
@@ -76,7 +81,11 @@ public class DbHelper {
     }
 
     public long insert(Mailbox mailbox) {
-        return DbHeader.Box.insert(getSqliteDb(appContext), mailbox);
+        return DbHeader.Acc.insert(getSqliteDb(appContext), mailbox);
+    }
+
+    public long insert(MailFolder mailFolder) {
+        return DbHeader.Dir.insert(getSqliteDb(appContext), mailFolder);
     }
 
     public long insert(MailServerAuth serverAuth) {
@@ -85,6 +94,6 @@ public class DbHelper {
     }
 
     public int remove(Mailbox mailbox) {
-        return DbHeader.Box.remove(getSqliteDb(appContext), mailbox);
+        return DbHeader.Acc.remove(getSqliteDb(appContext), mailbox);
     }
 }

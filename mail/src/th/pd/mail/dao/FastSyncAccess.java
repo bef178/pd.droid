@@ -10,9 +10,9 @@ import android.content.Context;
 
 import th.pd.mail.darkroom.DbHelper;
 import th.pd.mail.fastsync.Const;
+import th.pd.mail.fastsync.Mailbox;
 import th.pd.mail.fastsync.MailFolder;
 import th.pd.mail.fastsync.MailServerAuth;
-import th.pd.mail.fastsync.Mailbox;
 import th.pd.mail.fastsync.SyncController;
 
 // TODO move the sync stuff into a service
@@ -142,6 +142,12 @@ public class FastSyncAccess {
         }
     }
 
+    public static void add(Context context, MailFolder mailFolder) {
+        if (DbHelper.getInstance(context).insert(mailFolder) != -1) {
+            // TODO cache
+        }
+    }
+
     public static void add(Context context, MailServerAuth serverAuth) {
         if (DbHelper.getInstance(context).insert(serverAuth) != -1) {
             // deal with cache
@@ -153,17 +159,25 @@ public class FastSyncAccess {
     }
 
     public static MailFolder findMailFolder(Context context, int id) {
-        //        ContentProviderClient client = context.getContentResolver()
-        //                .acquireContentProviderClient(
-        //                        Uri.parse(MailFolder.CONTENT_URI));
-        // TODO
-        return MailFolder.fromFake(-1);
+        // XXX can i query directly from db?
+        for (MailFolder mailFolder : DbHelper.getInstance(context)
+                .getMailFolders()) {
+            if (mailFolder.getAutoId() == id) {
+                return mailFolder;
+            }
+        }
+        return null;
     }
 
     public static List<MailFolder> findMailFolders(Context context,
             Mailbox mailbox) {
-        LinkedList<MailFolder> l = new LinkedList<>();
-        // TODO
+        List<MailFolder> l = new LinkedList<>();
+        for (MailFolder mailFolder : DbHelper.getInstance(context)
+                .getMailFolders()) {
+            if (mailFolder.getAddr().equals(mailbox.getAddr())) {
+                l.add(mailFolder);
+            }
+        }
         return l;
     }
 

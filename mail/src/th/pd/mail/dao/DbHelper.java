@@ -38,58 +38,42 @@ final class DbHelper {
 
     private static final String DB_NAME = "mail.db";
     private static SQLiteDatabase sSqliteDb;
-    private static DbHelper sInstance = null;
 
-    /**
-     * opens for DAO only
-     */
-    public static DbHelper getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new DbHelper(context.getApplicationContext());
-        }
-        return sInstance;
+    public static List<MailAcc> getMailAccs(Context context) {
+        return DbHeader.Acc.queryAll(getSqliteDb(context));
+    }
+
+    public static List<MailDir> getMailDirs(Context context) {
+        return DbHeader.Dir.queryAll(getSqliteDb(context));
+    }
+
+    public static List<MailServerAuth> getServerAuths(Context context) {
+        return DbHeader.ServerAuth.queryAll(getSqliteDb(context));
     }
 
     private static SQLiteDatabase getSqliteDb(Context context) {
         if (sSqliteDb == null) {
-            SqliteDbHelper helper = new SqliteDbHelper(context, DB_NAME);
+            SqliteDbHelper helper = new SqliteDbHelper(
+                    context.getApplicationContext(), DB_NAME);
             sSqliteDb = helper.getWritableDatabase();
             // TODO fix any possible inconsistent in db
         }
         return sSqliteDb;
     }
 
-    private Context appContext;
-
-    private DbHelper(Context appContext) {
-        this.appContext = appContext;
+    public static long insert(Context context, MailAcc acc) {
+        return DbHeader.Acc.insert(getSqliteDb(context), acc);
     }
 
-    public List<MailAcc> getMailAccs() {
-        return DbHeader.Acc.queryAll(getSqliteDb(appContext));
+    public static long insert(Context context, MailDir dir) {
+        return DbHeader.Dir.insert(getSqliteDb(context), dir);
     }
 
-    public List<MailDir> getMailDirs() {
-        return DbHeader.Dir.queryAll(getSqliteDb(appContext));
+    public static long insert(Context context, MailServerAuth auth) {
+        return DbHeader.ServerAuth.insert(getSqliteDb(context), auth);
     }
 
-    public List<MailServerAuth> getServerAuths() {
-        return DbHeader.ServerAuth.queryAll(getSqliteDb(appContext));
-    }
-
-    public long insert(MailAcc acc) {
-        return DbHeader.Acc.insert(getSqliteDb(appContext), acc);
-    }
-
-    public long insert(MailDir dir) {
-        return DbHeader.Dir.insert(getSqliteDb(appContext), dir);
-    }
-
-    public long insert(MailServerAuth auth) {
-        return DbHeader.ServerAuth.insert(getSqliteDb(appContext), auth);
-    }
-
-    public int remove(MailAcc acc) {
-        return DbHeader.Acc.remove(getSqliteDb(appContext), acc);
+    public static int remove(Context context, MailAcc acc) {
+        return DbHeader.Acc.remove(getSqliteDb(context), acc);
     }
 }

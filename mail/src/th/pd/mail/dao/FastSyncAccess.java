@@ -20,8 +20,7 @@ public class FastSyncAccess {
     public static class MailAccSequence {
 
         private static LinkedList<MailAcc> reload(Context context) {
-            List<MailAcc> source = DbHelper.getInstance(context)
-                    .getMailAccs();
+            List<MailAcc> source = DbHelper.getMailAccs(context);
 
             // filter by known account
             LinkedList<MailAcc> l = new LinkedList<MailAcc>();
@@ -133,19 +132,19 @@ public class FastSyncAccess {
     private static MailAccSequence mailAccSequence;
 
     public static void add(Context context, MailAcc acc) {
-        if (DbHelper.getInstance(context).insert(acc) != -1) {
+        if (DbHelper.insert(context, acc) != -1) {
             getMailAccSequence(context).add(acc);
         }
     }
 
     public static void add(Context context, MailDir dir) {
-        if (DbHelper.getInstance(context).insert(dir) != -1) {
+        if (DbHelper.insert(context, dir) != -1) {
             // TODO cache
         }
     }
 
     public static void add(Context context, MailServerAuth serverAuth) {
-        if (DbHelper.getInstance(context).insert(serverAuth) != -1) {
+        if (DbHelper.insert(context, serverAuth) != -1) {
             // deal with cache
         }
     }
@@ -156,7 +155,7 @@ public class FastSyncAccess {
 
     public static MailDir findMailDir(Context context, int id) {
         // XXX can i query directly from db?
-        for (MailDir dir : DbHelper.getInstance(context).getMailDirs()) {
+        for (MailDir dir : DbHelper.getMailDirs(context)) {
             if (dir.getAutoId() == id) {
                 return dir;
             }
@@ -166,7 +165,7 @@ public class FastSyncAccess {
 
     public static List<MailDir> findMailDirs(Context context, MailAcc acc) {
         List<MailDir> l = new LinkedList<>();
-        for (MailDir dir : DbHelper.getInstance(context).getMailDirs()) {
+        for (MailDir dir : DbHelper.getMailDirs(context)) {
             if (dir.getAddr().equals(acc.getAddr())) {
                 l.add(dir);
             }
@@ -176,8 +175,7 @@ public class FastSyncAccess {
 
     public static MailServerAuth findServerAuth(Context context,
             String addr, String protocol) {
-        for (MailServerAuth serverAuth : DbHelper.getInstance(context)
-                .getServerAuths()) {
+        for (MailServerAuth serverAuth : DbHelper.getServerAuths(context)) {
             if (serverAuth.getLogin().equals(addr)
                     && serverAuth.getProtocol().equals(protocol)) {
                 return serverAuth;
@@ -194,7 +192,7 @@ public class FastSyncAccess {
     }
 
     public static void remove(Context context, MailAcc acc) {
-        if (DbHelper.getInstance(context).remove(acc) > 0) {
+        if (DbHelper.remove(context, acc) > 0) {
             getMailAccSequence(context).remove(acc.getAddr());
         }
     }

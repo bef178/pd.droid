@@ -251,15 +251,15 @@ final class DbHeader {
 
     private static final Object LOCK = new Object();
 
-    public static int getCursorInt(Cursor c, String columnName) {
+    private static int getCursorInt(Cursor c, String columnName) {
         return c.getInt(c.getColumnIndex(columnName));
     }
 
-    public static String getCursorString(Cursor c, String columnName) {
+    private static String getCursorString(Cursor c, String columnName) {
         return c.getString(c.getColumnIndex(columnName));
     }
 
-    public static long getCursorLong(Cursor c, String columnName) {
+    private static long getCursorLong(Cursor c, String columnName) {
         return c.getLong(c.getColumnIndex(columnName));
     }
 }

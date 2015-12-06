@@ -9,23 +9,25 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
+import th.pd.mail.Const;
 import th.pd.mail.dao.FastSyncAccess;
+import th.pd.mail.dao.MailDir;
 
 public class MailProvider extends ContentProvider {
 
     public static final String CONTENT_URI = "content://" + Const.AUTHORITY;
 
     // request path goes below
-    public static final String REQUEST_SYNC_FOLDER = "requestSyncFolder";
-    public static final int ACTION_SYNC_FOLDER = 1 << 11;
+    public static final String REQUEST_SYNC_DIR = "requestSyncDir";
+    public static final int ACTION_SYNC_DIR = 1 << 11;
 
     private static final UriMatcher sUriMatcher =
             new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
         synchronized (sUriMatcher) {
-            sUriMatcher.addURI(Const.AUTHORITY, REQUEST_SYNC_FOLDER
-                    + "/#", ACTION_SYNC_FOLDER);
+            sUriMatcher.addURI(Const.AUTHORITY, REQUEST_SYNC_DIR
+                    + "/#", ACTION_SYNC_DIR);
         }
     }
 
@@ -44,9 +46,9 @@ public class MailProvider extends ContentProvider {
         // TODO
 
         switch (sUriMatcher.match(uri)) {
-            case ACTION_SYNC_FOLDER: {
+            case ACTION_SYNC_DIR: {
                 int id = Integer.parseInt(uri.getLastPathSegment());
-                requestSyncFolder(id);
+                requestSyncDir(id);
                 break;
             }
             case UriMatcher.NO_MATCH:
@@ -55,15 +57,14 @@ public class MailProvider extends ContentProvider {
         return null;
     }
 
-    private void requestSyncFolder(int id) {
-        MailFolder mailFolder = FastSyncAccess.findMailFolder(getContext(),
-                id);
-        if (mailFolder == null) {
+    private void requestSyncDir(int id) {
+        MailDir dir = FastSyncAccess.findMailDir(getContext(), id);
+        if (dir == null) {
             return;
         }
 
         Bundle extras = new Bundle();
-        ContentResolver.requestSync(new Account(mailFolder.getAddr(),
+        ContentResolver.requestSync(new Account(dir.getAddr(),
                 Const.ACCOUNT_TYPE), Const.AUTHORITY, extras);
     }
 

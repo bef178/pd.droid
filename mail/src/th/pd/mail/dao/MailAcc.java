@@ -1,4 +1,4 @@
-package th.pd.mail.fastsync;
+package th.pd.mail.dao;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,12 +6,12 @@ import java.util.regex.Pattern;
 /**
  * the account associated with a mail address
  */
-public class Mailbox {
+public class MailAcc {
 
     private String addr;
     private String caption;
 
-    public Mailbox(String addr, String caption) {
+    public MailAcc(String addr, String caption) {
         this.addr = addr;
         this.caption = caption;
     }
@@ -20,8 +20,8 @@ public class Mailbox {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        } else if (o instanceof Mailbox) {
-            final Mailbox other = (Mailbox) o;
+        } else if (o instanceof MailAcc) {
+            final MailAcc other = (MailAcc) o;
             return this.addr.equals(other.addr);
         }
         return false;

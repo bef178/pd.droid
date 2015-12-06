@@ -2,6 +2,8 @@ package th.pd.mail.fastsync;
 
 import java.io.IOException;
 
+import th.pd.mail.Const;
+import th.pd.mail.dao.MailServerAuth;
 import th.pd.mail.dao.SmtpSyncable;
 import th.pd.mail.dao.Syncable;
 import th.pd.mail.fastsync.network.ImapWorker;
@@ -30,14 +32,14 @@ public class SyncThread extends Thread {
     @Override
     public void run() {
         while (true) {
-            Syncable syncMessage = waitIfNoMoreTask();
+            Syncable syncable = waitIfNoMoreTask();
 
-            MailServerAuth serverAuth = syncMessage.getServerAuth();
+            MailServerAuth serverAuth = syncable.getServerAuth();
             if (serverAuth.getProtocol().equals(Const.PROTOCOL_EAS)) {
                 // TODO
             } else if (serverAuth.getProtocol().equals(Const.PROTOCOL_IMAP)) {
                 try {
-                    new ImapWorker().syncMessage(syncMessage);
+                    new ImapWorker().syncMessage(syncable);
                     // TODO move the message to 'post-handle' queue
                 } catch (IOException | MessengerException e) {
                     // TODO network error/no-connection/...
@@ -47,10 +49,10 @@ public class SyncThread extends Thread {
                 }
             } else if (serverAuth.getProtocol().equals(Const.PROTOCOL_POP3)) {
                 // TODO
-            } else if (syncMessage instanceof SmtpSyncable) {
+            } else if (syncable instanceof SmtpSyncable) {
                 // TODO send the message and make a result
                 try {
-                    new SmtpWorker().sendMessage((SmtpSyncable) syncMessage);
+                    new SmtpWorker().sendMessage((SmtpSyncable) syncable);
                     // TODO move the message to 'post-handle' queue
                 } catch (IOException | MessengerException e) {
                     // TODO network error/no-connection/...

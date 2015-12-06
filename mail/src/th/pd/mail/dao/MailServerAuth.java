@@ -1,4 +1,4 @@
-package th.pd.mail.fastsync;
+package th.pd.mail.dao;
 
 public class MailServerAuth {
 

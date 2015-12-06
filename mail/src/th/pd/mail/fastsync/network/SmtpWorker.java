@@ -10,10 +10,10 @@ import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Base64;
 
+import th.pd.mail.Const;
+import th.pd.mail.dao.MailServerAuth;
 import th.pd.mail.dao.Message;
 import th.pd.mail.dao.SmtpSyncable;
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.MailServerAuth;
 
 /**
  * see <strong>Simple Mail Transfer Protocol</strong><br/>
@@ -171,8 +171,8 @@ public class SmtpWorker {
         Message message = syncMessage.getMessage();
         Rfc822Token[] from = Rfc822Tokenizer.tokenize(message.getSender());
         Rfc822Token[] to = Rfc822Tokenizer.tokenize(message.getRecipient());
-        Rfc822Token[] cc =
-                Rfc822Tokenizer.tokenize(message.getCarbonCopy());
+        Rfc822Token[] cc = Rfc822Tokenizer
+                .tokenize(message.getCarbonCopy());
         Rfc822Token[] bcc = Rfc822Tokenizer.tokenize(message
                 .getBlindCarbonCopy());
 

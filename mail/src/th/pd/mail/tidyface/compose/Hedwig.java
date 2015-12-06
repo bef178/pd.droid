@@ -18,11 +18,11 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import th.pd.common.android.QueryUtil;
+import th.pd.mail.Const;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;
+import th.pd.mail.dao.MailServerAuth;
 import th.pd.mail.dao.SmtpSyncable;
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.MailServerAuth;
 
 public class Hedwig extends Fragment implements ComposeController.Listener {
 
@@ -103,7 +103,7 @@ public class Hedwig extends Fragment implements ComposeController.Listener {
 
         View view = inflater.inflate(R.layout.hedwig, container, false);
         mComposeController = ComposeController.newInstance(view, this,
-                FastSyncAccess.getMailboxSequence(getActivity())
+                FastSyncAccess.getMailAccSequence(getActivity())
                         .getCurrent().getAddr());
         mBtnSend = view.findViewById(R.id.btnSend);
 

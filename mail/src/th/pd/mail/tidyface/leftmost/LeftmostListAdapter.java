@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import th.pd.common.android.pinnable.PinnableListAdapter;
 import th.pd.mail.R;
-import th.pd.mail.fastsync.Mailbox;
+import th.pd.mail.dao.MailAcc;
 
 public final class LeftmostListAdapter extends PinnableListAdapter {
 
@@ -58,12 +58,12 @@ public final class LeftmostListAdapter extends PinnableListAdapter {
                 convertView = View.inflate(mContext, R.layout.left_account,
                         null);
             }
-            Mailbox mailbox = ((LeftAccounts) item).getCurrent();
-            if (mailbox != null) {
+            MailAcc acc = ((LeftAccounts) item).getCurrent();
+            if (acc != null) {
                 ((TextView) convertView.findViewById(android.R.id.text1))
-                        .setText(mailbox.getFriendlyCaption());
+                        .setText(acc.getFriendlyCaption());
                 ((TextView) convertView.findViewById(android.R.id.text2))
-                        .setText(mailbox.getAddr());
+                        .setText(acc.getAddr());
                 // TODO set avatar
             } else {
                 ((TextView) convertView.findViewById(android.R.id.text1))

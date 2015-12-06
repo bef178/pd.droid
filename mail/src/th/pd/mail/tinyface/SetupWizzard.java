@@ -3,7 +3,7 @@ package th.pd.mail.tinyface;
 import android.app.Activity;
 import android.os.Bundle;
 
-import th.pd.mail.fastsync.Const;
+import th.pd.mail.Const;
 
 public class SetupWizzard extends Activity {
 

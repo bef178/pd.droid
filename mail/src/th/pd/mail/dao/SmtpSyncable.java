@@ -1,7 +1,6 @@
 package th.pd.mail.dao;
 
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.MailServerAuth;
+import th.pd.mail.Const;
 
 public class SmtpSyncable extends Syncable {
 

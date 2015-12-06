@@ -1,7 +1,5 @@
 package th.pd.mail.dao;
 
-import th.pd.mail.fastsync.MailServerAuth;
-
 /**
  * for IMAP, it cares command rather than the message itself<br/>
  */

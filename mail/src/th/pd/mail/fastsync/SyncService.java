@@ -10,7 +10,10 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import th.pd.mail.Const;
 import th.pd.mail.dao.FastSyncAccess;
+import th.pd.mail.dao.MailAcc;
+import th.pd.mail.dao.MailDir;
 
 /**
  * main entrance of the sync service
@@ -30,19 +33,20 @@ public class SyncService extends Service {
                 SyncResult syncResult) {
             Const.logd("performSync--begin--");
 
-            Mailbox mailbox = FastSyncAccess.getMailboxSequence(
-                    getContext()).get(account.name);
-            if (mailbox == null) {
-                Const.logd("performSync--end---- with null mailbox");
+            Context context = getContext();
+
+            MailAcc acc = FastSyncAccess.getMailAccSequence(
+                    context).get(account.name);
+            if (acc == null) {
+                Const.logd("performSync--end---- with null mail account");
                 return;
             }
 
-            // TODO sync mailbox
+            // TODO sync mail account
 
             // TODO multi-thread and extract extras
-            for (MailFolder mailFolder : FastSyncAccess.findMailFolders(
-                    getContext(), mailbox)) {
-                syncFolder(getContext(), mailFolder, extras, syncResult);
+            for (MailDir dir : FastSyncAccess.findMailDirs(context, acc)) {
+                syncMailDir(context, dir, extras, syncResult);
             }
             Const.logd("performSync--end---- done");
         }
@@ -51,13 +55,13 @@ public class SyncService extends Service {
     private static ThreadedSyncAdapter sSyncAdapter;
     private static Object sSyncAdapterLock = new Object();
 
-    private static void syncFolder(Context context, MailFolder mailFolder,
+    private static void syncMailDir(Context context, MailDir dir,
             Bundle extras, SyncResult syncResult) {
-        if (mailFolder == null) {
+        if (dir == null) {
             return;
         }
 
-        // TODO should not sync local only mail folder
+        // TODO should not sync local-only mail directory
 
         // what to sync depends on the extras param
 

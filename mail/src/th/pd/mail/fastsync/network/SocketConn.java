@@ -1,6 +1,6 @@
 package th.pd.mail.fastsync.network;
 
-import th.pd.mail.fastsync.Const;
+import th.pd.mail.Const;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

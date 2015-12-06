@@ -1,4 +1,4 @@
-package th.pd.mail.darkroom;
+package th.pd.mail.dao;
 
 import java.util.List;
 
@@ -6,12 +6,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.Mailbox;
-import th.pd.mail.fastsync.MailFolder;
-import th.pd.mail.fastsync.MailServerAuth;
+import th.pd.mail.Const;
 
-public class DbHelper {
+final class DbHelper {
 
     static class SqliteDbHelper extends SQLiteOpenHelper {
 
@@ -68,11 +65,11 @@ public class DbHelper {
         this.appContext = appContext;
     }
 
-    public List<Mailbox> getMailboxes() {
+    public List<MailAcc> getMailAccs() {
         return DbHeader.Acc.queryAll(getSqliteDb(appContext));
     }
 
-    public List<MailFolder> getMailFolders() {
+    public List<MailDir> getMailDirs() {
         return DbHeader.Dir.queryAll(getSqliteDb(appContext));
     }
 
@@ -80,20 +77,19 @@ public class DbHelper {
         return DbHeader.ServerAuth.queryAll(getSqliteDb(appContext));
     }
 
-    public long insert(Mailbox mailbox) {
-        return DbHeader.Acc.insert(getSqliteDb(appContext), mailbox);
+    public long insert(MailAcc acc) {
+        return DbHeader.Acc.insert(getSqliteDb(appContext), acc);
     }
 
-    public long insert(MailFolder mailFolder) {
-        return DbHeader.Dir.insert(getSqliteDb(appContext), mailFolder);
+    public long insert(MailDir dir) {
+        return DbHeader.Dir.insert(getSqliteDb(appContext), dir);
     }
 
-    public long insert(MailServerAuth serverAuth) {
-        return DbHeader.ServerAuth.insert(getSqliteDb(appContext),
-                serverAuth);
+    public long insert(MailServerAuth auth) {
+        return DbHeader.ServerAuth.insert(getSqliteDb(appContext), auth);
     }
 
-    public int remove(Mailbox mailbox) {
-        return DbHeader.Acc.remove(getSqliteDb(appContext), mailbox);
+    public int remove(MailAcc acc) {
+        return DbHeader.Acc.remove(getSqliteDb(appContext), acc);
     }
 }

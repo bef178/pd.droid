@@ -11,10 +11,10 @@ import android.os.Bundle;
 import android.view.View;
 
 import th.pd.common.android.OnActionCallback;
+import th.pd.mail.Const;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.Mailbox;
+import th.pd.mail.dao.MailAcc;
 import th.pd.mail.tidyface.compose.ComposeActivity;
 import th.pd.mail.tidyface.leftmost.LeftmostFragment;
 
@@ -53,12 +53,12 @@ public class MailMain extends Activity implements OnActionCallback {
                 return true;
             }
             case R.id.actionRequestSync: {
-                Mailbox mailbox = (Mailbox) extra;
-                if (mailbox == null) {
-                    mailbox = FastSyncAccess.getMailboxSequence(this)
+                MailAcc acc = (MailAcc) extra;
+                if (acc == null) {
+                    acc = FastSyncAccess.getMailAccSequence(this)
                             .getCurrent();
                 }
-                Account account = new Account(mailbox.getAddr(),
+                Account account = new Account(acc.getAddr(),
                         Const.ACCOUNT_TYPE);
                 Bundle extras = new Bundle();
                 extras.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -90,9 +90,8 @@ public class MailMain extends Activity implements OnActionCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Mailbox mailbox = FastSyncAccess.getMailboxSequence(this)
-                .getCurrent();
-        if (mailbox == null) {
+        MailAcc acc = FastSyncAccess.getMailAccSequence(this).getCurrent();
+        if (acc == null) {
             Const.logd(TAG + ": start SetupWizzard");
             startActivityForResult(
                     new Intent().setClass(this, SetupWizzard.class),

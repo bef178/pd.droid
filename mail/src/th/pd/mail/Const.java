@@ -1,4 +1,4 @@
-package th.pd.mail.fastsync;
+package th.pd.mail;
 
 import android.os.Build;
 import android.util.Log;
@@ -9,8 +9,8 @@ import android.util.Log;
 public class Const {
 
     static enum SyncTask {
-        SYNC_ELEMENTAL,
-        SYNC_SPECIFIC_FOLDER,
+        SYNC_ACC,
+        SYNC_SPECIFIC_DIR,
         SYNC_MAIL_FLAGS
     }
 
@@ -26,7 +26,7 @@ public class Const {
     public static final String SYNC_FLAGS = "sync-flags";
     public static final int SYNC_RUN_IN_BACKGROUND = 0x01;
 
-    private static final boolean FORCE_DEBUG = true;
+    private static final boolean DEBUGGING = true;
 
     public static void logd(String msg) {
         String tag = null;
@@ -54,9 +54,11 @@ public class Const {
     }
 
     public static void logd(String tag, String msg) {
-        if (Build.TYPE.equals("eng") || FORCE_DEBUG) {
-            Log.d(tag, msg);
-            Log.d("th", msg);
+        Log.d(tag, msg);
+        if (!Build.TYPE.equals("user") || DEBUGGING) {
+            if (!tag.equals("th")) {
+                Log.d("th", msg);
+            }
         }
     }
 }

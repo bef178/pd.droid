@@ -8,32 +8,28 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import th.pd.mail.darkroom.DbHelper;
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.Mailbox;
-import th.pd.mail.fastsync.MailFolder;
-import th.pd.mail.fastsync.MailServerAuth;
+import th.pd.mail.Const;
 import th.pd.mail.fastsync.SyncController;
 
 // TODO move the sync stuff into a service
 public class FastSyncAccess {
 
     /**
-     * also a cache for Mailbox
+     * also a cache for MailAcc
      */
-    public static class MailboxSequence {
+    public static class MailAccSequence {
 
-        private static LinkedList<Mailbox> reload(Context context) {
-            List<Mailbox> source = DbHelper.getInstance(context)
-                    .getMailboxes();
+        private static LinkedList<MailAcc> reload(Context context) {
+            List<MailAcc> source = DbHelper.getInstance(context)
+                    .getMailAccs();
 
             // filter by known account
-            LinkedList<Mailbox> l = new LinkedList<Mailbox>();
-            for (Account acc : AccountManager.get(context)
+            LinkedList<MailAcc> l = new LinkedList<MailAcc>();
+            for (Account account : AccountManager.get(context)
                     .getAccountsByType(Const.ACCOUNT_TYPE)) {
-                for (Mailbox mailbox : source) {
-                    if (mailbox.getAddr().equals(acc.name)) {
-                        l.add(mailbox);
+                for (MailAcc acc : source) {
+                    if (acc.getAddr().equals(account.name)) {
+                        l.add(acc);
                         break;
                     }
                 }
@@ -41,33 +37,33 @@ public class FastSyncAccess {
             return l;
         }
 
-        private LinkedList<Mailbox> collection;
-        private Mailbox current = null;
+        private LinkedList<MailAcc> collection;
+        private MailAcc current = null;
 
-        private MailboxSequence(Context context) {
+        private MailAccSequence(Context context) {
             invalidate(context);
         }
 
-        public void add(Mailbox mailbox) {
-            if (get(mailbox.getAddr()) == null) {
-                collection.add(mailbox);
+        public void add(MailAcc acc) {
+            if (get(acc.getAddr()) == null) {
+                collection.add(acc);
                 if (collection.size() == 1 || current == null) {
                     current = collection.get(0);
                 }
             }
         }
 
-        public Mailbox get(int index) {
+        public MailAcc get(int index) {
             if (index >= 0 && index < this.collection.size()) {
                 return this.collection.get(index);
             }
             return null;
         }
 
-        public Mailbox get(String addr) {
-            for (Mailbox mailbox : collection) {
-                if (mailbox.getAddr().equals(addr)) {
-                    return mailbox;
+        public MailAcc get(String addr) {
+            for (MailAcc acc : collection) {
+                if (acc.getAddr().equals(addr)) {
+                    return acc;
                 }
             }
             return null;
@@ -80,16 +76,16 @@ public class FastSyncAccess {
             return this.collection.size();
         }
 
-        public Mailbox getCurrent() {
+        public MailAcc getCurrent() {
             if (current == null && !collection.isEmpty()) {
                 current = collection.get(0);
             }
             return current;
         }
 
-        private int indexOf(Mailbox mailbox) {
+        private int indexOf(MailAcc acc) {
             if (this.collection != null) {
-                return this.collection.indexOf(mailbox);
+                return this.collection.indexOf(acc);
             }
             return -2;
         }
@@ -97,8 +93,8 @@ public class FastSyncAccess {
         // TODO not exact: invalidate does not mean reload
         public void invalidate(Context context) {
             collection = reload(context);
-            // TODO restore the stored current mailbox
-            Mailbox stored = null;
+            // TODO restore the stored current mail account
+            MailAcc stored = null;
             if (!setCurrent(indexOf(stored))) {
                 setCurrent(0);
             }
@@ -106,10 +102,10 @@ public class FastSyncAccess {
         }
 
         public boolean remove(String addr) {
-            Iterator<Mailbox> it = collection.iterator();
+            Iterator<MailAcc> it = collection.iterator();
             while (it.hasNext()) {
-                Mailbox mailbox = it.next();
-                if (mailbox.getAddr().equals(addr)) {
+                MailAcc acc = it.next();
+                if (acc.getAddr().equals(addr)) {
                     it.remove();
                     if (!setCurrent(current)) {
                         setCurrent(0);
@@ -129,21 +125,21 @@ public class FastSyncAccess {
             return false;
         }
 
-        public boolean setCurrent(Mailbox mailbox) {
-            return setCurrent(indexOf(mailbox));
+        public boolean setCurrent(MailAcc acc) {
+            return setCurrent(indexOf(acc));
         }
     }
 
-    private static MailboxSequence mailboxSequence;
+    private static MailAccSequence mailAccSequence;
 
-    public static void add(Context context, Mailbox mailbox) {
-        if (DbHelper.getInstance(context).insert(mailbox) != -1) {
-            getMailboxSequence(context).add(mailbox);
+    public static void add(Context context, MailAcc acc) {
+        if (DbHelper.getInstance(context).insert(acc) != -1) {
+            getMailAccSequence(context).add(acc);
         }
     }
 
-    public static void add(Context context, MailFolder mailFolder) {
-        if (DbHelper.getInstance(context).insert(mailFolder) != -1) {
+    public static void add(Context context, MailDir dir) {
+        if (DbHelper.getInstance(context).insert(dir) != -1) {
             // TODO cache
         }
     }
@@ -158,24 +154,21 @@ public class FastSyncAccess {
         SyncController.getInstance().addTask(syncMessage);
     }
 
-    public static MailFolder findMailFolder(Context context, int id) {
+    public static MailDir findMailDir(Context context, int id) {
         // XXX can i query directly from db?
-        for (MailFolder mailFolder : DbHelper.getInstance(context)
-                .getMailFolders()) {
-            if (mailFolder.getAutoId() == id) {
-                return mailFolder;
+        for (MailDir dir : DbHelper.getInstance(context).getMailDirs()) {
+            if (dir.getAutoId() == id) {
+                return dir;
             }
         }
         return null;
     }
 
-    public static List<MailFolder> findMailFolders(Context context,
-            Mailbox mailbox) {
-        List<MailFolder> l = new LinkedList<>();
-        for (MailFolder mailFolder : DbHelper.getInstance(context)
-                .getMailFolders()) {
-            if (mailFolder.getAddr().equals(mailbox.getAddr())) {
-                l.add(mailFolder);
+    public static List<MailDir> findMailDirs(Context context, MailAcc acc) {
+        List<MailDir> l = new LinkedList<>();
+        for (MailDir dir : DbHelper.getInstance(context).getMailDirs()) {
+            if (dir.getAddr().equals(acc.getAddr())) {
+                l.add(dir);
             }
         }
         return l;
@@ -193,16 +186,16 @@ public class FastSyncAccess {
         return null;
     }
 
-    public static MailboxSequence getMailboxSequence(Context context) {
-        if (mailboxSequence == null) {
-            mailboxSequence = new MailboxSequence(context);
+    public static MailAccSequence getMailAccSequence(Context context) {
+        if (mailAccSequence == null) {
+            mailAccSequence = new MailAccSequence(context);
         }
-        return mailboxSequence;
+        return mailAccSequence;
     }
 
-    public static void remove(Context context, Mailbox mailbox) {
-        if (DbHelper.getInstance(context).remove(mailbox) > 0) {
-            getMailboxSequence(context).remove(mailbox.getAddr());
+    public static void remove(Context context, MailAcc acc) {
+        if (DbHelper.getInstance(context).remove(acc) > 0) {
+            getMailAccSequence(context).remove(acc.getAddr());
         }
     }
 }

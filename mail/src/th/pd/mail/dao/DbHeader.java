@@ -1,6 +1,6 @@
-package th.pd.mail.darkroom;
+package th.pd.mail.dao;
 
-import static th.pd.mail.darkroom.DbHelper.TAG;
+import static th.pd.mail.dao.DbHelper.TAG;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -10,10 +10,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import th.pd.mail.fastsync.Const;
-import th.pd.mail.fastsync.MailFolder;
-import th.pd.mail.fastsync.MailServerAuth;
-import th.pd.mail.fastsync.Mailbox;
+import th.pd.mail.Const;
 
 final class DbHeader {
 
@@ -40,27 +37,27 @@ final class DbHeader {
             }
         }
 
-        private static Mailbox fromCursor(Cursor c) {
-            return new Mailbox(c.getString(c.getColumnIndex(COLUMN_ADDR)),
-                    c.getString(c.getColumnIndex(COLUMN_CAPTION)));
+        private static MailAcc fromCursor(Cursor c) {
+            return new MailAcc(getCursorString(c, COLUMN_ADDR),
+                    getCursorString(c, COLUMN_CAPTION));
         }
 
-        static long insert(SQLiteDatabase db, Mailbox mailbox) {
+        static long insert(SQLiteDatabase db, MailAcc acc) {
             synchronized (LOCK) {
-                return db.insert(TABLE, null, toContentValues(mailbox));
+                return db.insert(TABLE, null, toContentValues(acc));
             }
         }
 
         /**
          * @return list of [addr, caption]
          */
-        static List<Mailbox> queryAll(SQLiteDatabase db) {
+        static List<MailAcc> queryAll(SQLiteDatabase db) {
             Cursor c;
             synchronized (LOCK) {
                 c = db.query(TABLE, null,
                         null, null, null, null, null);
             }
-            List<Mailbox> l = new LinkedList<>();
+            List<MailAcc> l = new LinkedList<>();
             while (c.moveToNext()) {
                 l.add(fromCursor(c));
             }
@@ -68,16 +65,16 @@ final class DbHeader {
             return l;
         }
 
-        static int remove(SQLiteDatabase db, Mailbox mailbox) {
+        static int remove(SQLiteDatabase db, MailAcc acc) {
             return db.delete(TABLE, COLUMN_ADDR + "=?", new String[] {
-                    mailbox.getAddr()
+                    acc.getAddr()
             });
         }
 
-        private static ContentValues toContentValues(Mailbox mailbox) {
+        private static ContentValues toContentValues(MailAcc acc) {
             ContentValues cv = new ContentValues();
-            cv.put(COLUMN_ADDR, mailbox.getAddr());
-            cv.put(COLUMN_CAPTION, mailbox.getCaption());
+            cv.put(COLUMN_ADDR, acc.getAddr());
+            cv.put(COLUMN_CAPTION, acc.getCaption());
             return cv;
         }
     }
@@ -112,39 +109,38 @@ final class DbHeader {
             }
         }
 
-        private static MailFolder fromCursor(Cursor c) {
-            MailFolder mailFolder = new MailFolder();
-            mailFolder.setAutoId(c.getInt(
-                    c.getColumnIndex(COLUMN_AUTO_ID)));
-            mailFolder.setAddr(c.getString(
-                    c.getColumnIndex(COLUMN_ADDR)));
-            mailFolder.setCaption(c.getString(
-                    c.getColumnIndex(COLUMN_CAPTION)));
-            mailFolder.setPath(c.getString(
-                    c.getColumnIndex(COLUMN_PATH)));
-            mailFolder.setLastSync(c.getLong(
-                    c.getColumnIndex(COLUMN_LAST_SYNC)));
-            mailFolder.setSyncStatus(c.getInt(
-                    c.getColumnIndex(COLUMN_SYNC_STATUS)));
-            mailFolder.setFlags(c.getInt(
-                    c.getColumnIndex(COLUMN_FLAGS)));
-            return mailFolder;
+        private static MailDir fromCursor(Cursor c) {
+            MailDir dir = new MailDir();
+            dir.setAutoId(
+                    getCursorInt(c, COLUMN_AUTO_ID));
+            dir.setAddr(
+                    getCursorString(c, COLUMN_ADDR));
+            dir.setCaption(
+                    getCursorString(c, COLUMN_CAPTION));
+            dir.setPath(
+                    getCursorString(c, COLUMN_PATH));
+            dir.setLastSync(
+                    getCursorLong(c, COLUMN_LAST_SYNC));
+            dir.setSyncStatus(
+                    getCursorInt(c, COLUMN_SYNC_STATUS));
+            dir.setFlags(
+                    getCursorInt(c, COLUMN_FLAGS));
+            return dir;
         }
 
-        static long insert(SQLiteDatabase db,
-                MailFolder mailFolder) {
+        static long insert(SQLiteDatabase db, MailDir dir) {
             synchronized (LOCK) {
-                return db.insert(TABLE, null, toContentValues(mailFolder));
+                return db.insert(TABLE, null, toContentValues(dir));
             }
         }
 
-        static List<MailFolder> queryAll(SQLiteDatabase db) {
+        static List<MailDir> queryAll(SQLiteDatabase db) {
             Cursor c;
             synchronized (LOCK) {
                 c = db.query(TABLE, null,
                         null, null, null, null, COLUMN_AUTO_ID);
             }
-            ArrayList<MailFolder> a = new ArrayList<>(
+            ArrayList<MailDir> a = new ArrayList<>(
                     c.getColumnCount());
             while (c.moveToNext()) {
                 a.add(fromCursor(c));
@@ -153,15 +149,15 @@ final class DbHeader {
             return a;
         }
 
-        private static ContentValues toContentValues(MailFolder mailFolder) {
+        private static ContentValues toContentValues(MailDir dir) {
             ContentValues cv = new ContentValues();
-            cv.put(COLUMN_AUTO_ID, mailFolder.getAutoId());
-            cv.put(COLUMN_ADDR, mailFolder.getAddr());
-            cv.put(COLUMN_CAPTION, mailFolder.getCaption());
-            cv.put(COLUMN_PATH, mailFolder.getPath());
-            cv.put(COLUMN_LAST_SYNC, mailFolder.getLastSync());
-            cv.put(COLUMN_SYNC_STATUS, mailFolder.getSyncStatus());
-            cv.put(COLUMN_FLAGS, mailFolder.getFlags());
+            cv.put(COLUMN_AUTO_ID, dir.getAutoId());
+            cv.put(COLUMN_ADDR, dir.getAddr());
+            cv.put(COLUMN_CAPTION, dir.getCaption());
+            cv.put(COLUMN_PATH, dir.getPath());
+            cv.put(COLUMN_LAST_SYNC, dir.getLastSync());
+            cv.put(COLUMN_SYNC_STATUS, dir.getSyncStatus());
+            cv.put(COLUMN_FLAGS, dir.getFlags());
             return cv;
         }
     }
@@ -202,18 +198,18 @@ final class DbHeader {
 
         private static MailServerAuth fromCursor(Cursor c) {
             MailServerAuth serverAuth = new MailServerAuth();
-            serverAuth.setProtocol(c.getString(
-                    c.getColumnIndex(COLUMN_PROTOCOL)));
-            serverAuth.setHost(c.getString(
-                    c.getColumnIndex(COLUMN_HOST)));
-            serverAuth.setPort(c.getInt(
-                    c.getColumnIndex(COLUMN_PORT)));
-            serverAuth.setLogin(c.getString(
-                    c.getColumnIndex(COLUMN_ADDR)));
-            serverAuth.setPin(c.getString(
-                    c.getColumnIndex(COLUMN_PASS)));
-            serverAuth.setFlags(c.getInt(
-                    c.getColumnIndex(COLUMN_FLAGS)));
+            serverAuth.setProtocol(
+                    getCursorString(c, COLUMN_PROTOCOL));
+            serverAuth.setHost(
+                    getCursorString(c, COLUMN_HOST));
+            serverAuth.setPort(
+                    getCursorInt(c, COLUMN_PORT));
+            serverAuth.setLogin(
+                    getCursorString(c, COLUMN_ADDR));
+            serverAuth.setPin(
+                    getCursorString(c, COLUMN_PASS));
+            serverAuth.setFlags(
+                    getCursorInt(c, COLUMN_FLAGS));
             return serverAuth;
         }
 
@@ -239,19 +235,31 @@ final class DbHeader {
             return a;
         }
 
-        private static ContentValues toContentValues(
-                MailServerAuth serverAuth) {
+        private static ContentValues toContentValues(MailServerAuth auth) {
             ContentValues cv = new ContentValues();
-            cv.put(COLUMN_PROTOCOL, serverAuth.getProtocol());
-            cv.put(COLUMN_HOST, serverAuth.getHost());
-            cv.put(COLUMN_PORT, serverAuth.getPort());
-            cv.put(COLUMN_ADDR, serverAuth.getLogin());
-            cv.put(COLUMN_PASS, serverAuth.getPin());
-            cv.put(COLUMN_FLAGS, serverAuth.getFlags());
+            cv.put(COLUMN_PROTOCOL, auth.getProtocol());
+            cv.put(COLUMN_HOST, auth.getHost());
+            cv.put(COLUMN_PORT, auth.getPort());
+            cv.put(COLUMN_ADDR, auth.getLogin());
+            cv.put(COLUMN_PASS, auth.getPin());
+            cv.put(COLUMN_FLAGS, auth.getFlags());
             return cv;
         }
     }
 
     static final String COLUMN_AUTO_ID = "auto_id";
+
     private static final Object LOCK = new Object();
+
+    public static int getCursorInt(Cursor c, String columnName) {
+        return c.getInt(c.getColumnIndex(columnName));
+    }
+
+    public static String getCursorString(Cursor c, String columnName) {
+        return c.getString(c.getColumnIndex(columnName));
+    }
+
+    public static long getCursorLong(Cursor c, String columnName) {
+        return c.getLong(c.getColumnIndex(columnName));
+    }
 }

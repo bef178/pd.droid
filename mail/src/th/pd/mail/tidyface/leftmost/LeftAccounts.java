@@ -3,15 +3,15 @@ package th.pd.mail.tidyface.leftmost;
 import android.content.Context;
 
 import th.pd.mail.dao.FastSyncAccess;
-import th.pd.mail.fastsync.Mailbox;
+import th.pd.mail.dao.MailAcc;
 
 public class LeftAccounts extends LeftItem {
 
-    private FastSyncAccess.MailboxSequence mAccMgr;
+    private FastSyncAccess.MailAccSequence mAccMgr;
 
     public LeftAccounts(Context context) {
         super(null);
-        mAccMgr = FastSyncAccess.getMailboxSequence(context);
+        mAccMgr = FastSyncAccess.getMailAccSequence(context);
     }
 
     public int getCount() {
@@ -23,7 +23,7 @@ public class LeftAccounts extends LeftItem {
         throw new UnsupportedOperationException("not applicable");
     }
 
-    public Mailbox getCurrent() {
+    public MailAcc getCurrent() {
         return mAccMgr.getCurrent();
     }
 }

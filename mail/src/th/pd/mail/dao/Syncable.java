@@ -1,7 +1,5 @@
 package th.pd.mail.dao;
 
-import th.pd.mail.fastsync.MailServerAuth;
-
 /**
  * *have* a message not *be* a message
  */

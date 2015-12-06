@@ -1,14 +1,14 @@
 package th.pd.mail.dao;
 
-import static th.pd.mail.dao.DbHelper.TAG;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import th.pd.mail.Const;
 
@@ -17,7 +17,7 @@ final class DbHeader {
     /**
      * fall through in index order
      */
-    static class Acc {
+    private static class Acc {
 
         public static final String TABLE = "mail_acc";
         public static final String COLUMN_ADDR = "addr";
@@ -79,7 +79,7 @@ final class DbHeader {
         }
     }
 
-    static class Dir {
+    private static class Dir {
 
         public static final String TABLE = "mail_dir";
         public static final String COLUMN_ADDR = Acc.COLUMN_ADDR;
@@ -162,11 +162,7 @@ final class DbHeader {
         }
     }
 
-    static class Ent {
-        // TODO
-    }
-
-    static class ServerAuth {
+    private static class ServerAuth {
 
         public static final String TABLE = "server_auth";
         public static final String COLUMN_PROTOCOL = "protocol";
@@ -247,19 +243,84 @@ final class DbHeader {
         }
     }
 
-    static final String COLUMN_AUTO_ID = "auto_id";
+    private static class SqliteDbHelper extends SQLiteOpenHelper {
 
+        private static final int DB_VERSION = 1;
+
+        public SqliteDbHelper(Context context, String dbName) {
+            super(context, dbName, null, DB_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            Const.logd(TAG, "create db");
+            Acc.createTable(db);
+            Dir.createTable(db);
+            ServerAuth.createTable(db);
+            // TODO other tables
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion,
+                int newVersion) {
+            // dummy for now
+        }
+    }
+
+    private static final String TAG = DbHeader.class.getName();
+    private static final String DATABASE = "mail.db";
     private static final Object LOCK = new Object();
+    private static SQLiteDatabase sSqliteDb;
+
+    private static final String COLUMN_AUTO_ID = "auto_id";
 
     private static int getCursorInt(Cursor c, String columnName) {
         return c.getInt(c.getColumnIndex(columnName));
+    }
+
+    private static long getCursorLong(Cursor c, String columnName) {
+        return c.getLong(c.getColumnIndex(columnName));
     }
 
     private static String getCursorString(Cursor c, String columnName) {
         return c.getString(c.getColumnIndex(columnName));
     }
 
-    private static long getCursorLong(Cursor c, String columnName) {
-        return c.getLong(c.getColumnIndex(columnName));
+    public static List<MailAcc> getMailAccs(Context context) {
+        return Acc.queryAll(getSqliteDb(context));
+    }
+
+    public static List<MailDir> getMailDirs(Context context) {
+        return Dir.queryAll(getSqliteDb(context));
+    }
+
+    public static List<MailServerAuth> getServerAuths(Context context) {
+        return ServerAuth.queryAll(getSqliteDb(context));
+    }
+
+    private static SQLiteDatabase getSqliteDb(Context context) {
+        if (sSqliteDb == null) {
+            SqliteDbHelper helper = new SqliteDbHelper(
+                    context.getApplicationContext(), DATABASE);
+            sSqliteDb = helper.getWritableDatabase();
+            // TODO fix any possible inconsistent in db
+        }
+        return sSqliteDb;
+    }
+
+    public static long insert(Context context, MailAcc acc) {
+        return Acc.insert(getSqliteDb(context), acc);
+    }
+
+    public static long insert(Context context, MailDir dir) {
+        return Dir.insert(getSqliteDb(context), dir);
+    }
+
+    public static long insert(Context context, MailServerAuth auth) {
+        return ServerAuth.insert(getSqliteDb(context), auth);
+    }
+
+    public static int remove(Context context, MailAcc acc) {
+        return Acc.remove(getSqliteDb(context), acc);
     }
 }

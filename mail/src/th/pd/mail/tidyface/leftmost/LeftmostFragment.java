@@ -13,7 +13,7 @@ import android.widget.Toast;
 import th.pd.common.android.OnActionCallback;
 import th.pd.common.android.pinnable.PinnableList;
 import th.pd.mail.R;
-import th.pd.mail.tinyface.FakeData;
+import th.pd.mail.tidyface.FakeData;
 
 public class LeftmostFragment extends Fragment {
 

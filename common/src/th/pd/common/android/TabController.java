@@ -61,7 +61,7 @@ public class TabController {
         mCallback = callback;
 
         if (hasTabCr && addTab(VIEW_TYPE_CR) != 0) {
-            throw new RuntimeException("cannot create tiny tab");
+            throw new RuntimeException("fail to create tab");
         }
         mHasTabCr = hasTabCr;
     }

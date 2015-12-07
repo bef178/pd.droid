@@ -22,14 +22,14 @@
     android:label="@string/app_label"
     android:theme="@style/appTheme">
     <activity
-      android:name=".tinyface.MailMain"
+      android:name=".tidyface.MailMain"
       android:label="@string/app_label">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
-    <activity android:name=".tinyface.SetupWizzard"/>
+    <activity android:name=".tidyface.SetupWizzard"/>
     <activity
       android:name=".tidyface.compose.ComposeActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"

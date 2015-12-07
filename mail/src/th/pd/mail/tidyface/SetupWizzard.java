@@ -1,4 +1,4 @@
-package th.pd.mail.tinyface;
+package th.pd.mail.tidyface;
 
 import android.app.Activity;
 import android.os.Bundle;

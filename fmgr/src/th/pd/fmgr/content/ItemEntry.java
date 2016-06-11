@@ -5,7 +5,6 @@ import java.io.File;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
-import th.pd.common.Flags;
 import th.pd.common.android.MimeTypeUtil;
 
 /**
@@ -53,7 +52,7 @@ public class ItemEntry {
      * <br/>
      * initially inherited from parent
      */
-    protected Flags flags = new Flags();
+    protected int flags = 0;
 
     public ItemEntry() {
         // dummy

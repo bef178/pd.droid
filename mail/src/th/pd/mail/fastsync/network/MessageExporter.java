@@ -12,10 +12,10 @@ import android.os.SystemClock;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 
-import th.pd.common.android.FormatUtil;
 import th.pd.mail.MailApp;
 import th.pd.mail.dao.Message;
 import th.pd.mail.dao.Message.Attachment;
+import τ.typedef.io.FormatCodec;
 
 class MessageExporter {
 
@@ -409,8 +409,8 @@ class MessageExporter {
     private static void putUrlEncoded(OutputStream ostream, byte[] a)
             throws IOException {
         for (byte b : a) {
-            if (FormatUtil.Url.shouldEncode(b)) {
-                FormatUtil.Url.encodeAndPut(b, ostream);
+            if (FormatCodec.Uri.shouldBeEncoded(b)) {
+                FormatCodec.Uri.encodeAndPut(b, ostream);
             } else {
                 ostream.write(b);
             }

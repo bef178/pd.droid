@@ -65,8 +65,7 @@ public class TitlebarDragListener extends DragListener {
                 decorView.getHeight() / 2);
     }
 
-    private static void findScreenSize(Window window,
-            int[] screenSize) {
+    private static void findScreenSize(Window window, int[] screenSize) {
         Display defDisplay = window.getWindowManager().getDefaultDisplay();
         Point p = new Point();
         defDisplay.getSize(p);

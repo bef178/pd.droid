@@ -1,10 +1,12 @@
 ########
 # pd-glry
+#
 
-LOCAL_PD_COMMON := ../common
+include ../build/def.mk
 
-LOCAL_GEN := ./gen
+LOCAL_MODULE := pd-glry
 LOCAL_PACKAGE := th.pd.glry
-LOCAL_TARGET := $(LOCAL_GEN)/pd-glry.apk
+LOCAL_SRC_DIR := ./src
+LOCAL_RES_DIR := ./res
 
-include $(LOCAL_PD_COMMON)/def-apk.mk
+include ../build/apk.mk

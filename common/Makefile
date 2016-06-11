@@ -2,66 +2,58 @@
 # pd-common
 #
 # - lib's R is used only for compiling its src
-# - apk generates its own R for both itself and lib
-# - lib's package name is required when apk generating lib's R
-# so provide package name, jar(classes) and res
+# - app generates its own R for both itself and lib
+# - lib's package name is required when app generating lib's R
+#
 
-include ./def.mk
+include ../build/def.mk
 
-RES := ./res_mod
-SRC := ./src
+LOCAL_MODULE := pd-common
+LOCAL_PACKAGE := th.pd.common.android
+LOCAL_SRC_DIR := ./src
+LOCAL_RES_DIR := $(wildcard ./res_mod/*)
 
-GEN := ./gen
-GEN_OBJ := $(GEN)/obj
-GEN_R := $(GEN)/R
+LOCAL_SRC_FILES := $(call find_typef, "*.java", $(LOCAL_SRC_DIR))
 
-PKG := th.pd.common.android
-TARGET_JAR := $(GEN)/pd-common.jar
-TARGET_RES := $(GEN)/res
-
-TARGET_RES_FILES := $(foreach		\
-		m,			\
-		$(wildcard $(RES)/*),	\
-		$(subst $m,		\
-			$(TARGET_RES),	\
-			$(wildcard $m/*/*)))
-JAVA_SRC_FILES := $(call all-typef, "*.java", $(SRC))
-R_SRC_FILE := $(GEN_R)/$(subst .,/,$(PKG))/R.java
-R_OBJ_FILE := $(patsubst %.java, %.class, $(R_SRC_FILE))
+JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
+OUT_JAR := $(OUT_DIR)/$(LOCAL_MODULE).jar
 
 ########
 
-$(TARGET_JAR): $(JAVA_SRC_FILES) $(R_OBJ_FILE)
-	@echo "Compiling ..."
-	@-mkdir -p $(GEN_OBJ)
-	@javac $(JAVA_SRC_FILES)	\
-		-classpath $(AJAR):$(GEN_R)	\
-		-d $(GEN_OBJ)
-	@echo "Packaging ..."
+$(OUT_JAR): $(LOCAL_SRC_FILES) $(JAVA_R)
+	@echo "compiling R ..."
+# don't generate R.class into the package place
+	@javac $(JAVA_R) \
+		-d $(OUT_SRC_DIR)
+	@echo "compiling java ..."
+	@-mkdir -p $(OUT_OBJ_DIR)
+	@javac $(LOCAL_SRC_FILES) \
+		-classpath $(ANDROID_JAR):$(OUT_SRC_DIR) \
+		-d $(OUT_OBJ_DIR)
+	@echo "packaging ..."
 # with openjdk 1.7 sometimes the R stuff appears in this directory
 # have no idea why it is but just remove them for a clear package place
-	@-rm -f `find $(GEN_OBJ) -regex ".*/R\($$.+\)?\.class"`
-	@jar cf $@ -C $(GEN_OBJ) .
+	@-rm -f `find $(OUT_OBJ_DIR) -regex ".*/R\($$.+\)?\.class"`
+	@jar cf $@.unsigned -C $(OUT_OBJ_DIR) .
+	@echo "signing ..."
+	$(call sign_jar, $@.unsigned, $@)
 
-$(R_OBJ_FILE): $(TARGET_RES_FILES)
-	@echo "Generating R ..."
-	@-mkdir -p $(GEN_R)
-	@$(AAPT) $(AAPT_PACKAGE_FLAGS)	\
-		--non-constant-id	\
-		--custom-package $(PKG)	\
-		-I $(AJAR)	\
-		-S $(TARGET_RES)	\
-		-m -J $(GEN_R)
-# don't generate R.class into the package place
-	@javac $(R_SRC_FILE)	\
-		-d $(GEN_R)
-
-# generate each taregt res file
-$(TARGET_RES)/%: $(RES)/*/%
-	@-mkdir -p $(dir $@)
-	@-cp -ru $< $@
+$(JAVA_R): $(wildcard $(addsuffix /*/*,$(LOCAL_RES_DIR)))
+	@echo "copying res ..."
+	@-mkdir -p $(OUT_RES_DIR)
+	@cp -ru $(addsuffix /*,$(LOCAL_RES_DIR)) $(OUT_RES_DIR)
+	@echo "generating R ..."
+	@-mkdir -p $(@D)
+	@$(AAPT) package \
+		--auto-add-overlay -f \
+		-M ./AndroidManifest.xml \
+		--non-constant-id \
+		--custom-package $(LOCAL_PACKAGE) \
+		-I $(ANDROID_JAR) \
+		-S $(OUT_RES_DIR) \
+		-m -J $(OUT_SRC_DIR)
 
 .PHONY: clean
 clean:
-	@echo "Cleaning ... "
-	@-rm -rf $(GEN)
+	@echo "cleaning ..."
+	@-rm -rf $(OUT_DIR)

@@ -19,7 +19,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import th.pd.common.Cache;
 import th.pd.common.android.MimeTypeUtil;
 import th.pd.glry.GesturePipeline.Callback;
 
@@ -54,12 +53,12 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     // TODO put this function to a common Util
-    private static void findScreenSize(Activity a, int[] screenSize) {
+    private static void findScreenResolution(Activity a, int[] result) {
         Display defDisplay = a.getWindowManager().getDefaultDisplay();
         Point p = new Point();
         defDisplay.getSize(p);
-        screenSize[0] = p.x;
-        screenSize[1] = p.y;
+        result[0] = p.x;
+        result[1] = p.y;
     }
 
     private int[] mScreenSize = new int[2];
@@ -68,7 +67,7 @@ public class ImageActivity extends AbsMediaActivity {
     private int mCurrentPos;
     private ImageSwitcher mImageSwitcher;
 
-    private Cache<Bitmap> mCache;
+    private PivotCache<Bitmap> mCache;
     private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
     private UpdateCacheTask mUpdateCacheTask;
 
@@ -201,7 +200,7 @@ public class ImageActivity extends AbsMediaActivity {
 
         super.onCreate(savedInstanceState, R.layout.image_main);
 
-        findScreenSize(this, mScreenSize);
+        findScreenResolution(this, mScreenSize);
 
         setupModel(imageUri);
         setupSwitcher();
@@ -390,7 +389,7 @@ public class ImageActivity extends AbsMediaActivity {
 
     private void setupSwitcher() {
         mImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
-        mCache = new Cache<Bitmap>();
+        mCache = new PivotCache<Bitmap>();
         mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
     }
 
@@ -404,7 +403,7 @@ public class ImageActivity extends AbsMediaActivity {
                     UpdateCacheTaskArgument... params) {
                 UpdateCacheTaskArgument a = params[0];
                 a.bitmap = createBitmap(a.pos);
-                mCache.roll(a.pos, a.bitmap);
+                mCache.focus(a.pos);
                 mCache.set(a.pos, a.bitmap);
                 return null;
             }
@@ -479,7 +478,7 @@ public class ImageActivity extends AbsMediaActivity {
         if (bitmap == null) {
             bitmap = createBitmap(pos);
         }
-        mCache.roll(pos, bitmap);
+        mCache.focus(pos);
         mCache.set(pos, bitmap);
         for (int i = 1; i <= mCache.RADIUS; ++i) {
             if (mCache.get(pos + i) == null) {

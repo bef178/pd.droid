@@ -1,19 +1,16 @@
-########
-# pd
-
-LOCAL_PD_COMMON := ./common
-LOCAL_GEN := ./gen
-LOCAL_PACKAGE := th.pd
-LOCAL_TARGET := $(LOCAL_GEN)/pd.apk
-
-include $(LOCAL_PD_COMMON)/def-apk.mk
-
-########
+########################################
+# makefile for pd
 
 MAKEFILES := $(wildcard */Makefile)
 
 .PHONY: all-each
-all-each: $(addsuffix .done, $(MAKEFILES))
+all-each: $(addsuffix .each, $(MAKEFILES))
 
-%/Makefile.done: %/Makefile
+%/Makefile.each: %/Makefile
 	make -C $(dir $<)
+
+.PHONY: clean
+clean: $(addsuffix .clean, $(MAKEFILES))
+
+%/Makefile.clean: %/Makefile
+	make -C $(dir $<) clean

@@ -1,10 +1,12 @@
 ########
 # pd-fmgr
+#
 
-LOCAL_PD_COMMON := ../common
+include ../build/def.mk
 
-LOCAL_GEN := ./gen
+LOCAL_MODULE := pd-fmgr
 LOCAL_PACKAGE := th.pd.fmgr
-LOCAL_TARGET := $(LOCAL_GEN)/pd-fmgr.apk
+LOCAL_SRC_DIR := ./src
+LOCAL_RES_DIR := ./res
 
-include $(LOCAL_PD_COMMON)/def-apk.mk
+include ../build/apk.mk

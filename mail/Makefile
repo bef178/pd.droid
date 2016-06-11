@@ -1,10 +1,12 @@
 ########
 # pd-mail
+#
 
-LOCAL_PD_COMMON := ../common
+include ../build/def.mk
 
-LOCAL_GEN := ./gen
+LOCAL_MODULE := pd-mail
 LOCAL_PACKAGE := th.pd.mail
-LOCAL_TARGET := $(LOCAL_GEN)/pd-mail.apk
+LOCAL_SRC_DIR := ./src
+LOCAL_RES_DIR := ./res
 
-include $(LOCAL_PD_COMMON)/def-apk.mk
+include ../build/apk.mk

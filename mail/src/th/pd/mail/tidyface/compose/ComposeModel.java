@@ -4,15 +4,15 @@ import java.util.List;
 
 import android.net.Uri;
 
-import th.pd.common.Flags;
 import th.pd.mail.dao.Message;
 import th.pd.mail.dao.Message.Attachment;
+import τ.typedef.Bits;
 
 class ComposeModel {
 
     private static final int FLAG_SHOWS_CC_BCC_ROW = 1 << 2;
 
-    private Flags flags = new Flags(); // the status
+    private int flags = 0; // the status
     private Message message = new Message();
 
     public void addAttachment(Attachment attachment) {
@@ -67,7 +67,7 @@ class ComposeModel {
     }
 
     public boolean queryStatusIsCcBccRowShown() {
-        return flags.hasFlags(FLAG_SHOWS_CC_BCC_ROW);
+        return Bits.hasAll(flags, FLAG_SHOWS_CC_BCC_ROW);
     }
 
     public void setBcc(String bcc) {
@@ -98,11 +98,11 @@ class ComposeModel {
      * return <code>true</code> if it is shown after toggled
      */
     public boolean toggleShowCcBccRow() {
-        if (flags.hasFlags(FLAG_SHOWS_CC_BCC_ROW)) {
-            flags.clearFlags(FLAG_SHOWS_CC_BCC_ROW);
+        if (Bits.hasAll(flags, FLAG_SHOWS_CC_BCC_ROW)) {
+            Bits.clear(flags, FLAG_SHOWS_CC_BCC_ROW);
             return false;
         } else {
-            flags.setFlags(FLAG_SHOWS_CC_BCC_ROW);
+            Bits.set(flags, FLAG_SHOWS_CC_BCC_ROW);
             return true;
         }
     }

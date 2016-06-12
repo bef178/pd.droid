@@ -538,11 +538,12 @@ class Model {
 
         if (seedFile.isFile()) {
             File seedDirectory = seedFile.getParentFile();
-            if (seedDirectory == null) {
-                dataList.add(Uri.fromFile(seedFile));
-                return;
-            }
             addDirectory(seedDirectory);
+
+            Uri seedUri = Uri.fromFile(seedFile);
+            if (seedUri != null && !dataList.contains(seedUri)) {
+                dataList.add(seedUri);
+            }
         } else if (seedFile.isDirectory()) {
             addDirectory(seedFile);
         }

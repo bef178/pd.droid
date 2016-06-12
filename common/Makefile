@@ -34,7 +34,7 @@ $(OUT_JAR): $(LOCAL_SRC_FILES) $(JAVA_R)
 # with openjdk 1.7 sometimes the R stuff appears in this directory
 # have no idea why it is but just remove them for a clear package place
 	@-rm -f `find $(OUT_OBJ_DIR) -regex ".*/R\($$.+\)?\.class"`
-	@jar cf $@.unsigned -C $(OUT_OBJ_DIR) .
+	@jar cfm $@.unsigned $(TOP)/build/manifest.mf -C $(OUT_OBJ_DIR) .
 	@echo "signing ..."
 	$(call sign_jar, $@.unsigned, $@)
 

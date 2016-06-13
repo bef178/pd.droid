@@ -10,10 +10,10 @@ include ../build/def.mk
 
 LOCAL_MODULE := pd-common
 LOCAL_PACKAGE := th.pd.common.android
-LOCAL_SRC_DIR := ./src
-LOCAL_RES_DIR := $(wildcard ./res_mod/*)
+LOCAL_SRC_DIR := $(wildcard ./mod_*/src) ./src
+LOCAL_RES_DIR := $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
 
-LOCAL_SRC_FILES := $(call find_typef, "*.java", $(LOCAL_SRC_DIR))
+LOCAL_SRC_FILES := $(foreach d, $(LOCAL_SRC_DIR), $(call find_typef, "*.java", $(d)))
 
 JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
 OUT_JAR := $(OUT_DIR)/$(LOCAL_MODULE).jar

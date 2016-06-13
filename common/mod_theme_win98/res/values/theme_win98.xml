@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="theme.win98" parent="android:Theme.Holo.Light">
+    <item name="android:textColor">#333</item>
+    <item name="android:windowBackground">@drawable/win98_window_bg</item>
+  </style>
+  <style name="theme.win98.Button">
+    <item name="android:background">@drawable/win98_button</item>
+    <item name="android:gravity">center</item>
+    <item name="android:padding">6dp</item>
+    <item name="android:textSize">14sp</item>
+  </style>
+  <style name="theme.win98.Button.Flat">
+    <item name="android:background">@drawable/win98_button_flat</item>
+  </style>
+  <style name="theme.win98.Edit">
+    <item name="android:background">@drawable/win98_edit_bg</item>
+  </style>
+  <declare-styleable name="theme.win98"/>
+  <dimen name="classic_tab_container_height">32dp</dimen>
+  <dimen name="classic_tab_height">28dp</dimen>
+</resources>

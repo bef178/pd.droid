@@ -33,10 +33,10 @@
     </style>
 
     <style name="compose_label.stateful">
-        <item name="android:background">@drawable/classic_button0_selector</item>
+        <item name="android:background">@drawable/win98_button_flat</item>
     </style>
 
-    <style name="compose_edit" parent="@style/themeClassic.edit">
+    <style name="compose_edit" parent="@style/theme.win98.Edit">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_gravity">center_vertical|start</item>

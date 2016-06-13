@@ -1,12 +1,12 @@
 package th.pd.common.android.titlebar;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import th.pd.common.android.DoubleClickListener;
 import th.pd.common.android.R;
 
@@ -71,14 +71,14 @@ public class TitlebarController {
                         }
                     };
 
+            @SuppressLint("ClickableViewAccessibility")
             @Override
-            public boolean onTouch(View view,
-                    MotionEvent event) {
+            public boolean onTouch(View view, MotionEvent event) {
                 boolean handled = false;
                 handled = mDoubleClickListener.onTouch(view, event)
-                        | handled;
+                        || handled;
                 handled = mDragListener.onTouch(view, event)
-                        | handled;
+                        || handled;
                 return handled;
             }
         });

@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="@drawable/classic_window"
+  android:background="@drawable/win98_window_bg"
   android:orientation="vertical">
-  <include layout="@layout/classic_titlebar"/>
+  <include layout="@layout/win98_titlebar"/>
   <FrameLayout
     android:id="@+id/placeholder"
     android:layout_width="match_parent"

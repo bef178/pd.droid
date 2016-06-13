@@ -76,7 +76,7 @@
         android:textColor="@color/compose_bcc_text"/>
     </LinearLayout>
     <ScrollView
-      style="@style/themeClassic.edit"
+      style="@style/theme.win98.Edit"
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1">
@@ -107,7 +107,7 @@
         android:orientation="horizontal">
         <TextView
           android:id="@+id/btnAttach"
-          style="@style/themeClassic.flatButton"
+          style="@style/theme.win98.Button.Flat"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_gravity="center"
@@ -116,7 +116,7 @@
       </LinearLayout>
       <TextView
         android:id="@+id/btnSend"
-        style="@style/themeClassic.button"
+        style="@style/theme.win98.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|end"

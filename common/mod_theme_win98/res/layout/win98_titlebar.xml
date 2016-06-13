@@ -3,7 +3,7 @@
     android:id="@+id/titlebar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/classic_titlebar_bg"
+    android:background="@drawable/win98_titlebar_bg"
     android:orientation="horizontal"
     android:padding="2dp" >
 
@@ -53,7 +53,7 @@
             android:layout_gravity="center"
             android:clickable="false"
             android:contentDescription="@null"
-            android:src="@drawable/classic_titlebar_resize_selector" />
+            android:src="@drawable/win98_button_resize" />
     </FrameLayout>
 
     <FrameLayout
@@ -70,7 +70,7 @@
             android:layout_gravity="center"
             android:clickable="false"
             android:contentDescription="@null"
-            android:src="@drawable/classic_titlebar_minimize_selector" />
+            android:src="@drawable/win98_button_minimize" />
     </FrameLayout>
 
     <FrameLayout
@@ -88,7 +88,7 @@
             android:layout_gravity="center"
             android:clickable="false"
             android:contentDescription="@null"
-            android:src="@drawable/classic_titlebar_maximize_selector" />
+            android:src="@drawable/win98_button_maximize" />
     </FrameLayout>
 
     <FrameLayout
@@ -106,7 +106,7 @@
             android:layout_gravity="center"
             android:clickable="false"
             android:contentDescription="@null"
-            android:src="@drawable/classic_titlebar_close_selector" />
+            android:src="@drawable/win98_button_close" />
     </FrameLayout>
 
 </LinearLayout>

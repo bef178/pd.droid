@@ -4,12 +4,92 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 public class QueryUtil {
+
+    public static String getPath(Context context, Uri uri) {
+        if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            if ("com.android.externalstorage.documents"
+                    .equals(uri.getAuthority())) {
+                String docId = DocumentsContract.getDocumentId(uri);
+                String[] a = docId.split(":");
+                String type = a[0];
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/"
+                            + a[1];
+                }
+                // TODO
+                return null;
+            }
+
+            if ("com.android.providers.downloads.documents"
+                    .equals(uri.getAuthority())) {
+                String docId = DocumentsContract.getDocumentId(uri);
+                Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"),
+                        Long.valueOf(docId));
+                return queryData(context, contentUri, null, null);
+            }
+
+            if ("com.android.providers.media.documents"
+                    .equals(uri.getAuthority())) {
+                String docId = DocumentsContract.getDocumentId(uri);
+                String[] a = docId.split(":");
+                Uri contentUri = null;
+                if ("image".equals(a[0])) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(a[0])) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(a[0])) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                return queryData(context, contentUri, "_id=?",
+                        new String[] {
+                            a[1]
+                        });
+            }
+        }
+
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            return queryData(context, uri, null, null);
+        }
+
+        return null;
+    }
+
+    private static String queryData(Context context, Uri uri,
+            String selection, String[] selectionArgs) {
+
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, new String[] {
+                    "_data"
+            }, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getString(
+                        cursor.getColumnIndexOrThrow("_data"));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
 
     public static String queryDisplayName(Uri contentUri,
             ContentResolver resolver) {

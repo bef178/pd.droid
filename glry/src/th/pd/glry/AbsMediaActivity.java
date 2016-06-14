@@ -18,7 +18,6 @@ import android.view.View.OnClickListener;
 
 import th.pd.common.android.OnActionCallback;
 import th.pd.common.android.PageHeaderController;
-import th.pd.common.android.SystemUiUtil;
 
 /**
  * General media view activity.<br/>
@@ -62,7 +61,6 @@ public abstract class AbsMediaActivity extends Activity implements
 
     @Override
     protected void onPause() {
-        mPageHeaderController.hideImmediately();
         super.onPause();
     }
 
@@ -79,8 +77,6 @@ public abstract class AbsMediaActivity extends Activity implements
     @Override
     protected void onResume() {
         super.onResume();
-        SystemUiUtil.hideSystemUi(mPageHeaderController.getView()
-                .getRootView());
         mPageHeaderController.showWithAnim();
         mPageHeaderController.hideWithDelay();
     }
@@ -133,7 +129,7 @@ public abstract class AbsMediaActivity extends Activity implements
                 };
         handler.startQuery(0, null, contentUri,
                 new String[] {
-                OpenableColumns.DISPLAY_NAME
+                    OpenableColumns.DISPLAY_NAME
                 }, null, null, null);
     }
 

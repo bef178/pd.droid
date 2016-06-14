@@ -1,4 +1,4 @@
-package th.pd.glry;
+package th.pd.glry.image;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -48,22 +48,6 @@ public class PivotCache<E> {
         focus(pivotId);
     }
 
-    public E get(int id) {
-        Entry<E> entry = getEntry(id);
-        if (entry != null) {
-            return entry.getValue();
-        }
-        return null;
-    }
-
-    private Entry<E> getEntry(int id) {
-        int i = id - cache.get(0).getKey();
-        if (i >= 0 && i < CAPACITY) {
-            return cache.get(i);
-        }
-        return null;
-    }
-
     public void focus(int pivot) {
         int start = cache.get(0).getKey();
         int newStart = pivot - RADIUS;
@@ -71,7 +55,8 @@ public class PivotCache<E> {
             return;
         }
 
-        if (newStart >= start - RADIUS * 2 && newStart <= start + RADIUS * 2) {
+        if (newStart >= start - RADIUS * 2
+                && newStart <= start + RADIUS * 2) {
             // overlap
             while (start < newStart) {
                 Entry<E> e = cache.remove(0);
@@ -88,6 +73,22 @@ public class PivotCache<E> {
                 e.setKey(newStart++).setValue(null);
             }
         }
+    }
+
+    public E get(int id) {
+        Entry<E> entry = getEntry(id);
+        if (entry != null) {
+            return entry.getValue();
+        }
+        return null;
+    }
+
+    private Entry<E> getEntry(int id) {
+        int i = id - cache.get(0).getKey();
+        if (i >= 0 && i < CAPACITY) {
+            return cache.get(i);
+        }
+        return null;
     }
 
     public void set(int id, E element) {

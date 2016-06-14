@@ -244,7 +244,7 @@ class GestureListener implements OnGestureListener,
 
 public class GesturePipeline {
 
-    static interface Callback {
+    public static interface Callback {
 
         boolean onDoubleTap();
 

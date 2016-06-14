@@ -1,26 +1,27 @@
-package th.pd.glry;
+package th.pd.glry.image;
 
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Display;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import th.pd.common.android.MimeTypeUtil;
+import th.pd.common.android.QueryUtil;
+import th.pd.common.android.SystemUiUtil;
+import th.pd.common.android.mime.MimeTypeUtil;
+import th.pd.glry.AbsMediaActivity;
+import th.pd.glry.GesturePipeline;
 import th.pd.glry.GesturePipeline.Callback;
+import th.pd.glry.R;
 
 public class ImageActivity extends AbsMediaActivity {
 
@@ -52,15 +53,6 @@ public class ImageActivity extends AbsMediaActivity {
         }
     }
 
-    // TODO put this function to a common Util
-    private static void findScreenResolution(Activity a, int[] result) {
-        Display defDisplay = a.getWindowManager().getDefaultDisplay();
-        Point p = new Point();
-        defDisplay.getSize(p);
-        result[0] = p.x;
-        result[1] = p.y;
-    }
-
     private int[] mScreenSize = new int[2];
 
     private Model mModel;
@@ -82,9 +74,19 @@ public class ImageActivity extends AbsMediaActivity {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(uri.getPath(), options);
-            int invSampleScale =
-                    Math.max(options.outWidth / mScreenSize[0],
-                            options.outHeight / mScreenSize[1]);
+            int invSampleScale = 0;
+            {
+                float wSample = options.outWidth / mScreenSize[0];
+                float hSample = options.outHeight / mScreenSize[1];
+                if (wSample < 1 || hSample < 1) {
+                    invSampleScale = (int) (wSample * hSample);
+                } else {
+                    invSampleScale = (int) Math.min(wSample, hSample);
+                }
+                // sample will change the pic's resolution
+                // max 4x screen pixels
+                invSampleScale /= 2;
+            }
             options.inJustDecodeBounds = false;
             options.inSampleSize = invSampleScale;
             return BitmapFactory.decodeFile(uri.getPath(), options);
@@ -200,7 +202,7 @@ public class ImageActivity extends AbsMediaActivity {
 
         super.onCreate(savedInstanceState, R.layout.image_main);
 
-        findScreenResolution(this, mScreenSize);
+        SystemUiUtil.findScreenResolution(this, mScreenSize);
 
         setupModel(imageUri);
         setupSwitcher();
@@ -249,6 +251,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private void setupController() {
+
         mGesturePipeline = new GesturePipeline(this, new Callback() {
 
             @Override
@@ -381,10 +384,43 @@ public class ImageActivity extends AbsMediaActivity {
                 });
     }
 
-    private void setupModel(Uri seedUri) {
+    private void setupModel(Uri uri) {
         mModel = new Model();
-        mModel.addAsSeed(seedUri);
-        mCurrentPos = mModel.indexOf(seedUri);
+
+        if (uri == null) {
+            return;
+        }
+
+        String path = QueryUtil.getPath(this, uri);
+        if (path != null) {
+            File f = new File(path);
+            uri = Uri.fromFile(f);
+            if (f.isFile()) {
+                // add all peers
+                File[] a = f.getParentFile().listFiles();
+                if (a != null) {
+                    for (File i : a) {
+                        mModel.add(i);
+                    }
+                }
+
+                // in case no premission etc
+                if (mModel.indexOf(uri) == -1) {
+                    mModel.add(uri);
+                }
+            } else if (f.isDirectory()) {
+                File[] a = f.listFiles();
+                if (a != null) {
+                    for (File i : a) {
+                        mModel.add(i);
+                    }
+                }
+            }
+        } else {
+            Log.d("th.pd.glry", "so a uri");
+            mModel.add(uri);
+        }
+        mCurrentPos = mModel.indexOf(uri);
     }
 
     private void setupSwitcher() {
@@ -490,98 +526,5 @@ public class ImageActivity extends AbsMediaActivity {
                 mCache.set(pos - i, bitmap);
             }
         }
-    }
-}
-
-class Model {
-
-    private List<Uri> dataList;
-
-    public Model() {
-        clear();
-    }
-
-    private void addDirectory(File diretory) {
-        if (diretory == null || !diretory.isDirectory()) {
-            return;
-        }
-        addFiles(diretory.listFiles());
-    }
-
-    private boolean addFile(File file) {
-        if (file != null) {
-            if (file.isFile()
-                    && MimeTypeUtil.isImage(
-                            MimeTypeUtil.mimeTypeByFile(file))) {
-                dataList.add(Uri.fromFile(file));
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void addFiles(File[] files) {
-        if (files != null) {
-            for (File file : files) {
-                addFile(file);
-            }
-        }
-    }
-
-    /**
-     * add all peer files
-     */
-    private void addAsSeed(File seedFile) {
-        if (seedFile == null) {
-            return;
-        }
-
-        if (seedFile.isFile()) {
-            File seedDirectory = seedFile.getParentFile();
-            addDirectory(seedDirectory);
-
-            Uri seedUri = Uri.fromFile(seedFile);
-            if (seedUri != null && !dataList.contains(seedUri)) {
-                dataList.add(seedUri);
-            }
-        } else if (seedFile.isDirectory()) {
-            addDirectory(seedFile);
-        }
-    }
-
-    public void addAsSeed(Uri seedUri) {
-        if (seedUri.isAbsolute()
-                && !seedUri.getScheme().equals("file")) {
-            dataList.add(seedUri);
-            return;
-        }
-        addAsSeed(new File(seedUri.getPath()));
-    }
-
-    public void clear() {
-        if (dataList == null) {
-            dataList = new LinkedList<Uri>();
-        } else {
-            dataList.clear();
-        }
-    }
-
-    public int getCount() {
-        return dataList.size();
-    }
-
-    public Uri getData(int i) {
-        if (hasIndex(i)) {
-            return dataList.get(i);
-        }
-        return null;
-    }
-
-    public boolean hasIndex(int i) {
-        return i >= 0 && i < dataList.size();
-    }
-
-    public int indexOf(Uri uri) {
-        return dataList.indexOf(uri);
     }
 }

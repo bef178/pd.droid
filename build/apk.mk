@@ -29,7 +29,7 @@ OUT_APK := $(OUT_DIR)/$(LOCAL_MODULE).apk
 
 ########
 
-$(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) pd-common
+$(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) $(LIB_OUT_JAR)
 	@echo "Packaging ..."
 	@$(AAPT) package \
 		--auto-add-overlay -f \
@@ -42,7 +42,7 @@ $(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) pd-common
 	@echo "Signing ..."
 	$(call sign_apk, $(OUT_DIR)/$(@F).orig, $@)
 
-$(CLASSES_DEX): $(LOCAL_SRC_FILES) $(JAVA_R) pd-common
+$(CLASSES_DEX): $(LOCAL_SRC_FILES) $(JAVA_R) $(LIB_OUT_JAR)
 	@echo "Compiling ..."
 	@-mkdir -p $(OUT_OBJ_DIR)
 	@javac $(LOCAL_SRC_FILES) $(call find_typef, R.java, $(OUT_SRC_DIR)) \
@@ -53,7 +53,7 @@ $(CLASSES_DEX): $(LOCAL_SRC_FILES) $(JAVA_R) pd-common
 		$(OUT_OBJ_DIR) $(LIB_OUT_JAR)
 
 # also generates lib's R
-$(JAVA_R): pd-common
+$(JAVA_R): $(LIB_OUT_JAR)
 	@echo "Generating R ..."
 	@-mkdir -p $(@D)
 	@$(AAPT) package \
@@ -65,14 +65,13 @@ $(JAVA_R): pd-common
 		-S $(LIB_OUT_RES) \
 		-m -J $(OUT_SRC_DIR)
 
+$(LIB_OUT_JAR):
+	@echo "Checking lib ..."
+	@make -C $(TOP)/common
+
 .PHONY: install
 install:
 	@adb install -r $(OUT_APK)
-
-.PHONY: pd-common
-pd-common:
-	@echo "Checking lib ..."
-	@make -C $(TOP)/common
 
 .PHONY: clean
 clean:

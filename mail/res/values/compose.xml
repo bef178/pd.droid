@@ -11,7 +11,7 @@
     <dimen name="compose_titlebar_move_margin_bottom">0dp</dimen>
     <dimen name="compose_titlebar_move_margin_left">-400dp</dimen>
 
-    <dimen name="compose_tab_height">@dimen/classic_tab_height</dimen>
+    <dimen name="compose_tab_height">@dimen/win98_tab_height</dimen>
     <color name="compose_tab_text">#33000000</color>
     <color name="compose_tab_text_current">@color/compose_text</color>
 

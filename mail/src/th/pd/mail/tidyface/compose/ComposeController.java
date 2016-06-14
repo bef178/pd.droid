@@ -164,7 +164,7 @@ class ComposeController implements TabController.Callback {
         switch (viewType) {
             case TabController.VIEW_TYPE_BG:
                 View tabView = View.inflate(mLabelSubject.getContext(),
-                        R.layout.classic_tab, null);
+                        R.layout.win98_tab, null);
                 tabView.setOnClickListener(mTabClickListener);
                 tabView.findViewById(R.id.btnTabClose).setOnClickListener(
                         mTabCloseListener);
@@ -173,7 +173,7 @@ class ComposeController implements TabController.Callback {
                 return tabView;
             case TabController.VIEW_TYPE_CR:
                 View tabCrView = View.inflate(mLabelSubject.getContext(),
-                        R.layout.classic_tab_cr, null);
+                        R.layout.win98_tab_new, null);
                 tabCrView.findViewById(R.id.btnTabCreate)
                         .setOnClickListener(
                                 mTabCreateListener);
@@ -183,7 +183,7 @@ class ComposeController implements TabController.Callback {
             case TabController.VIEW_TYPE_SP:
                 ImageView tabSpView = (ImageView) View.inflate(
                         mLabelSubject.getContext(),
-                        R.layout.classic_tab_sp, null);
+                        R.layout.win98_tab_sp, null);
                 tabSpView.setLayoutParams(new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, tabHeight));
                 return tabSpView;
@@ -195,23 +195,23 @@ class ComposeController implements TabController.Callback {
     public int onTabGetBgRes(int viewType) {
         switch (viewType) {
             case TabController.VIEW_TYPE_BG:
-                return R.drawable.classic_tab_bg;
+                return R.drawable.win98_tab_bg;
             case TabController.VIEW_TYPE_FG:
-                return R.drawable.classic_tab_fg;
+                return R.drawable.win98_tab_fg;
             case TabController.VIEW_TYPE_SP_BG_BG:
-                return R.drawable.classic_tab_sp_bg_bg;
+                return R.drawable.win98_tab_sp_bg_bg;
             case TabController.VIEW_TYPE_SP_BG_FG:
-                return R.drawable.classic_tab_sp_bg_fg;
+                return R.drawable.win98_tab_sp_bg_fg;
             case TabController.VIEW_TYPE_SP_BG_NA:
-                return R.drawable.classic_tab_sp_bg_na;
+                return R.drawable.win98_tab_sp_bg_na;
             case TabController.VIEW_TYPE_SP_FG_BG:
-                return R.drawable.classic_tab_sp_fg_bg;
+                return R.drawable.win98_tab_sp_fg_bg;
             case TabController.VIEW_TYPE_SP_FG_NA:
-                return R.drawable.classic_tab_sp_fg_na;
+                return R.drawable.win98_tab_sp_fg_na;
             case TabController.VIEW_TYPE_SP_NA_BG:
-                return R.drawable.classic_tab_sp_na_bg;
+                return R.drawable.win98_tab_sp_na_bg;
             case TabController.VIEW_TYPE_SP_NA_FG:
-                return R.drawable.classic_tab_sp_na_fg;
+                return R.drawable.win98_tab_sp_na_fg;
             default:
                 return 0;
         }

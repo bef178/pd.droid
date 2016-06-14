@@ -4,12 +4,12 @@
   android:layout_height="match_parent"
   android:layout_margin="4dp"
   android:orientation="vertical">
-  <include layout="@layout/classic_tab_container"/>
+  <include layout="@layout/win98_tab_container"/>
   <LinearLayout
     android:id="@+id/tabContent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/classic_tab_content_border"
+    android:background="@drawable/win98_tab_content_border"
     android:orientation="vertical">
     <LinearLayout
       android:id="@+id/subjectRow"

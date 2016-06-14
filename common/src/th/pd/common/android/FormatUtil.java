@@ -43,7 +43,7 @@ public final class FormatUtil {
         return null;
     }
 
-    public static String formatTime(long timestamp) {
+    public static String formatTimestamp(long timestamp) {
         if (timestamp < 0) {
             return null;
         }

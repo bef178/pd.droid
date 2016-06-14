@@ -77,7 +77,7 @@ public final class ContentListAdapter extends BaseAdapter {
 
         TextView tvLastModified = (TextView) convertView
                 .findViewById(R.id.tvLastModified);
-        tvLastModified.setText(FormatUtil.formatTime(itemEntry.getLastModified()));
+        tvLastModified.setText(FormatUtil.formatTimestamp(itemEntry.getLastModified()));
 
         return convertView;
     }

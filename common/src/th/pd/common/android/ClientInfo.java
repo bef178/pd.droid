@@ -12,8 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * basically, any info about the device could be retrieved from this class<br/>
- * but some(not all) will be saved into the object<br/>
+ * basically, all info about the device/rom could be retrieved from this class<br/>
+ * but not all will be serialized<br/>
  * <br/>
  * adt json ClientInfo {
  *   device: string optional eg("")
@@ -23,7 +23,7 @@ import org.json.JSONObject;
  *   androidId: string optional
  *   deviceId: string optional default(null)
  *   subscriberId: string optional default(null)
- *   wifiMac: string optional eg("34:17:eb:bf:28:3d")
+ *   mac: string optional eg("34:17:eb:bf:28:3d")
  * }
  *
  * @author tanghao
@@ -37,7 +37,7 @@ public class ClientInfo {
     private static final String KEY_ANDROID_ID = "android_id";
     private static final String KEY_DEVICE_ID = "device_id";
     private static final String KEY_SUBSCRIBER_ID = "subscriber_id";
-    private static final String KEY_WIFI_MAC = "wifi_mac";
+    private static final String KEY_MAC = "mac";
 
     public static ClientInfo create(Context context) {
         ClientInfo client = new ClientInfo();
@@ -53,7 +53,7 @@ public class ClientInfo {
                 .getSystemService(Context.TELEPHONY_SERVICE);
         client.deviceId = tm.getDeviceId();
         client.subscriberId = tm.getSubscriberId();
-        client.wifiMac = getWifiMacAddr(context);
+        client.mac = getWifiMacAddr(context);
 
         return client;
     }
@@ -67,7 +67,7 @@ public class ClientInfo {
         client.androidId = json.optString(KEY_ANDROID_ID, null);
         client.deviceId = json.optString(KEY_DEVICE_ID, null);
         client.subscriberId = json.optString(KEY_SUBSCRIBER_ID, null);
-        client.wifiMac = json.optString(KEY_WIFI_MAC, null);
+        client.mac = json.optString(KEY_MAC, null);
         return client;
     }
 
@@ -108,7 +108,7 @@ public class ClientInfo {
     public String androidId; // will change if factory reset
     public String deviceId = null; // IMEI/MEID
     public String subscriberId = null; // IMSI
-    public String wifiMac = null; // wlan0
+    public String mac = null; // wlan0
 
     public JSONObject toJson() throws JSONException {
         return toJson(new JSONObject());
@@ -122,7 +122,7 @@ public class ClientInfo {
         json.put(KEY_ANDROID_ID, this.androidId);
         json.put(KEY_DEVICE_ID, this.deviceId);
         json.put(KEY_SUBSCRIBER_ID, this.subscriberId);
-        json.put(KEY_WIFI_MAC, this.wifiMac);
+        json.put(KEY_MAC, this.mac);
         return json;
     }
 

@@ -404,7 +404,7 @@ public class ImageActivity extends AbsMediaActivity {
                     }
                 }
 
-                // in case no premission etc
+                // in case no permission etc
                 if (mModel.indexOf(uri) == -1) {
                     mModel.add(uri);
                 }

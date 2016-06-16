@@ -40,6 +40,24 @@ public class ImageActivity extends AbsMediaActivity {
             super.onPostExecute(result);
             mUpdateCacheTask = null;
         }
+
+        private void updateCache(int pos, Bitmap bitmap) {
+            if (bitmap == null) {
+                bitmap = createBitmap(pos);
+            }
+            mCache.focus(pos);
+            mCache.set(pos, bitmap);
+            for (int i = 1; i <= mCache.RADIUS; ++i) {
+                if (mCache.get(pos + i) == null) {
+                    bitmap = createBitmap(pos + i);
+                    mCache.set(pos + i, bitmap);
+                }
+                if (mCache.get(pos - i) == null) {
+                    bitmap = createBitmap(pos - i);
+                    mCache.set(pos - i, bitmap);
+                }
+            }
+        }
     }
 
     private class UpdateCacheTaskArgument {
@@ -53,7 +71,7 @@ public class ImageActivity extends AbsMediaActivity {
         }
     }
 
-    private int[] mScreenSize = new int[2];
+    private int[] mResolution = null;
 
     private Model mModel;
     private int mCurrentPos;
@@ -74,21 +92,17 @@ public class ImageActivity extends AbsMediaActivity {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(uri.getPath(), options);
-            int invSampleScale = 0;
+            double invSampleScale = 1;
             {
-                float wSample = options.outWidth / mScreenSize[0];
-                float hSample = options.outHeight / mScreenSize[1];
-                if (wSample < 1 || hSample < 1) {
-                    invSampleScale = (int) (wSample * hSample);
-                } else {
-                    invSampleScale = (int) Math.min(wSample, hSample);
+                double wScale = 1f * options.outWidth / mResolution[0];
+                double hScale = 1f * options.outHeight / mResolution[1];
+                if (wScale > 2 || hScale > 2) {
+                    invSampleScale = Math.pow(wScale * hScale, 0.5);
                 }
-                // sample will change the pic's resolution
-                // max 4x screen pixels
-                invSampleScale /= 2;
+                Log.d(TAG, "pos:" + pos + ";sampleScale:" + invSampleScale);
             }
             options.inJustDecodeBounds = false;
-            options.inSampleSize = invSampleScale;
+            options.inSampleSize = (int) Math.round(invSampleScale);
             return BitmapFactory.decodeFile(uri.getPath(), options);
         }
         return null;
@@ -202,7 +216,8 @@ public class ImageActivity extends AbsMediaActivity {
 
         super.onCreate(savedInstanceState, R.layout.image_main);
 
-        SystemUiUtil.findScreenResolution(this, mScreenSize);
+        mResolution = new int[2];
+        SystemUiUtil.findScreenResolution(this, mResolution);
 
         setupModel(imageUri);
         setupSwitcher();
@@ -417,7 +432,6 @@ public class ImageActivity extends AbsMediaActivity {
                 }
             }
         } else {
-            Log.d("th.pd.glry", "so a uri");
             mModel.add(uri);
         }
         mCurrentPos = mModel.indexOf(uri);
@@ -435,16 +449,6 @@ public class ImageActivity extends AbsMediaActivity {
         new UpdateCacheTask() {
 
             @Override
-            protected Void doInBackground(
-                    UpdateCacheTaskArgument... params) {
-                UpdateCacheTaskArgument a = params[0];
-                a.bitmap = createBitmap(a.pos);
-                mCache.focus(a.pos);
-                mCache.set(a.pos, a.bitmap);
-                return null;
-            }
-
-            @Override
             protected void onPostExecute(Void result) {
                 super.onPostExecute(result);
                 switchBy(0);
@@ -455,6 +459,7 @@ public class ImageActivity extends AbsMediaActivity {
     private void startUpdateCacheTask(int pos, Bitmap bitmap) {
         mUpdateCacheTaskArgument.set(pos, bitmap);
         if (mUpdateCacheTask != null) {
+            Log.d(TAG, "cancel on-going UpdateCacheTask");
             mUpdateCacheTask.cancel(false);
         }
         mUpdateCacheTask = new UpdateCacheTask();
@@ -506,24 +511,6 @@ public class ImageActivity extends AbsMediaActivity {
                 fallbackSwitchingForButton(offset);
             } else {
                 fallbackSwitching();
-            }
-        }
-    }
-
-    private void updateCache(int pos, Bitmap bitmap) {
-        if (bitmap == null) {
-            bitmap = createBitmap(pos);
-        }
-        mCache.focus(pos);
-        mCache.set(pos, bitmap);
-        for (int i = 1; i <= mCache.RADIUS; ++i) {
-            if (mCache.get(pos + i) == null) {
-                bitmap = createBitmap(pos + i);
-                mCache.set(pos + i, bitmap);
-            }
-            if (mCache.get(pos - i) == null) {
-                bitmap = createBitmap(pos - i);
-                mCache.set(pos - i, bitmap);
             }
         }
     }

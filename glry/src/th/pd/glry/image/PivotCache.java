@@ -43,9 +43,8 @@ public class PivotCache<E> {
         RADIUS = CAPACITY / 2;
         cache = new LinkedList<Entry<E>>();
         for (int i = 0; i < CAPACITY; ++i) {
-            cache.add(new Entry<E>().setKey(i));
+            cache.add(new Entry<E>().setKey(pivotId - RADIUS + i));
         }
-        focus(pivotId);
     }
 
     public void focus(int pivot) {

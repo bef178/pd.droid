@@ -29,6 +29,9 @@ import th.pd.common.android.PageHeaderController;
 public abstract class AbsMediaActivity extends Activity implements
         OnActionCallback {
 
+    public static final String TAG = AbsMediaActivity.class
+            .getPackage().getName();
+
     static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
     static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
 

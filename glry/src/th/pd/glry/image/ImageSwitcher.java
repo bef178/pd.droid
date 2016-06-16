@@ -13,7 +13,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import th.pd.common.android.SimpleAnimatorListener;
-import th.pd.common.android.SquareInterpolator;
 
 /**
  * Pay attention to the terms.<br/>
@@ -44,17 +43,19 @@ public class ImageSwitcher extends View {
     private static final int FLAG_TRANS_TO_RIGHT = 0x600;
     private static final int FLAG_TRANS_TO_TOP = 0x800;
 
-    private static SquareInterpolator interpolator = new SquareInterpolator();
+    private static ExpInterpolator interpolator = new ExpInterpolator();
 
     private static ValueAnimator getAnimator(float interpolated) {
-        final int DURATION = 500;
+
+        final int DURATION = 300;
 
         ValueAnimator a = ValueAnimator.ofFloat(0f, 1f);
         a.setDuration(DURATION);
         a.setInterpolator(interpolator);
 
-        final int playedTime = (int) (SquareInterpolator
+        final int playedTime = (int) (interpolator
                 .getInversed(interpolated) * DURATION);
+
         a.addListener(new SimpleAnimatorListener() {
 
             @Override

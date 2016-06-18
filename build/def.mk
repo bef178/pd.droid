@@ -7,8 +7,7 @@ TOP ?= ..
 #ANDROID_TARGET_SDK ?= $(shell ls $(ANDROID_HOME)/platforms | sort -nr -k 2 -t - | head -1)
 ANDROID_TARGET_SDK ?= android-19
 
-#ANDROID_BUILD_TOOLS ?= $(shell ls $(ANDROID_HOME)/build-tools | sort -nr | head -1)
-ANDROID_BUILD_TOOLS ?= 23.0.1
+ANDROID_BUILD_TOOLS ?= $(shell ls $(ANDROID_HOME)/build-tools | sort -nr | head -1)
 
 ########
 

@@ -12,7 +12,7 @@
 
     <include
         android:id="@+id/pageHeader"
-        layout="@layout/pageheader_layout" />
+        layout="@layout/pageheader" />
 
     <LinearLayout
         android:id="@+id/controlPanel"

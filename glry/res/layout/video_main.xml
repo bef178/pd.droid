@@ -11,7 +11,7 @@
 
     <include
         android:id="@+id/pageHeader"
-        layout="@layout/pageheader_layout" />
+        layout="@layout/pageheader" />
 
     <LinearLayout
         android:id="@+id/controlPanel"
@@ -73,7 +73,7 @@
                 android:progressDrawable="@drawable/media_progress"
                 android:thumb="@drawable/media_progress_thumb_selector"
                 android:thumbOffset="20dp" />
-            
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

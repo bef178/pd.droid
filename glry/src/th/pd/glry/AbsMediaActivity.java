@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import th.pd.common.android.OnActionCallback;
-import th.pd.common.android.PageHeaderController;
+import th.pd.common.android.pageheader.PageHeaderController;
 
 /**
  * General media view activity.<br/>
@@ -45,11 +45,6 @@ public abstract class AbsMediaActivity extends Activity implements
 
     @Override
     public boolean onAction(int actionId, Object extra) {
-        switch (actionId) {
-            case R.id.actionPageHeaderBack:
-                onBackPressed();
-                return true;
-        }
         return false;
     }
 
@@ -171,7 +166,12 @@ public abstract class AbsMediaActivity extends Activity implements
 
     private void setupPageHeaderController() {
         mPageHeaderController = new PageHeaderController(
-                findViewById(R.id.pageHeader), this);
+                findViewById(R.id.pageHeader), new PageHeaderController.Callback() {
+                    @Override
+                    public void onActionBack() {
+                        onBackPressed();
+                    }
+                });
 
         findViewById(R.id.btnToggleHeader).setOnClickListener(
                 new OnClickListener() {

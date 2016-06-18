@@ -26,9 +26,6 @@ OUT_APK := $(OUT_DIR)/$(LOCAL_MODULE).apk
 
 ########
 
-
-########
-
 $(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) $(LIB_OUT_JAR)
 	@echo "Packaging ..."
 	@$(AAPT) package \
@@ -68,6 +65,9 @@ $(JAVA_R): $(LIB_OUT_JAR)
 $(LIB_OUT_JAR):
 	@echo "Checking lib ..."
 	@make -C $(TOP)/common
+
+.PHONY: clean-build
+clean-build: clean $(OUT_APK)
 
 .PHONY: install
 install:

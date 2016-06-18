@@ -13,6 +13,7 @@ LOCAL_PACKAGE := th.pd.common.android
 LOCAL_SRC_DIRS := $(wildcard ./mod_*/src) ./src
 LOCAL_RES_DIRS := $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
 
+# inferred files
 SRC_FILES := $(foreach d, $(LOCAL_SRC_DIRS), $(call find_typef, "*.java", $(d)))
 RES_FILES := $(wildcard $(addsuffix /*/*,$(LOCAL_RES_DIRS)))
 

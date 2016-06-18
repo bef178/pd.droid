@@ -43,10 +43,7 @@ public class TitlebarDragListener extends DragListener {
     public TitlebarDragListener(Window window, int[] dragMargin) {
         mWindow = window;
         mDragMargin = new int[] {
-                0,
-                0,
-                0,
-                0
+                0, 0, 0, 0
         };
         setDragMargin(dragMargin);
     }
@@ -165,5 +162,4 @@ public class TitlebarDragListener extends DragListener {
         }
         return rawWindowAnchorY;
     }
-
 }

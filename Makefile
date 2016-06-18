@@ -3,7 +3,7 @@
 
 MAKEFILES := $(wildcard */Makefile)
 
-.PHONY: all-each
+.PHONY: each
 all-each: $(addsuffix .each, $(MAKEFILES))
 
 %/Makefile.each: %/Makefile

@@ -13,7 +13,7 @@ import th.pd.common.android.R;
 
 public class TitlebarController {
 
-    public interface ActionListener {
+    public interface Callback {
 
         void onClickClose(View btnClose);
 
@@ -26,7 +26,7 @@ public class TitlebarController {
         void onDoubleClick(View titlebar);
     }
 
-    private ActionListener mActionListener;
+    private Callback mCallback;
     private TitlebarDragListener mDragListener;
 
     private View mTitlebar;
@@ -39,9 +39,9 @@ public class TitlebarController {
     private View mBtnClose;
 
     public TitlebarController(Window window, int[] dragMargin,
-            ActionListener actionListener, View view) {
+            Callback callback, View view) {
         mDragListener = new TitlebarDragListener(window, dragMargin);
-        mActionListener = actionListener;
+        mCallback = callback;
         bindViews(view);
     }
 
@@ -66,8 +66,8 @@ public class TitlebarController {
 
                         @Override
                         public void onDoubleClick(View view) {
-                            if (mActionListener != null) {
-                                mActionListener.onDoubleClick(view);
+                            if (mCallback != null) {
+                                mCallback.onDoubleClick(view);
                             }
                         }
                     };
@@ -88,8 +88,8 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mActionListener != null) {
-                    mActionListener.onClickResize(view);
+                if (mCallback != null) {
+                    mCallback.onClickResize(view);
                 }
             }
         });
@@ -98,8 +98,8 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mActionListener != null) {
-                    mActionListener.onClickMinimize(view);
+                if (mCallback != null) {
+                    mCallback.onClickMinimize(view);
                 }
             }
         });
@@ -108,8 +108,8 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mActionListener != null) {
-                    mActionListener.onClickMaximize(view);
+                if (mCallback != null) {
+                    mCallback.onClickMaximize(view);
                 }
             }
         });
@@ -118,8 +118,8 @@ public class TitlebarController {
 
             @Override
             public void onClick(View view) {
-                if (mActionListener != null) {
-                    mActionListener.onClickClose(view);
+                if (mCallback != null) {
+                    mCallback.onClickClose(view);
                 }
             }
         });

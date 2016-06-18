@@ -3,7 +3,7 @@
   android:id="@+id/typeLeftItem"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="@drawable/stateful_item_bg_selector"
+  android:background="@drawable/stateful_text_bg"
   android:orientation="vertical"
   android:paddingEnd="@dimen/leftmost_spacing"
   android:paddingStart="@dimen/leftmost_spacing">

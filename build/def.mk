@@ -39,6 +39,33 @@ define sign_apk
     $(call sign_jar, $(1).aligned, $(2))
 endef
 
+define do_add_assign
+    ifndef $(1)
+        $(1) := $(2)
+    else
+        $(1) += $(2)
+    endif
+endef
+
+define do_expand_dep_jar
+    $(eval include $(1)/include.mk)
+    $(call do_add_assign,LOCAL_DEP_MODULE,$(1)/$(LOCAL_MODULE))
+    $(call do_add_assign,LOCAL_DEP_PACKAGE,$(LOCAL_PACKAGE))
+    $(call do_add_assign,LOCAL_DEP_JAR,$(1)/$(LOCAL_OUT_JAR))
+    $(call do_add_assign,LOCAL_DEP_RES_DIR,$(1)/$(LOCAL_OUT_RES_DIR))
+    LOCAL_MODULE :=
+    LOCAL_PACKAGE :=
+    LOCAL_SRC_DIR :=
+    LOCAL_RES_DIR :=
+    LOCAL_OUT_JAR :=
+    LOCAL_OUT_RES_DIR :=
+    LOCAL_OUT_APK :=
+endef
+
+define expand_dep_jar
+    $(eval $(call do_$(0),$(1)))
+endef
+
 ########
 
 OUT_DIR := ./out

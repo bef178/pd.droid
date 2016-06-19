@@ -11,12 +11,7 @@
 #  x. rm .java/.png/.xml and make ---- TODO
 #  repeat once for .java/.png/.xml in lib folder
 
-LIB_TYPEDEF := $(TOP)/../typedef/$(OUT_DIR)/typedef.jar
-
-LIB_MODULE := pd-common
-LIB_PACKAGE := th.pd.common.android
-LIB_OUT_JAR := $(TOP)/common/$(OUT_DIR)/$(LIB_MODULE).jar
-LIB_OUT_RES := $(TOP)/common/$(OUT_RES_DIR)
+LOCAL_DEP_JAR += $(TOP)/../typedef/$(OUT_DIR)/typedef.jar
 
 LOCAL_SRC_FILES := $(call find_typef, "*.java", $(LOCAL_SRC_DIR))
 
@@ -26,43 +21,43 @@ OUT_APK := $(OUT_DIR)/$(LOCAL_MODULE).apk
 
 ########
 
-$(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) $(LIB_OUT_JAR)
+$(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) $(LOCAL_DEP_JAR)
 	@echo "Packaging ..."
 	@$(AAPT) package \
 		--auto-add-overlay -f \
 		-M ./AndroidManifest.xml \
 		-I $(ANDROID_JAR) \
 		-S $(LOCAL_RES_DIR) \
-		-S $(LIB_OUT_RES) \
+		-S $(LOCAL_DEP_RES_DIR) \
 		-F $(OUT_DIR)/$(@F).orig
 	@cd $(OUT_DIR) && $(AAPT) add $(@F).orig $(notdir $(CLASSES_DEX))
 	@echo "Signing ..."
 	$(call sign_apk, $(OUT_DIR)/$(@F).orig, $@)
 
-$(CLASSES_DEX): $(LOCAL_SRC_FILES) $(JAVA_R) $(LIB_OUT_JAR)
+$(CLASSES_DEX): $(LOCAL_SRC_FILES) $(JAVA_R) $(LOCAL_DEP_JAR)
 	@echo "Compiling ..."
 	@-mkdir -p $(OUT_OBJ_DIR)
 	@javac $(LOCAL_SRC_FILES) $(call find_typef, R.java, $(OUT_SRC_DIR)) \
-		-classpath $(ANDROID_JAR):$(LIB_OUT_JAR):$(LIB_TYPEDEF) \
+		-classpath $(ANDROID_JAR):$(shell echo $(LOCAL_DEP_JAR) | sed "s/ \\+/:/g") \
 		-d $(OUT_OBJ_DIR)
 	@$(DX) --dex \
 		--output=$@ \
-		$(OUT_OBJ_DIR) $(LIB_OUT_JAR)
+		$(OUT_OBJ_DIR) $(LOCAL_DEP_JAR)
 
 # also generates lib's R
-$(JAVA_R): $(LIB_OUT_JAR)
+$(JAVA_R): $(LOCAL_DEP_JAR)
 	@echo "Generating R ..."
 	@-mkdir -p $(@D)
 	@$(AAPT) package \
 		--auto-add-overlay -f \
 		-M ./AndroidManifest.xml \
-		--extra-packages $(LIB_PACKAGE) \
+		--extra-packages $(LOCAL_DEP_PACKAGE) \
 		-I $(ANDROID_JAR) \
 		-S $(LOCAL_RES_DIR) \
-		-S $(LIB_OUT_RES) \
+		-S $(LOCAL_DEP_RES_DIR) \
 		-m -J $(OUT_SRC_DIR)
 
-$(LIB_OUT_JAR):
+$(LOCAL_DEP_JAR):
 	@echo "Checking lib ..."
 	@make -C $(TOP)/common
 

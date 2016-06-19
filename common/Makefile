@@ -7,23 +7,21 @@
 #
 
 include ../build/def.mk
+include include.mk
 
-LOCAL_MODULE := pd-common
-LOCAL_PACKAGE := th.pd.common.android
-LOCAL_SRC_DIRS := $(wildcard ./mod_*/src) ./src
-LOCAL_RES_DIRS := $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
+SRC_DIR := $(wildcard ./mod_*/src) ./src
+RES_DIR := $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
 
 # inferred files
-SRC_FILES := $(foreach d, $(LOCAL_SRC_DIRS), $(call find_typef, "*.java", $(d)))
-RES_FILES := $(wildcard $(addsuffix /*/*,$(LOCAL_RES_DIRS)))
+SRC_FILES := $(foreach d, $(SRC_DIR), $(call find_typef, "*.java", $(d)))
+RES_FILES := $(wildcard $(addsuffix /*/*,$(RES_DIR)))
 
-# OUT_* are inferred variables as target
-OUT_JAR := $(OUT_DIR)/$(LOCAL_MODULE).jar
+# *OUT_* are inferred variables as target
 OUT_JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
 
 ########
 
-$(OUT_JAR): $(SRC_FILES) $(OUT_JAVA_R)
+$(LOCAL_OUT_JAR): $(SRC_FILES) $(OUT_JAVA_R)
 	@echo "compiling R ..."
 # don't generate R.class into the package place
 	@javac $(OUT_JAVA_R) \
@@ -45,7 +43,7 @@ $(OUT_JAR): $(SRC_FILES) $(OUT_JAVA_R)
 $(OUT_JAVA_R): $(RES_FILES)
 	@echo "copying res ..."
 	@-mkdir -p $(OUT_RES_DIR)
-	@cp -ru $(addsuffix /*,$(LOCAL_RES_DIRS)) $(OUT_RES_DIR)
+	@cp -ru $(addsuffix /*,$(RES_DIR)) $(OUT_RES_DIR)
 	@echo "generating R ..."
 	@-mkdir -p $(@D)
 	@$(AAPT) package \

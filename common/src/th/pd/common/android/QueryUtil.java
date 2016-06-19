@@ -91,6 +91,9 @@ public class QueryUtil {
         return null;
     }
 
+    /**
+     * use {@link android.content.AsyncQueryHandler} for async
+     */
     public static String queryDisplayName(Uri contentUri,
             ContentResolver resolver) {
         String displayName = null;

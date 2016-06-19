@@ -1,8 +1,8 @@
-package th.melody;
+package th.pd.melody;
 
 /**
- * 十二平均律
- * C大调的do是 PIANO_c1 中央C，即SPN_C4
+ * 十二平均律<br/>
+ * C大调的do是PIANO_c1中央C，即SPN_C4<br/>
  * http://en.wikipedia.org/wiki/Equal_temperament#Twelve-tone_equal_temperament
  */
 public class TwelveToneEqualTemperament {
@@ -11,7 +11,7 @@ public class TwelveToneEqualTemperament {
     public static final int SPN_A4_PITCH = 440000; // in milli-Hz
 
     public static int getPitchBySpnOffset(int semitoneOffset) {
-        double f = (SPN_A4_PITCH * Math.pow(2, (semitoneOffset) / 12.0));
+        double f = (SPN_A4_PITCH * Math.pow(2, semitoneOffset / 12.0));
         return (int) (f + 0.5);
     }
 

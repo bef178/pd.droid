@@ -22,6 +22,7 @@ import th.pd.glry.AbsMediaActivity;
 import th.pd.glry.GesturePipeline;
 import th.pd.glry.GesturePipeline.Callback;
 import th.pd.glry.R;
+import th.pd.glry.elementary.FramedView;
 
 public class ImageActivity extends AbsMediaActivity {
 
@@ -75,7 +76,7 @@ public class ImageActivity extends AbsMediaActivity {
 
     private Model mModel;
     private int mCurrentPos;
-    private ImageSwitcher mImageSwitcher;
+    private FramedView mImageSwitcher;
 
     private PivotCache<Bitmap> mCache;
     private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
@@ -438,7 +439,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private void setupSwitcher() {
-        mImageSwitcher = (ImageSwitcher) findViewById(R.id.imageSwitcher);
+        mImageSwitcher = (FramedView) findViewById(R.id.imageSwitcher);
         mCache = new PivotCache<Bitmap>();
         mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
     }

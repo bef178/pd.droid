@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import th.pd.common.android.R;
 
-public class PageHeaderController {
+public class PageheaderController {
 
     public interface Callback {
 
@@ -114,7 +114,7 @@ public class PageHeaderController {
                 }
             };
 
-    public PageHeaderController(View headerView, Callback callback) {
+    public PageheaderController(View headerView, Callback callback) {
         mContext = headerView.getContext();
         findViews(headerView);
         setCallback(callback);

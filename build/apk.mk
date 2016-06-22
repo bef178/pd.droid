@@ -14,6 +14,7 @@
 LOCAL_DEP_JAR += $(TOP)/../typedef/$(OUT_DIR)/typedef.jar
 
 LOCAL_SRC_FILES := $(call find_typef, "*.java", $(LOCAL_SRC_DIR))
+LOCAL_MANIFEST := ./AndroidManifest.xml
 
 JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
 CLASSES_DEX := $(OUT_DIR)/classes.dex
@@ -25,7 +26,7 @@ $(OUT_APK): $(CLASSES_DEX) $(LOCAL_RES_DIR) $(LOCAL_DEP_JAR)
 	@echo "Packaging ..."
 	@$(AAPT) package \
 		--auto-add-overlay -f \
-		-M ./AndroidManifest.xml \
+		-M $(LOCAL_MANIFEST) \
 		-I $(ANDROID_JAR) \
 		-S $(LOCAL_RES_DIR) \
 		-S $(LOCAL_DEP_RES_DIR) \
@@ -45,12 +46,12 @@ $(CLASSES_DEX): $(LOCAL_SRC_FILES) $(JAVA_R) $(LOCAL_DEP_JAR)
 		$(OUT_OBJ_DIR) $(LOCAL_DEP_JAR)
 
 # also generates lib's R
-$(JAVA_R): $(LOCAL_DEP_JAR)
+$(JAVA_R): $(LOCAL_DEP_JAR) $(LOCAL_MANIFEST)
 	@echo "Generating R ..."
 	@-mkdir -p $(@D)
 	@$(AAPT) package \
 		--auto-add-overlay -f \
-		-M ./AndroidManifest.xml \
+		-M $(LOCAL_MANIFEST) \
 		--extra-packages $(LOCAL_DEP_PACKAGE) \
 		-I $(ANDROID_JAR) \
 		-S $(LOCAL_RES_DIR) \

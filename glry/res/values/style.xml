@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-  <style name="appTheme" parent="android:Theme.Holo.Light"/>
-
-  <style name="mediaPlayTheme" parent="@style/appTheme">
+  <style name="theme.media" parent="android:Theme.Holo.Light">
     <item name="android:activityOpenEnterAnimation">@null</item>
     <item name="android:activityOpenExitAnimation">@null</item>
     <item name="android:activityCloseEnterAnimation">@null</item>

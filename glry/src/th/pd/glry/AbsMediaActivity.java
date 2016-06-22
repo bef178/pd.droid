@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import th.pd.common.android.OnActionCallback;
-import th.pd.common.android.pageheader.PageHeaderController;
+import th.pd.common.android.pageheader.PageheaderController;
 
 /**
  * General media view activity.<br/>
@@ -35,13 +35,9 @@ public abstract class AbsMediaActivity extends Activity implements
     static final String INTENT_EXTRA_LOGO = "intent.extra.LOGO";
     static final String INTENT_EXTRA_TITLE = Intent.EXTRA_TITLE;
 
-    private PageHeaderController mPageHeaderController;
+    private PageheaderController mPageheaderController;
 
     private boolean mHasIntentTitle = false;
-
-    private String getLogTag() {
-        return this.getClass().getName();
-    }
 
     @Override
     public boolean onAction(int actionId, Object extra) {
@@ -75,33 +71,33 @@ public abstract class AbsMediaActivity extends Activity implements
     @Override
     protected void onResume() {
         super.onResume();
-        mPageHeaderController.showWithAnim();
-        mPageHeaderController.hideWithDelay();
+        mPageheaderController.showWithAnim();
+        mPageheaderController.hideWithDelay();
     }
 
     private void setLogo() {
         Bitmap logo = getIntent().getParcelableExtra(INTENT_EXTRA_LOGO);
         if (logo != null) {
-            mPageHeaderController.setLogo(new BitmapDrawable(
+            mPageheaderController.setLogo(new BitmapDrawable(
                     getResources(), logo));
         }
     }
 
     protected void setSummary(CharSequence summary) {
-        mPageHeaderController.setSummary(summary);
+        mPageheaderController.setSummary(summary);
     }
 
     private void setTitle() {
         String title = getIntent().getStringExtra(Intent.EXTRA_TITLE);
         if (title != null) {
-            mPageHeaderController.setTitle(title);
+            mPageheaderController.setTitle(title);
             mHasIntentTitle = true;
             return;
         }
         setTitleByUri(getIntent().getData());
     }
 
-    private void setTitleByQuery(Uri contentUri) {
+    private void setTitleAsync(Uri contentUri) {
         AsyncQueryHandler handler =
                 new AsyncQueryHandler(getContentResolver()) {
 
@@ -111,7 +107,7 @@ public abstract class AbsMediaActivity extends Activity implements
                             Cursor cursor) {
                         try {
                             if ((cursor != null) && cursor.moveToFirst()) {
-                                mPageHeaderController.setTitle(cursor
+                                mPageheaderController.setTitle(cursor
                                         .getString(0));
                             }
                         } finally {
@@ -120,7 +116,7 @@ public abstract class AbsMediaActivity extends Activity implements
                                     cursor.close();
                                 }
                             } catch (Throwable t) {
-                                Log.w(getLogTag(), "fail to close", t);
+                                Log.w(TAG, "fail to close", t);
                             }
                         }
                     }
@@ -144,7 +140,7 @@ public abstract class AbsMediaActivity extends Activity implements
             File f = new File(uri.toString());
             if (f.exists() && f.isFile()) {
                 // same as file scheme
-                mPageHeaderController.setTitle(f.getName());
+                mPageheaderController.setTitle(f.getName());
                 return true;
             }
             return false;
@@ -153,11 +149,11 @@ public abstract class AbsMediaActivity extends Activity implements
         String origUriScheme = uri.getScheme();
         if (origUriScheme != null) {
             if (origUriScheme.equals("content")) {
-                setTitleByQuery(uri);
+                setTitleAsync(uri);
                 return true;
             } else if (origUriScheme.equals("file")) {
-                mPageHeaderController.setTitle(new File(uri.toString())
-                        .getName());
+                mPageheaderController.setTitle(
+                        new File(uri.toString()).getName());
                 return true;
             }
         }
@@ -165,8 +161,10 @@ public abstract class AbsMediaActivity extends Activity implements
     }
 
     private void setupPageHeaderController() {
-        mPageHeaderController = new PageHeaderController(
-                findViewById(R.id.pageHeader), new PageHeaderController.Callback() {
+        mPageheaderController = new PageheaderController(
+                findViewById(R.id.pageheader),
+                new PageheaderController.Callback() {
+
                     @Override
                     public void onActionBack() {
                         onBackPressed();
@@ -178,11 +176,11 @@ public abstract class AbsMediaActivity extends Activity implements
 
                     @Override
                     public void onClick(View v) {
-                        if (mPageHeaderController.isFinallyVisible()) {
-                            mPageHeaderController.hideWithAnim();
+                        if (mPageheaderController.isFinallyVisible()) {
+                            mPageheaderController.hideWithAnim();
                         } else {
-                            mPageHeaderController.showWithAnim();
-                            mPageHeaderController.hideWithDelay();
+                            mPageheaderController.showWithAnim();
+                            mPageheaderController.hideWithDelay();
                         }
                     }
                 });

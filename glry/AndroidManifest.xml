@@ -15,11 +15,10 @@
     android:allowBackup="true"
     android:icon="@android:drawable/sym_def_app_icon"
     android:label="@string/app_label"
-    android:theme="@style/appTheme">
+    android:theme="@style/theme.media">
     <activity
       android:name=".image.ImageActivity"
-      android:label="Image Viewer"
-      android:theme="@style/mediaPlayTheme">
+      android:label="Image Viewer">
       <intent-filter>
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
@@ -39,8 +38,7 @@
     </activity>
     <activity
       android:name=".VideoActivity"
-      android:label="Video Player"
-      android:theme="@style/mediaPlayTheme">
+      android:label="Video Player">
       <intent-filter>
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>

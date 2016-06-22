@@ -1,10 +1,15 @@
-package th.pd.glry.image;
+package th.pd.glry.elementary;
 
 import android.view.animation.Interpolator;
 
 public class ExpInterpolator implements Interpolator {
 
+    private static double getInterpolated(float x, double exp) {
+        return Math.pow(x, exp);
+    }
+
     private final double exp;
+
     private final double invExp;
 
     public ExpInterpolator() {
@@ -16,16 +21,12 @@ public class ExpInterpolator implements Interpolator {
         this.invExp = 1 / exp;
     }
 
-    private static double getInterpolated(float x, double exp) {
-        return Math.pow(x, exp);
-    }
-
-    public float getInversed(float y) {
-        return (float) (Math.pow(y, invExp));
-    }
-
     @Override
     public float getInterpolation(float x) {
         return (float) getInterpolated(x, exp);
+    }
+
+    public float getInverseInterpolation(float y) {
+        return (float) (Math.pow(y, invExp));
     }
 }

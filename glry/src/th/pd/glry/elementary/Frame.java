@@ -1,19 +1,19 @@
-package th.pd.glry.image;
+package th.pd.glry.elementary;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 /**
- * **Used by <code>ImageSwitcher</code> for paint**<br/>
+ * **Used by <code>{@link FramedView}</code> for paint**<br/>
  * For an image, there're several rects:<br/>
  * <code>imageOrigRect</code> - the bitmap dimension<br/>
  * <code>hostRect</code> - the container dimension<br/>
- * <code>imageFitRect</code> - the best fit rect results from the former two and
- * thus calculated <code>fitScale</code><br/>
+ * <code>imageFitRect</code> - the best fit rect results from the above two rects
+ * and thus calculated <code>fitScale</code><br/>
  *
  * @author tanghao
  */
-class ImageStatus {
+class Frame {
 
     private static int[] findCentralizedOffset(int imageWidth,
             int imageHeight, int containerWidth, int containerHeight) {
@@ -53,8 +53,8 @@ class ImageStatus {
 
     private float fitScale;
 
-    public ImageStatus() {
-        clear();
+    public Frame() {
+        reset();
     }
 
     /**
@@ -108,10 +108,40 @@ class ImageStatus {
                 hostWidth, hostHeight));
     }
 
+    public float findFloatAlpha() {
+        return alpha / 255f;
+    }
+
+    public int getAlpha() {
+        return this.alpha;
+    }
+
+    public float getFitScale() {
+        return this.fitScale;
+    }
+
+    /**
+     * restore the image attributes and move the image to the origin
+     */
+    private void init(Bitmap bitmap) {
+        if (bitmap == null) {
+            reset();
+            return;
+        }
+        this.bitmap = bitmap;
+        this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        this.alpha = 0xFF;
+        this.fitScale = 1f;
+    }
+
+    public boolean isValid() {
+        return bitmap != null;
+    }
+
     /**
      * reset each attribute to its default value
      */
-    public void clear() {
+    public void reset() {
         this.bitmap = null;
         if (this.rect == null) {
             this.rect = new Rect();
@@ -122,41 +152,8 @@ class ImageStatus {
         this.fitScale = 1f;
     }
 
-    /**
-     * "find" implies it requires calculation
-     */
-    public float findOpacity() {
-        return alpha / 255f;
-    }
-
-    public float getFitScale() {
-        return this.fitScale;
-    }
-
-    public int getPaintOpacity() {
-        return this.alpha;
-    }
-
-    public boolean isValid() {
-        return bitmap != null;
-    }
-
-    /**
-     * restore the image attributes and move the image to the origin
-     */
-    private void reset(Bitmap bitmap) {
-        if (bitmap == null) {
-            clear();
-            return;
-        }
-        this.bitmap = bitmap;
-        this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
-        this.alpha = 0xFF;
-        this.fitScale = 1f;
-    }
-
     public void resetAndFit(Bitmap bitmap, int hostWidth, int hostHeight) {
-        reset(bitmap);
+        init(bitmap);
 
         if (bitmap == null
                 || hostWidth <= 0 || hostHeight <= 0) {

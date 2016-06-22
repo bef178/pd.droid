@@ -11,7 +11,7 @@
         android:background="@color/dev_gray9" />
 
     <include
-        android:id="@+id/pageHeader"
+        android:id="@+id/pageheader"
         layout="@layout/pageheader" />
 
     <LinearLayout

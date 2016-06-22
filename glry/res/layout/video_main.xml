@@ -10,7 +10,7 @@
         android:layout_height="match_parent" />
 
     <include
-        android:id="@+id/pageHeader"
+        android:id="@+id/pageheader"
         layout="@layout/pageheader" />
 
     <LinearLayout
@@ -70,8 +70,8 @@
                 android:maxHeight="2dp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                android:progressDrawable="@drawable/media_progress"
-                android:thumb="@drawable/media_progress_thumb_selector"
+                android:progressDrawable="@drawable/media_progressbar"
+                android:thumb="@drawable/media_progressbar_thumb_selector"
                 android:thumbOffset="20dp" />
 
             <LinearLayout

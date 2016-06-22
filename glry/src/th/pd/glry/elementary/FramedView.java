@@ -1,4 +1,4 @@
-package th.pd.glry.image;
+package th.pd.glry.elementary;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -15,7 +15,7 @@ import android.view.View;
 import th.pd.common.android.SimpleAnimatorListener;
 
 /**
- * Pay attention to the terms.<br/>
+ * Note the terms.<br/>
  * It always switches from "this image" to the "coming image", i.e. the
  * neighborhood in time. While,
  * the "coming image" may be the "next image" or the "prev image", i.e. the
@@ -26,13 +26,13 @@ import th.pd.common.android.SimpleAnimatorListener;
  * stands for the elapsed
  * time(fraction), y stands for the swept length(animatedFraction) and f is
  * seldom linear. So there
- * would be a distinguishable difference between them.<br/>
+ * would be a distinguishable difference between x and y.<br/>
  * <br/>
  * All update requests are applied to the model - <code>ImageStatus</code> for
  * <code>onDraw()</code> reading.<br/>
  * <br/>
  */
-public class ImageSwitcher extends View {
+public class FramedView extends View {
 
     private static final int FLAG_ENTER = 0x1;
     private static final int FLAG_SCALE = 0x10;
@@ -54,7 +54,7 @@ public class ImageSwitcher extends View {
         a.setInterpolator(interpolator);
 
         final int playedTime = (int) (interpolator
-                .getInversed(interpolated) * DURATION);
+                .getInverseInterpolation(interpolated) * DURATION);
 
         a.addListener(new SimpleAnimatorListener() {
 
@@ -82,7 +82,7 @@ public class ImageSwitcher extends View {
         }
     }
 
-    private static void updateImageStatus(ImageStatus imageStatus,
+    private static void updateImageStatus(Frame imageStatus,
             int flags,
             float animatedFraction, int hostWidth, int hostHeight) {
         if (!imageStatus.isValid()
@@ -162,8 +162,8 @@ public class ImageSwitcher extends View {
 
     private AnimatorSet mAnimatorSet = null;
 
-    private ImageStatus mImage;
-    private ImageStatus mComingImage;
+    private Frame mImage;
+    private Frame mComingImage;
 
     // mainly for onDraw() to keep consistent animation
     private boolean mComingAsNext = true;
@@ -176,10 +176,10 @@ public class ImageSwitcher extends View {
     // to fix the time sequence of data load and view load
     private Runnable mFirstLoadRunnable;
 
-    public ImageSwitcher(Context context, AttributeSet attrs) {
+    public FramedView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mImage = new ImageStatus();
-        mComingImage = new ImageStatus();
+        mImage = new Frame();
+        mComingImage = new Frame();
         mPaint = new Paint();
     }
 
@@ -323,7 +323,7 @@ public class ImageSwitcher extends View {
             public void onAnimationEnd(Animator animator) {
                 mImage.resetAndFit(mComingImage.bitmap, hostWidth,
                         hostHeight);
-                mComingImage.clear();
+                mComingImage.reset();
                 mScale = mImage.getFitScale();
                 invalidate();
             }
@@ -427,19 +427,19 @@ public class ImageSwitcher extends View {
             return;
         }
         if (mComingAsNext) {
-            onDrawImage(canvas, mPaint, mComingImage);
-            onDrawImage(canvas, mPaint, mImage);
+            drawFrame(canvas, mPaint, mComingImage);
+            drawFrame(canvas, mPaint, mImage);
         } else {
-            onDrawImage(canvas, mPaint, mImage);
-            onDrawImage(canvas, mPaint, mComingImage);
+            drawFrame(canvas, mPaint, mImage);
+            drawFrame(canvas, mPaint, mComingImage);
         }
         super.onDraw(canvas);
     }
 
-    private void onDrawImage(Canvas canvas, Paint paint, ImageStatus image) {
-        if (image.isValid()) {
-            paint.setAlpha(image.getPaintOpacity());
-            canvas.drawBitmap(image.bitmap, null, image.rect, paint);
+    private void drawFrame(Canvas canvas, Paint paint, Frame frame) {
+        if (frame.isValid()) {
+            paint.setAlpha(frame.getAlpha());
+            canvas.drawBitmap(frame.bitmap, null, frame.rect, paint);
         }
     }
 

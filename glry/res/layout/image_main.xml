@@ -8,7 +8,7 @@
         android:id="@+id/imageSwitcher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/dev_gray9" />
+        android:background="#1A1A1A" />
 
     <include
         android:id="@+id/pageheader"

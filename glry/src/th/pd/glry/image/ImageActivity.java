@@ -276,7 +276,7 @@ public class ImageActivity extends AbsMediaActivity {
                     mImageSwitcher.resetImage();
                 } else {
                     // scale to full screen fit
-                    Rect imageRect = mImageSwitcher.getImageRect();
+                    Rect imageRect = mImageSwitcher.getFrameRect();
                     if (imageRect.width() < mImageSwitcher.getWidth()
                             && imageRect.height() < mImageSwitcher
                                     .getHeight()) {
@@ -311,7 +311,7 @@ public class ImageActivity extends AbsMediaActivity {
 
             @Override
             public boolean onScaleTo(float scale, int focusX, int focusY) {
-                Rect imageRect = mImageSwitcher.getImageRect();
+                Rect imageRect = mImageSwitcher.getFrameRect();
                 if (!imageRect.contains(focusX, focusY)
                         || (imageRect.width() <= mImageSwitcher.getWidth()
                         && imageRect.height() <= mImageSwitcher.getHeight())) {
@@ -327,16 +327,14 @@ public class ImageActivity extends AbsMediaActivity {
             public boolean onScrollBy(int[] totalDiff, int[] lastDiff,
                     int trend) {
                 if (mImageSwitcher.isScaled()) {
-                    Rect imageRect = mImageSwitcher.getImageRect();
+                    Rect imageRect = mImageSwitcher.getFrameRect();
                     if (imageRect.width() > mImageSwitcher.getWidth()
-                            || imageRect.height() > mImageSwitcher
-                                    .getHeight()) {
+                            || imageRect.height() > mImageSwitcher.getHeight()) {
                         imageRect.offset(-lastDiff[0], -lastDiff[1]);
                         if (imageRect.contains(
                                 mImageSwitcher.getWidth() / 2,
                                 mImageSwitcher.getHeight() / 2)) {
-                            mImageSwitcher.doOffset(-lastDiff[0],
-                                    -lastDiff[1]);
+                            mImageSwitcher.doOffset(-lastDiff[0], -lastDiff[1]);
                         }
                     }
                     return true;

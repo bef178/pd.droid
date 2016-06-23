@@ -4,24 +4,16 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 /**
- * **Used by <code>{@link FramedView}</code> for paint**<br/>
+ * **Used by <code>{@link FramedView}</code> for painting**<br/>
  * For an image, there're several rects:<br/>
- * <code>imageOrigRect</code> - the bitmap dimension<br/>
+ * <code>origRect</code> - the bitmap dimension<br/>
  * <code>hostRect</code> - the container dimension<br/>
- * <code>imageFitRect</code> - the best fit rect results from the above two rects
- * and thus calculated <code>fitScale</code><br/>
+ * <code>imageFitRect</code> - the best fit rect results from the above two
+ * rects and thus calculated <code>fitScale</code><br/>
  *
  * @author tanghao
  */
 class Frame {
-
-    private static int[] findCentralizedOffset(int imageWidth,
-            int imageHeight, int containerWidth, int containerHeight) {
-        return new int[] {
-                (containerWidth - imageWidth) / 2,
-                (containerHeight - imageHeight) / 2
-        };
-    }
 
     /**
      * Principle: the container contains the scaled image
@@ -54,62 +46,21 @@ class Frame {
     private float fitScale;
 
     public Frame() {
-        reset();
-    }
-
-    /**
-     * accept [0f, 1f]
-     */
-    public void applyAlpha(float alpha) {
-        if (alpha > 1f) {
-            alpha = 1f;
-        } else if (alpha < 0f) {
-            alpha = 0f;
-        }
-        this.alpha = (int) (alpha * 0xFF);
-    }
-
-    /**
-     * accept [0, 0xFF]
-     */
-    public void applyAlpha(int alpha) {
-        if (alpha > 0xFF) {
-            alpha = 0xFF;
-        }
-        if (alpha < 0) {
-            alpha = 0;
-        }
-        this.alpha = alpha;
-    }
-
-    public void applyOffset(int x, int y) {
-        rect.offsetTo(x, y);
+        init(null);
     }
 
     public void applyOffset(int[] coord) {
-        applyOffset(coord[0], coord[1]);
+        moveTo(coord[0], coord[1]);
     }
 
     /**
-     * the pivot is (left,top)
+     * anchor to (left,top)
      */
     public void applyScale(float scale) {
-        if (scale <= 0f) {
-            return;
+        if (scale > 0f) {
+            rect.right = rect.left + (int) (scale * bitmap.getWidth());
+            rect.bottom = rect.top + (int) (scale * bitmap.getHeight());
         }
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        rect.right = rect.left + (int) (scale * w);
-        rect.bottom = rect.top + (int) (scale * h);
-    }
-
-    public void centralize(int hostWidth, int hostHeight) {
-        applyOffset(findCentralizedOffset(rect.width(), rect.height(),
-                hostWidth, hostHeight));
-    }
-
-    public float findFloatAlpha() {
-        return alpha / 255f;
     }
 
     public int getAlpha() {
@@ -121,35 +72,33 @@ class Frame {
     }
 
     /**
-     * restore the image attributes and move the image to the origin
+     * restore the image attributes and move the image to the origin point
      */
-    private void init(Bitmap bitmap) {
-        if (bitmap == null) {
-            reset();
-            return;
-        }
+    public void init(Bitmap bitmap) {
         this.bitmap = bitmap;
-        this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         this.alpha = 0xFF;
-        this.fitScale = 1f;
+        if (bitmap == null) {
+            this.rect.setEmpty();
+        } else {
+            this.rect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        }
     }
 
     public boolean isValid() {
         return bitmap != null;
     }
 
-    /**
-     * reset each attribute to its default value
-     */
-    public void reset() {
-        this.bitmap = null;
-        if (this.rect == null) {
-            this.rect = new Rect();
-        } else {
-            this.rect.setEmpty();
-        }
-        this.alpha = 0xFF;
-        this.fitScale = 1f;
+    public void move(int dx, int dy) {
+        rect.offset(dx, dy);
+    }
+
+    public void moveTo(int x, int y) {
+        rect.offsetTo(x, y);
+    }
+
+    public void moveToCenter(int hostWidth, int hostHeight) {
+        moveTo((hostWidth - rect.width()) / 2,
+                (hostHeight - rect.height()) / 2);
     }
 
     public void resetAndFit(Bitmap bitmap, int hostWidth, int hostHeight) {
@@ -160,13 +109,34 @@ class Frame {
             return;
         }
 
-        this.fitScale = findFitScale(
-                bitmap.getWidth(), bitmap.getHeight(),
-                hostWidth, hostHeight);
+        updateFitScale(hostWidth, hostHeight);
         applyScale(this.fitScale);
-        applyOffset(findCentralizedOffset(
-                this.rect.width(), this.rect.height(),
-                hostWidth, hostHeight));
+        moveToCenter(hostWidth, hostHeight);
+    }
+
+    /**
+     * accept [0f, 1f]
+     */
+    public void setAlpha(float alpha) {
+        if (alpha > 1f) {
+            alpha = 1f;
+        } else if (alpha < 0f) {
+            alpha = 0f;
+        }
+        this.alpha = (int) (alpha * 0xFF);
+    }
+
+    /**
+     * accept [0, 0xFF]
+     */
+    public void setAlpha(int alpha) {
+        if (alpha > 0xFF) {
+            alpha = 0xFF;
+        }
+        if (alpha < 0) {
+            alpha = 0;
+        }
+        this.alpha = alpha;
     }
 
     /**

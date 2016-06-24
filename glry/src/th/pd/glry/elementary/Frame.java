@@ -15,26 +15,6 @@ import android.graphics.Rect;
  */
 class Frame {
 
-    /**
-     * Principle: the container contains the scaled image
-     */
-    private static float findFitScale(int originalWidth,
-            int originalHeight,
-            int containerWidth, int containerHeight) {
-        if (originalWidth <= 0 || originalHeight <= 0
-                || containerWidth <= 0 || containerHeight <= 0) {
-            return 0f;
-        }
-
-        if (containerWidth < originalWidth
-                || containerHeight < originalHeight) {
-            return Math.min(
-                    1f * containerWidth / originalWidth,
-                    1f * containerHeight / originalHeight);
-        }
-        return 1f;
-    }
-
     Bitmap bitmap;
 
     // where the whole bitmap is drew into, while onDraw() starts at (0,0)
@@ -43,9 +23,8 @@ class Frame {
     // an instantaneous value that may change during animation, finalize to 0xFF
     private int alpha;
 
-    private float fitScale;
-
     public Frame() {
+        rect = new Rect();
         init(null);
     }
 
@@ -63,12 +42,15 @@ class Frame {
         }
     }
 
-    public int getAlpha() {
-        return this.alpha;
+    public float findScale() {
+        if (bitmap != null && !rect.isEmpty()) {
+            return 1f * rect.width() / bitmap.getWidth();
+        }
+        return 0f;
     }
 
-    public float getFitScale() {
-        return this.fitScale;
+    public int getAlpha() {
+        return this.alpha;
     }
 
     /**
@@ -85,7 +67,7 @@ class Frame {
     }
 
     public boolean isValid() {
-        return bitmap != null;
+        return bitmap != null && !rect.isEmpty();
     }
 
     public void move(int dx, int dy) {
@@ -99,19 +81,6 @@ class Frame {
     public void moveToCenter(int hostWidth, int hostHeight) {
         moveTo((hostWidth - rect.width()) / 2,
                 (hostHeight - rect.height()) / 2);
-    }
-
-    public void resetAndFit(Bitmap bitmap, int hostWidth, int hostHeight) {
-        init(bitmap);
-
-        if (bitmap == null
-                || hostWidth <= 0 || hostHeight <= 0) {
-            return;
-        }
-
-        updateFitScale(hostWidth, hostHeight);
-        applyScale(this.fitScale);
-        moveToCenter(hostWidth, hostHeight);
     }
 
     /**
@@ -137,14 +106,5 @@ class Frame {
             alpha = 0;
         }
         this.alpha = alpha;
-    }
-
-    /**
-     * just the setter for fit scale, no couple with any operation
-     */
-    public void updateFitScale(int hostWidth, int hostHeight) {
-        this.fitScale = findFitScale(
-                this.bitmap.getWidth(), this.bitmap.getHeight(),
-                hostWidth, hostHeight);
     }
 }

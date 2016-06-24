@@ -437,7 +437,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private void setupSwitcher() {
-        mImageSwitcher = (FramedView) findViewById(R.id.imageSwitcher);
+        mImageSwitcher = (FramedView) findViewById(R.id.image);
         mCache = new PivotCache<Bitmap>();
         mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
     }

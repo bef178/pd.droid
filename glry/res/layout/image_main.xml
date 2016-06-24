@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     android:background="@color/dev_gray9" >
 
-    <th.pd.glry.image.ImageSwitcher
-        android:id="@+id/imageSwitcher"
+    <th.pd.glry.elementary.FramedView
+        android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#1A1A1A" />

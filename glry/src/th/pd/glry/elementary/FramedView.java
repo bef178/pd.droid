@@ -15,7 +15,9 @@ import android.view.View;
 import th.pd.common.android.SimpleAnimatorListener;
 
 /**
- * Note the terms.<br/>
+ * As MVP but the presenter is flatten into the view.<br/>
+ * <br/>
+ * Also note the terms.<br/>
  * It always animates from "src" to the "dst", which is in chronological.
  * While, the "dst" may be the "next" or the "prev", i.e. the neighborhood in
  * location.<br/>
@@ -40,7 +42,25 @@ public class FramedView extends View {
     private static final int FLAG_TRANS_TO_RIGHT = 0x600;
     private static final int FLAG_TRANS_TO_TOP = 0x800;
 
+    private static final float SCALE_ALLOWANCE = 0.025f;
+
     private static ExpInterpolator interpolator = new ExpInterpolator();
+
+    /**
+     * Principle: the container contains the scaled image
+     */
+    private static float findFitScale(Bitmap bitmap,
+            int hostWidth, int hostHeight) {
+        if (bitmap == null || hostWidth <= 0 || hostHeight <= 0) {
+            return 0f;
+        }
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        if (w > hostWidth || h > hostHeight) {
+            return Math.min(1f * hostWidth / w, 1f * hostHeight / h);
+        }
+        return 1f;
+    }
 
     private static ValueAnimator getAnimator(float interpolated) {
 
@@ -84,8 +104,6 @@ public class FramedView extends View {
         if (!frame.isValid() || hostWidth == 0 || hostHeight == 0) {
             return;
         }
-
-        frame.updateFitScale(hostWidth, hostHeight);
 
         boolean isEnter = (flags & FLAG_ENTER) != 0;
 
@@ -140,8 +158,10 @@ public class FramedView extends View {
         }
 
         if ((flags & FLAG_SCALE) != 0) {
-            float scaleStart = 0.4f * frame.getFitScale();
-            float scaleFinal = 1.0f * frame.getFitScale();
+            float fitScale = findFitScale(frame.bitmap,
+                    hostWidth, hostHeight);
+            float scaleStart = 0.4f * fitScale;
+            float scaleFinal = 1.0f * fitScale;
             frame.applyScale(isEnter
                     ? (scaleFinal - scaleStart) * animatedFraction
                             + scaleStart
@@ -153,14 +173,11 @@ public class FramedView extends View {
 
     private AnimatorSet mAnimatorSet = null;
 
-    private Frame mFrame;
-    private Frame mComingFrame;
+    private Frame mSrcFrame;
+    private Frame mDstFrame;
 
     // mainly for onDraw() to keep consistent animation
-    private boolean mComingAsNext = true;
-
-    // as a trigger to tell which mode we are in
-    private float mScale = 1f;
+    private boolean mDstIsNext = true;
 
     private Paint mPaint;
 
@@ -169,35 +186,33 @@ public class FramedView extends View {
 
     public FramedView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mFrame = new Frame();
-        mComingFrame = new Frame();
+        mSrcFrame = new Frame();
+        mDstFrame = new Frame();
         mPaint = new Paint();
     }
 
     private void applyScale(float scale) {
-        if (!mFrame.isValid()) {
+        if (!mSrcFrame.isValid()) {
             return;
         }
 
-        float maxScale = 64f;
-        float minScale = Math.min(
-                1f * getWidth() / mFrame.bitmap.getWidth(),
-                1f * getHeight() / mFrame.bitmap.getHeight());
-        minScale = Math.min(0.1f, minScale);
+        final float MAX_SCALE = 64f;
+        final float MIN_SCALE = 0.1f;
 
-        if (scale > maxScale) {
-            scale = maxScale;
-        } else if (scale < minScale) {
-            scale = minScale;
+        if (scale > MAX_SCALE) {
+            scale = MAX_SCALE;
+        } else if (scale < MIN_SCALE) {
+            scale = MIN_SCALE;
+        } else {
+            float fitScale = findFitScale(mSrcFrame.bitmap,
+                    getWidth(), getHeight());
+            if (scale > (1f - SCALE_ALLOWANCE) * fitScale
+                    && scale < (1f - SCALE_ALLOWANCE) * fitScale) {
+                scale = fitScale;
+            }
         }
 
-        if (scale >= 0.98f * mFrame.getFitScale()
-                && scale <= 1.02f * mFrame.getFitScale()) {
-            scale = mFrame.getFitScale();
-        }
-
-        mFrame.applyScale(scale);
-        mScale = scale;
+        mSrcFrame.applyScale(scale);
     }
 
     public void doneSwitching() {
@@ -207,14 +222,14 @@ public class FramedView extends View {
     }
 
     public void doOffset(int dx, int dy) {
-        mFrame.move(dx, dy);
+        mSrcFrame.move(dx, dy);
         invalidate();
     }
 
     public void doScale(float scale) {
-        // focus on the center: the sepcial case avoids accumulated error
-        applyScale(scale * mScale);
-        mFrame.moveToCenter(getWidth(), getHeight());
+        // focus on the center: the special case avoids accumulated error
+        applyScale(scale * mSrcFrame.findScale());
+        mSrcFrame.moveToCenter(getWidth(), getHeight());
         invalidate();
     }
 
@@ -223,15 +238,15 @@ public class FramedView extends View {
      */
     public void doScale(float scale, int anchorX, int anchorY) {
         // focus on the anchor
-        anchorX -= mFrame.rect.left; // relative to (left, top)
-        anchorY -= mFrame.rect.top;
-        float fractionX = 1f * anchorX / mFrame.rect.width();
-        float fractionY = 1f * anchorY / mFrame.rect.height();
-        applyScale(scale * mScale);
-        float offsetX = fractionX * mFrame.rect.width() - anchorX;
-        float offsetY = fractionY * mFrame.rect.height() - anchorY;
-        mFrame.moveTo(mFrame.rect.left - (int) offsetX,
-                mFrame.rect.top - (int) offsetY);
+        anchorX -= mSrcFrame.rect.left; // relative to (left, top)
+        anchorY -= mSrcFrame.rect.top;
+        float fractionX = 1f * anchorX / mSrcFrame.rect.width();
+        float fractionY = 1f * anchorY / mSrcFrame.rect.height();
+        applyScale(scale * mSrcFrame.findScale());
+        float offsetX = fractionX * mSrcFrame.rect.width() - anchorX;
+        float offsetY = fractionY * mSrcFrame.rect.height() - anchorY;
+        mSrcFrame.moveTo(mSrcFrame.rect.left - (int) offsetX,
+                mSrcFrame.rect.top - (int) offsetY);
         invalidate();
     }
 
@@ -243,16 +258,16 @@ public class FramedView extends View {
 
         int hostWidth = getWidth();
         int hostHeight = getHeight();
-        mFrame.resetAndFit(bitmap, hostWidth, hostHeight);
-        mComingFrame.resetAndFit(comingBitmap, hostWidth, hostHeight);
-        mComingAsNext = asNext;
+        initAndFit(mSrcFrame, bitmap, hostWidth, hostHeight);
+        initAndFit(mDstFrame, comingBitmap, hostWidth, hostHeight);
+        mDstIsNext = asNext;
 
-        updateFrame(mComingFrame,
-                getFlagsForAnim(true, mComingAsNext),
+        updateFrame(mDstFrame,
+                getFlagsForAnim(true, mDstIsNext),
                 animatedFraction,
                 hostWidth, hostHeight);
-        updateFrame(mFrame,
-                getFlagsForAnim(false, mComingAsNext),
+        updateFrame(mSrcFrame,
+                getFlagsForAnim(false, mDstIsNext),
                 animatedFraction,
                 hostWidth, hostHeight);
 
@@ -276,9 +291,9 @@ public class FramedView extends View {
 
         final int hostWidth = getWidth();
         final int hostHeight = getHeight();
-        mFrame.resetAndFit(bitmap, hostWidth, hostHeight);
-        mComingFrame.resetAndFit(comingBitmap, hostWidth, hostHeight);
-        mComingAsNext = asNext;
+        initAndFit(mSrcFrame, bitmap, hostWidth, hostHeight);
+        initAndFit(mDstFrame, comingBitmap, hostWidth, hostHeight);
+        mDstIsNext = asNext;
 
         ValueAnimator animator = getAnimator(startAnimatedFraction);
         animator.addUpdateListener(new AnimatorUpdateListener() {
@@ -290,12 +305,12 @@ public class FramedView extends View {
                 if (animatedFraction >= endAnimatedFraction) {
                     mAnimatorSet.cancel();
                 }
-                updateFrame(mComingFrame,
-                        getFlagsForAnim(true, mComingAsNext),
+                updateFrame(mDstFrame,
+                        getFlagsForAnim(true, mDstIsNext),
                         animatedFraction,
                         hostWidth, hostHeight);
-                updateFrame(mFrame,
-                        getFlagsForAnim(false, mComingAsNext),
+                updateFrame(mSrcFrame,
+                        getFlagsForAnim(false, mDstIsNext),
                         animatedFraction,
                         hostWidth, hostHeight);
                 invalidate();
@@ -307,10 +322,9 @@ public class FramedView extends View {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                mFrame.resetAndFit(mComingFrame.bitmap, hostWidth,
-                        hostHeight);
-                mComingFrame.init(null);
-                mScale = mFrame.getFitScale();
+                initAndFit(mSrcFrame, mDstFrame.bitmap,
+                        hostWidth, hostHeight);
+                mDstFrame.init(null);
                 invalidate();
             }
         });
@@ -327,9 +341,9 @@ public class FramedView extends View {
 
         final int hostWidth = getWidth();
         final int hostHeight = getHeight();
-        mFrame.resetAndFit(bitmap, hostWidth, hostHeight);
-        mComingFrame.resetAndFit(comingBitmap, hostWidth, hostHeight);
-        mComingAsNext = asNext;
+        initAndFit(mSrcFrame, bitmap, hostWidth, hostHeight);
+        initAndFit(mDstFrame, comingBitmap, hostWidth, hostHeight);
+        mDstIsNext = asNext;
 
         ValueAnimator animator = getAnimator(0f);
         animator.addUpdateListener(new AnimatorUpdateListener() {
@@ -341,12 +355,12 @@ public class FramedView extends View {
                 if (animatedFraction >= turnPointAnimatedFraction) {
                     valueAnimator.cancel();
                 }
-                updateFrame(mComingFrame,
-                        getFlagsForAnim(true, mComingAsNext),
+                updateFrame(mDstFrame,
+                        getFlagsForAnim(true, mDstIsNext),
                         animatedFraction,
                         hostWidth, hostHeight);
-                updateFrame(mFrame,
-                        getFlagsForAnim(false, mComingAsNext),
+                updateFrame(mSrcFrame,
+                        getFlagsForAnim(false, mDstIsNext),
                         animatedFraction,
                         hostWidth, hostHeight);
                 invalidate();
@@ -360,12 +374,12 @@ public class FramedView extends View {
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 float animatedFraction = valueAnimator
                         .getAnimatedFraction();
-                updateFrame(mFrame,
-                        getFlagsForAnim(true, !mComingAsNext),
+                updateFrame(mSrcFrame,
+                        getFlagsForAnim(true, !mDstIsNext),
                         animatedFraction,
                         hostWidth, hostHeight);
-                updateFrame(mComingFrame,
-                        getFlagsForAnim(false, !mComingAsNext),
+                updateFrame(mDstFrame,
+                        getFlagsForAnim(false, !mDstIsNext),
                         animatedFraction,
                         hostWidth, hostHeight);
                 invalidate();
@@ -375,6 +389,13 @@ public class FramedView extends View {
         mAnimatorSet = new AnimatorSet();
         mAnimatorSet.playSequentially(animator, fallbackAnimator);
         mAnimatorSet.start();
+    }
+
+    private void drawFrame(Canvas canvas, Paint paint, Frame frame) {
+        if (frame.isValid()) {
+            paint.setAlpha(frame.getAlpha());
+            canvas.drawBitmap(frame.bitmap, null, frame.rect, paint);
+        }
     }
 
     public void firstLoad(final Bitmap bitmap) {
@@ -387,18 +408,32 @@ public class FramedView extends View {
                 }
             };
         } else {
-            mFrame.resetAndFit(bitmap, getWidth(), getHeight());
-            mScale = mFrame.getFitScale();
+            initAndFit(mSrcFrame, bitmap, getWidth(), getHeight());
             invalidate();
         }
     }
 
     public Rect getFrameRect() {
-        return new Rect(mFrame.rect);
+        return new Rect(mSrcFrame.rect);
+    }
+
+    public void initAndFit(Frame frame, Bitmap bitmap,
+            int hostWidth, int hostHeight) {
+        frame.init(bitmap);
+        if (bitmap == null || hostWidth <= 0 || hostHeight <= 0) {
+            return;
+        }
+        float fitScale = findFitScale(frame.bitmap, hostWidth, hostHeight);
+        applyScale(fitScale);
+        frame.moveToCenter(hostWidth, hostHeight);
     }
 
     public boolean isScaled() {
-        return mScale != mFrame.getFitScale();
+        float scale = mSrcFrame.findScale();
+        float fitScale = findFitScale(mSrcFrame.bitmap,
+                getWidth(), getHeight());
+        return scale > (1f - SCALE_ALLOWANCE) * fitScale
+                && scale < (1f + SCALE_ALLOWANCE) * fitScale;
     }
 
     public boolean isSwitching() {
@@ -412,21 +447,14 @@ public class FramedView extends View {
             mFirstLoadRunnable = null;
             return;
         }
-        if (mComingAsNext) {
-            drawFrame(canvas, mPaint, mComingFrame);
-            drawFrame(canvas, mPaint, mFrame);
+        if (mDstIsNext) {
+            drawFrame(canvas, mPaint, mDstFrame);
+            drawFrame(canvas, mPaint, mSrcFrame);
         } else {
-            drawFrame(canvas, mPaint, mFrame);
-            drawFrame(canvas, mPaint, mComingFrame);
+            drawFrame(canvas, mPaint, mSrcFrame);
+            drawFrame(canvas, mPaint, mDstFrame);
         }
         super.onDraw(canvas);
-    }
-
-    private void drawFrame(Canvas canvas, Paint paint, Frame frame) {
-        if (frame.isValid()) {
-            paint.setAlpha(frame.getAlpha());
-            canvas.drawBitmap(frame.bitmap, null, frame.rect, paint);
-        }
     }
 
     @Override
@@ -439,8 +467,7 @@ public class FramedView extends View {
     }
 
     public void resetImage() {
-        mFrame.resetAndFit(mFrame.bitmap, getWidth(), getHeight());
-        mScale = mFrame.getFitScale();
+        initAndFit(mSrcFrame, mSrcFrame.bitmap, getWidth(), getHeight());
         invalidate();
     }
 }

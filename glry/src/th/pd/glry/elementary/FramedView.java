@@ -87,13 +87,13 @@ public class FramedView extends View {
         return a;
     }
 
-    private static int getFlagsForAnim(boolean isEnter, boolean asNext) {
+    private static int getFlagsForAnim(boolean isEnter, boolean isLower) {
         if (isEnter) {
-            return asNext
+            return isLower
                     ? FLAG_ENTER | FLAG_SCALE | FLAG_ALPHA
                     : FLAG_ENTER | FLAG_TRANS | FLAG_TRANS_TO_RIGHT;
         } else {
-            return asNext
+            return isLower
                     ? FLAG_TRANS | FLAG_TRANS_TO_LEFT
                     : FLAG_SCALE | FLAG_ALPHA;
         }
@@ -124,7 +124,7 @@ public class FramedView extends View {
             int offsetY = 0;
             switch (flags & 0xF00) {
                 case FLAG_TRANS_TO_LEFT: {
-                    int totalX = (frame.rect.width() + hostWidth) / 2;
+                    int totalX = frame.rect.right;
                     offsetY = frame.rect.top;
                     if (isEnter) {
                         // not been here yet, so no test
@@ -136,7 +136,7 @@ public class FramedView extends View {
                     break;
                 }
                 case FLAG_TRANS_TO_RIGHT: {
-                    int totalX = (frame.rect.width() + hostWidth) / 2;
+                    int totalX = hostWidth - frame.rect.left;
                     offsetY = frame.rect.top;
                     if (isEnter) {
                         int startX = -frame.rect.width();
@@ -424,7 +424,7 @@ public class FramedView extends View {
             return;
         }
         float fitScale = findFitScale(frame.bitmap, hostWidth, hostHeight);
-        applyScale(fitScale);
+        frame.applyScale(fitScale);
         frame.moveToCenter(hostWidth, hostHeight);
     }
 
@@ -432,8 +432,8 @@ public class FramedView extends View {
         float scale = mSrcFrame.findScale();
         float fitScale = findFitScale(mSrcFrame.bitmap,
                 getWidth(), getHeight());
-        return scale > (1f - SCALE_ALLOWANCE) * fitScale
-                && scale < (1f + SCALE_ALLOWANCE) * fitScale;
+        return mDstFrame == null && (scale < (1f - SCALE_ALLOWANCE) * fitScale
+                || scale > (1f + SCALE_ALLOWANCE) * fitScale);
     }
 
     public boolean isSwitching() {

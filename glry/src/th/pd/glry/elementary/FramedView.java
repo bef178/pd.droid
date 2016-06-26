@@ -207,7 +207,7 @@ public class FramedView extends View {
             float fitScale = findFitScale(mSrcFrame.bitmap,
                     getWidth(), getHeight());
             if (scale > (1f - SCALE_ALLOWANCE) * fitScale
-                    && scale < (1f - SCALE_ALLOWANCE) * fitScale) {
+                    && scale < (1f + SCALE_ALLOWANCE) * fitScale) {
                 scale = fitScale;
             }
         }

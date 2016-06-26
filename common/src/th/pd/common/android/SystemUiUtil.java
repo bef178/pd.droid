@@ -1,14 +1,14 @@
 package th.pd.common.android;
 
-import android.app.Activity;
 import android.graphics.Rect;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 public class SystemUiUtil {
 
-    public static void findScreenResolution(Activity a, int[] result) {
-        Display defDisplay = a.getWindowManager().getDefaultDisplay();
+    public static void findScreenResolution(WindowManager m, int[] result) {
+        Display defDisplay = m.getDefaultDisplay();
         Rect r = new Rect();
         defDisplay.getRectSize(r);
         result[0] = r.width();

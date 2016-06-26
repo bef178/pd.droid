@@ -218,7 +218,7 @@ public class ImageActivity extends AbsMediaActivity {
         super.onCreate(savedInstanceState, R.layout.image_main);
 
         mResolution = new int[2];
-        SystemUiUtil.findScreenResolution(this, mResolution);
+        SystemUiUtil.findScreenResolution(getWindowManager(), mResolution);
 
         setupModel(imageUri);
         setupSwitcher();

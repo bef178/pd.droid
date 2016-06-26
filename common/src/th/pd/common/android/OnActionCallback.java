@@ -7,5 +7,5 @@ package th.pd.common.android;
  */
 public interface OnActionCallback {
 
-    public boolean onAction(int actionId, Object extra);
+    public boolean onAction(int action, Object extra);
 }

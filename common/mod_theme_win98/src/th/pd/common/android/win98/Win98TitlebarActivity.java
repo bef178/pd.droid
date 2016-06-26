@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import th.pd.common.android.R;
-import th.pd.common.android.titlebar.TitlebarController;
 
 public abstract class Win98TitlebarActivity extends Activity implements
         TitlebarController.Callback {

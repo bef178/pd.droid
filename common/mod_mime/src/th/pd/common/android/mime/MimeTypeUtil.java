@@ -9,7 +9,7 @@ import th.pd.common.android.R;
 public class MimeTypeUtil {
 
     private enum Category {
-        GENERIC, IMAGE, AUDIO, VIDEO;
+        REGULAR_FILE, IMAGE, AUDIO, VIDEO;
 
         public static Category from(String s) {
             for (Category c : Category.values()) {
@@ -17,11 +17,11 @@ public class MimeTypeUtil {
                     return c;
                 }
             }
-            return GENERIC;
+            return REGULAR_FILE;
         }
     }
 
-    public static final String MIME_TYPE_DIR = "vnd.android.document/directory";
+    public static final String MIME_DIRECTORY = "vnd.android.document/directory";
 
     private static Category getCategory(String mimeType) {
         String major = majorMimeType(mimeType);
@@ -29,7 +29,7 @@ public class MimeTypeUtil {
         if (major != null) {
             c = Category.from(major);
             if (c == null) {
-                c = Category.GENERIC;
+                c = Category.REGULAR_FILE;
             }
         }
         return c;
@@ -75,7 +75,7 @@ public class MimeTypeUtil {
     public static String mimeTypeByFile(File file) {
         if (file.isDirectory()) {
             // return Document.MIME_TYPE_DIR;
-            return MIME_TYPE_DIR;
+            return MIME_DIRECTORY;
         }
 
         String path = file.getName();
@@ -91,6 +91,9 @@ public class MimeTypeUtil {
      * return at least the resId of generic file<br/>
      */
     public static int resIdByMimeType(String mimeType) {
+        if (mimeType.equalsIgnoreCase(MIME_DIRECTORY)) {
+            return R.drawable.mime_typed;
+        }
         switch (getCategory(mimeType)) {
             case IMAGE:
                 return R.drawable.mime_image;
@@ -99,7 +102,7 @@ public class MimeTypeUtil {
             case VIDEO:
                 return R.drawable.mime_video;
             default:
-                return R.drawable.mime_generic;
+                return R.drawable.mime_typef;
         }
     }
 

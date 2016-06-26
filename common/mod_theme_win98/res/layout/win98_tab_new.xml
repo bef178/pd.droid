@@ -20,7 +20,7 @@
             android:layout_gravity="center"
             android:clickable="false"
             android:contentDescription="@null"
-            android:src="@drawable/win98_button_add" />
+            android:src="@drawable/win98_titlebar_button_new" />
     </FrameLayout>
 
 </LinearLayout>

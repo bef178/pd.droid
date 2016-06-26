@@ -1,19 +1,18 @@
-package th.pd.common.android.titlebar;
+package th.pd.common.android.win98;
 
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import th.pd.common.android.DragListener;
+import th.pd.common.android.SystemUiUtil;
 
 /**
  * the finger offset maps to the anchor coordinate<br/>
  * the anchor coordinate is restricted then maps to the layout offset<br/>
  */
-public class TitlebarDragListener extends DragListener {
+class TitlebarDragListener extends DragListener {
 
     private static final int SNAP_OFFSET = 12;
 
@@ -62,17 +61,9 @@ public class TitlebarDragListener extends DragListener {
                 decorView.getHeight() / 2);
     }
 
-    private static void findScreenSize(Window window, int[] screenSize) {
-        Display defDisplay = window.getWindowManager().getDefaultDisplay();
-        Point p = new Point();
-        defDisplay.getSize(p);
-        screenSize[0] = p.x;
-        screenSize[1] = p.y;
-    }
-
     private static void findWindowAnchor(View decorView,
             int[] anchorFromTopleft, int[] rawWindowAnchorCoord) {
-        // take the center point as anchor point
+        // anchor to the center
         anchorFromTopleft[0] = decorView.getWidth() / 2;
         anchorFromTopleft[1] = decorView.getHeight() / 2;
 
@@ -122,7 +113,8 @@ public class TitlebarDragListener extends DragListener {
     public void onDragBegin(View view, int rawX, int rawY) {
         findWindowAnchor(mWindow.getDecorView(), mAnchorFromTopleft,
                 mRawAnchor);
-        findScreenSize(mWindow, mScreenSize);
+        SystemUiUtil.findScreenResolution(
+                mWindow.getWindowManager(), mScreenSize);
         findAcceptableRectForWindowAnchor(view);
         mTouchPointFromWindowAnchor[0] = rawX - mRawAnchor[0];
         mTouchPointFromWindowAnchor[1] = rawY - mRawAnchor[1];

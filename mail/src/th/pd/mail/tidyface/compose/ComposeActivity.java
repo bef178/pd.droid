@@ -25,23 +25,8 @@ public class ComposeActivity extends Win98TitlebarActivity {
     }
 
     @Override
-    public void onClickClose(View view) {
+    public void onClose() {
         finish();
-    }
-
-    @Override
-    public void onClickMaximize(View view) {
-        Toast.makeText(this, "max", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onClickMinimize(View view) {
-        moveTaskToBack(true);
-    }
-
-    @Override
-    public void onClickResize(View view) {
-        Toast.makeText(this, "resize", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -61,13 +46,28 @@ public class ComposeActivity extends Win98TitlebarActivity {
     }
 
     @Override
-    public void onDoubleClick(View view) {
-        onClickMaximize(null);
+    public void onMaximize() {
+        Toast.makeText(this, "max", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMinimize() {
+        moveTaskToBack(true);
+    }
+
+    @Override
+    public void onNew() {
+        Toast.makeText(this, "new", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+    }
+
+    @Override
+    public void onRestore() {
+        Toast.makeText(this, "restore", Toast.LENGTH_SHORT).show();
     }
 
     @Override

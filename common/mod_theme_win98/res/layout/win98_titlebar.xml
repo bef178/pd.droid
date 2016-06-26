@@ -5,108 +5,55 @@
     android:layout_height="wrap_content"
     android:background="@drawable/win98_titlebar_bg"
     android:orientation="horizontal"
-    android:padding="2dp" >
+    android:padding="@dimen/win98_titlebar_spacing">
 
-    <FrameLayout
-        android:id="@+id/btnIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|start"
-        android:layout_marginEnd="2dp"
-        android:addStatesFromChildren="true"
-        android:clickable="true"
-        android:maxWidth="26dp" >
-
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:contentDescription="@null"
-            android:src="@null" />
-    </FrameLayout>
+    <ImageView
+        android:id="@android:id/icon"
+        style="@style/theme.win98.Titlebar.Icon"
+        android:layout_marginEnd="@dimen/win98_titlebar_spacing"
+        android:contentDescription="@null"/>
 
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginEnd="2dp"
+        android:layout_marginEnd="@dimen/win98_titlebar_spacing"
         android:layout_weight="1"
-        android:gravity="center_vertical|start"
+        android:ellipsize="end"
+        android:gravity="bottom|start"
+        android:singleLine="true"
         android:textColor="#FFF"
-        android:textSize="12sp" />
+        android:textSize="@dimen/win98_titlebar_text_size"
+        android:textStyle="bold"/>
 
-    <FrameLayout
-        android:id="@+id/btnResize"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|start"
-        android:layout_marginEnd="2dp"
-        android:addStatesFromChildren="true"
-        android:clickable="true"
-        android:visibility="gone" >
+    <ImageView
+        android:id="@+id/actionNew"
+        style="@style/theme.win98.Titlebar.Button"
+        android:contentDescription="@null"
+        android:src="@drawable/win98_titlebar_button_new"/>
 
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="14dp"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:contentDescription="@null"
-            android:src="@drawable/win98_button_resize" />
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/actionMinimize"
+        style="@style/theme.win98.Titlebar.Button"
+        android:contentDescription="@null"
+        android:src="@drawable/win98_titlebar_button_minimize"/>
 
-    <FrameLayout
-        android:id="@+id/btnMinimize"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|start"
-        android:addStatesFromChildren="true"
-        android:clickable="true" >
+    <ImageView
+        android:id="@+id/actionMaximize"
+        style="@style/theme.win98.Titlebar.Button"
+        android:contentDescription="@null"
+        android:src="@drawable/win98_titlebar_button_maximize"/>
 
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="14dp"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:contentDescription="@null"
-            android:src="@drawable/win98_button_minimize" />
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/actionRestore"
+        style="@style/theme.win98.Titlebar.Button"
+        android:contentDescription="@null"
+        android:src="@drawable/win98_titlebar_button_restore"/>
 
-    <FrameLayout
-        android:id="@+id/btnMaximize"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|start"
-        android:layout_marginStart="1px"
-        android:addStatesFromChildren="true"
-        android:clickable="true" >
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="14dp"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:contentDescription="@null"
-            android:src="@drawable/win98_button_maximize" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/btnClose"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|start"
-        android:layout_marginStart="2dp"
-        android:addStatesFromChildren="true"
-        android:clickable="true" >
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="14dp"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:contentDescription="@null"
-            android:src="@drawable/win98_button_close" />
-    </FrameLayout>
-
+    <ImageView
+        android:id="@+id/actionClose"
+        style="@style/theme.win98.Titlebar.Button"
+        android:layout_marginStart="@dimen/win98_titlebar_spacing"
+        android:contentDescription="@null"
+        android:src="@drawable/win98_titlebar_button_close"/>
 </LinearLayout>

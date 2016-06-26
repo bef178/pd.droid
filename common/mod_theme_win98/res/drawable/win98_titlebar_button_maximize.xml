@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:state_pressed="true">
+    <layer-list>
+      <item>
+        <nine-patch android:src="@drawable/win98_titlebar_button_state_pressed"/>
+      </item>
+      <item android:drawable="@drawable/win98_titlebar_button_maximize_fg"/>
+    </layer-list>
+  </item>
+  <item>
+    <layer-list>
+      <item>
+        <nine-patch android:src="@drawable/win98_titlebar_button_state_default"/>
+      </item>
+      <item android:drawable="@drawable/win98_titlebar_button_maximize_fg"/>
+    </layer-list>
+  </item>
+</selector>

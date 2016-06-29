@@ -74,67 +74,6 @@ class GestureListener implements OnGestureListener,
         mCallback = callback;
     }
 
-    private static float abs(float f) {
-        return f >= 0f ? f : -f;
-    }
-
-    private static int getMoveTrend(float dx, float dy) {
-        if (abs(dx) >= abs(dy)) {
-            if (dx >= 0) {
-                return 6;
-            } else {
-                return 4;
-            }
-        } else {
-            if (dy >= 0) {
-                return 8;
-            } else {
-                return 4;
-            }
-        }
-    }
-
-    private static int getMoveTrendWithDistanceCheck(float dx, float dy) {
-        final int THRESHOLD_DISTANCE = 100;
-        int trend = getMoveTrend(dx, dy);
-        switch (trend) {
-            case 4:
-            case 6:
-                if (abs(dx) >= THRESHOLD_DISTANCE) {
-                    return trend;
-                }
-                break;
-            case 2:
-            case 8:
-                if (abs(dy) >= THRESHOLD_DISTANCE) {
-                    return trend;
-                }
-                break;
-        }
-        return 5;
-    }
-
-    private static int getMoveTrendWithVelocityCheck(float dx, float dy,
-            float vx, float vy) {
-        final int THRESHOLD_VELOCITY = 100;
-        int trend = getMoveTrend(dx, dy);
-        switch (trend) {
-            case 4:
-            case 6:
-                if (abs(vx) >= THRESHOLD_VELOCITY) {
-                    return trend;
-                }
-                break;
-            case 2:
-            case 8:
-                if (abs(vy) >= THRESHOLD_VELOCITY) {
-                    return trend;
-                }
-                break;
-        }
-        return 5;
-    }
-
     public Callback getCallback() {
         return mCallback;
     }
@@ -155,17 +94,16 @@ class GestureListener implements OnGestureListener,
     }
 
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2,
+    public boolean onFling(MotionEvent first, MotionEvent last,
             float velocityX, float velocityY) {
-        if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
+        if (first.getPointerCount() > 1 || last.getPointerCount() > 1) {
             return false;
         }
         if (mCallback != null) {
-            float dx = e2.getX() - e1.getX();
-            float dy = e2.getY() - e1.getY();
-            if (mCallback.onFlingTo(
-                    getMoveTrendWithVelocityCheck(dx, dy,
-                            velocityX, velocityY))) {
+            if (mCallback.onFling(
+                    (int) (last.getX() - first.getX()),
+                    (int) (last.getY() - first.getY()),
+                    velocityX, velocityY)) {
                 return true;
             }
         }
@@ -196,20 +134,16 @@ class GestureListener implements OnGestureListener,
     }
 
     @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2,
+    public boolean onScroll(MotionEvent first, MotionEvent last,
             float distanceX, float distanceY) {
-        if (e1.getPointerCount() > 1 || e2.getPointerCount() > 1) {
+        if (first.getPointerCount() > 1 || last.getPointerCount() > 1) {
             return false;
         }
         if (mCallback != null) {
-            float dx = e2.getRawX() - e1.getRawX();
-            float dy = e2.getRawY() - e1.getRawY();
-            int trend = getMoveTrendWithDistanceCheck(dx, dy);
-            return mCallback.onScrollBy(new int[] {
-                    (int) dx, (int) dy
-            }, new int[] {
-                    (int) distanceX, (int) distanceY
-            }, trend);
+            float dxTotal = last.getRawX() - first.getRawX();
+            float dyTotal = last.getRawY() - first.getRawY();
+            return mCallback.onScrollBy((int) dxTotal, (int) dyTotal,
+                    (int) distanceX, (int) distanceY);
         }
         return false;
     }
@@ -248,11 +182,12 @@ public class GesturePipeline {
 
         boolean onDoubleTap();
 
-        boolean onFlingTo(int trend);
+        boolean onFling(int dxTotal, int dyTotal,
+                float velocityX, float velocityY);
 
         boolean onScaleTo(float scale, int focusX, int focusY);
 
-        boolean onScrollBy(int[] totalDiff, int[] lastDiff, int trend);
+        boolean onScrollBy(int dxTotal, int dyTotal, int dx, int dy);
 
         boolean onTapUp();
     }

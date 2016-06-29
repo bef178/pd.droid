@@ -9,7 +9,6 @@
   <item name="actionUpdateTotalProgress" type="id"/>
 
   <item name="actionSetImageAs" type="id"/>
-  <item name="actionShare" type="id"/>
 
   <item name="actionZoomIn" type="id"/>
   <item name="actionZoomOut" type="id"/>

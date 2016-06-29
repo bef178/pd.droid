@@ -19,8 +19,8 @@ import th.pd.common.android.QueryUtil;
 import th.pd.common.android.SystemUiUtil;
 import th.pd.common.android.mime.MimeTypeUtil;
 import th.pd.glry.AbsMediaActivity;
-import th.pd.glry.image.GesturePipeline.Callback;
 import th.pd.glry.R;
+import th.pd.glry.image.GesturePipeline.Callback;
 
 public class ImageActivity extends AbsMediaActivity {
 
@@ -74,7 +74,8 @@ public class ImageActivity extends AbsMediaActivity {
 
     private Model mModel;
     private int mCurrentPos;
-    private ImageDisplay mImageSwitcher;
+
+    private ImageDisplay mDisplay;
 
     private PivotCache<Bitmap> mCache;
     private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
@@ -109,12 +110,12 @@ public class ImageActivity extends AbsMediaActivity {
 
     private void fallbackSwitching() {
         if (mScrolledX > 0) {
-            mImageSwitcher.doSwitch(getBitmap(mCurrentPos - 1),
+            mDisplay.doSwitch(getBitmap(mCurrentPos - 1),
                     getBitmap(mCurrentPos),
                     true,
                     1 - getScrolledFraction(mScrolledX));
         } else if (mScrolledX < 0) {
-            mImageSwitcher.doSwitch(getBitmap(mCurrentPos + 1),
+            mDisplay.doSwitch(getBitmap(mCurrentPos + 1),
                     getBitmap(mCurrentPos),
                     false,
                     1 - getScrolledFraction(mScrolledX));
@@ -127,15 +128,15 @@ public class ImageActivity extends AbsMediaActivity {
      * forth-and-back animation to tell no more images
      */
     private void fallbackSwitchingForButton(int offset) {
-        final float turnPointAnimatedFraction = 0.15f;
+        final float turnPoint = 0.45f;
         if (offset > 0) {
-            mImageSwitcher.doSwitchAndFallback(
-                    getBitmap(mCurrentPos), getBitmap(mCurrentPos + 1),
-                    true, turnPointAnimatedFraction);
+            mDisplay.doSwitch(getBitmap(mCurrentPos),
+                    getBitmap(mCurrentPos + 1),
+                    true, 0f, turnPoint);
         } else if (offset < 0) {
-            mImageSwitcher.doSwitchAndFallback(
-                    getBitmap(mCurrentPos), getBitmap(mCurrentPos - 1),
-                    false, turnPointAnimatedFraction);
+            mDisplay.doSwitch(getBitmap(mCurrentPos),
+                    getBitmap(mCurrentPos - 1),
+                    false, 0f, turnPoint);
         }
         mScrolledX = 0;
     }
@@ -153,7 +154,7 @@ public class ImageActivity extends AbsMediaActivity {
         if (scrolledX < 0) {
             scrolledX = -scrolledX;
         }
-        float fraction = 1f * scrolledX / mImageSwitcher.getWidth();
+        float fraction = 1f * scrolledX / mDisplay.getWidth();
         if (fraction > 1f) {
             fraction = 1f;
         }
@@ -164,21 +165,21 @@ public class ImageActivity extends AbsMediaActivity {
     public boolean onAction(int actionId, Object extra) {
         switch (actionId) {
             case R.id.actionNext:
-                mImageSwitcher.resetImage();
+                mDisplay.restore();
                 switchOrFallback(1, true);
                 return true;
             case R.id.actionPrev:
-                mImageSwitcher.resetImage();
+                mDisplay.restore();
                 switchOrFallback(-1, true);
                 return true;
             case R.id.actionZoomIn:
-                mImageSwitcher.doScale(10f / 9);
+                mDisplay.scale(10f / 9);
                 return true;
             case R.id.actionZoomOut:
-                mImageSwitcher.doScale(0.9f);
+                mDisplay.scale(0.9f);
                 return true;
             case R.id.actionZoomReset:
-                mImageSwitcher.resetImage();
+                mDisplay.restore();
                 return true;
             case R.id.actionSetImageAs:
                 Uri currentUri = mModel.getData(mCurrentPos);
@@ -197,11 +198,11 @@ public class ImageActivity extends AbsMediaActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mImageSwitcher.postDelayed(new Runnable() {
+        mDisplay.postDelayed(new Runnable() {
 
             @Override
             public void run() {
-                mImageSwitcher.resetImage();
+                mDisplay.restore();
             }
         }, 100);
     }
@@ -218,8 +219,8 @@ public class ImageActivity extends AbsMediaActivity {
         mResolution = new int[2];
         SystemUiUtil.findScreenResolution(getWindowManager(), mResolution);
 
+        mDisplay = (ImageDisplay) findViewById(R.id.image);
         setupModel(imageUri);
-        setupSwitcher();
         setupController();
 
         startInitializeTask();
@@ -270,101 +271,102 @@ public class ImageActivity extends AbsMediaActivity {
 
             @Override
             public boolean onDoubleTap() {
-                if (mImageSwitcher.isScaled()) {
-                    mImageSwitcher.resetImage();
+                if (mDisplay.isScaled()) {
+                    mDisplay.restore();
                 } else {
-                    // scale to full screen fit
-                    Rect imageRect = mImageSwitcher.getFrameRect();
-                    if (imageRect.width() < mImageSwitcher.getWidth()
-                            && imageRect.height() < mImageSwitcher
-                                    .getHeight()) {
+                    Rect rect = mDisplay.copyFrameRect();
+                    if (rect.width() < mDisplay.getWidth()
+                            && rect.height() < mDisplay.getHeight()) {
+                        // scale to fit full screen
                         float scale = Math.min(
-                                1f * mImageSwitcher.getWidth()
-                                        / imageRect.width(),
-                                1f * mImageSwitcher.getHeight()
-                                        / imageRect.height());
-                        mImageSwitcher.doScale(scale);
+                                1f * mDisplay.getWidth() / rect.width(),
+                                1f * mDisplay.getHeight() / rect.height());
+                        mDisplay.scale(scale);
+                    } else {
+                        mDisplay.scaleToDotForDot();
                     }
                 }
                 return true;
             }
 
             @Override
-            public boolean onFlingTo(int trend) {
-                if (mImageSwitcher.isScaled()) {
+            public boolean onFling(int dxTotal, int dyTotal,
+                    float velocityX, float velocityY) {
+                if (mDisplay.isScaled()) {
                     return false;
                 }
-                switch (trend) {
-                    case 6:
+
+                if (Math.abs(dxTotal) > Math.abs(dyTotal)) {
+                    if (dxTotal > 0) {
                         switchOrFallback(-1, false);
-                        return true;
-                    case 4:
+                    } else {
                         switchOrFallback(1, false);
-                        return true;
-                    default:
-                        break;
+                    }
+                    return true;
                 }
+
                 return false;
             }
 
             @Override
             public boolean onScaleTo(float scale, int focusX, int focusY) {
-                Rect imageRect = mImageSwitcher.getFrameRect();
-                if (!imageRect.contains(focusX, focusY)
-                        || (imageRect.width() <= mImageSwitcher.getWidth()
-                        && imageRect.height() <= mImageSwitcher.getHeight())) {
+                Rect rect = mDisplay.copyFrameRect();
+                if (!rect.contains(focusX, focusY)
+                        || (rect.width() <= mDisplay.getWidth()
+                        && rect.height() <= mDisplay.getHeight())) {
                     // focus on the center
-                    mImageSwitcher.doScale(scale);
+                    mDisplay.scale(scale);
                 } else {
-                    mImageSwitcher.doScale(scale, focusX, focusY);
+                    mDisplay.scale(scale, focusX, focusY);
                 }
                 return true;
             }
 
             @Override
-            public boolean onScrollBy(int[] totalDiff, int[] lastDiff,
-                    int trend) {
-                if (mImageSwitcher.isScaled()) {
-                    Rect imageRect = mImageSwitcher.getFrameRect();
-                    if (imageRect.width() > mImageSwitcher.getWidth()
-                            || imageRect.height() > mImageSwitcher.getHeight()) {
-                        imageRect.offset(-lastDiff[0], -lastDiff[1]);
-                        if (imageRect.contains(
-                                mImageSwitcher.getWidth() / 2,
-                                mImageSwitcher.getHeight() / 2)) {
-                            mImageSwitcher.doOffset(-lastDiff[0], -lastDiff[1]);
+            public boolean onScrollBy(int dxTotal, int dyTotal,
+                    int dx, int dy) {
+
+                if (mDisplay.isScaled()) {
+                    Rect rect = mDisplay.copyFrameRect();
+                    if (rect.width() > mDisplay.getWidth()
+                            || rect.height() > mDisplay.getHeight()) {
+                        rect.offset(-dx, -dy);
+                        if (rect.contains(mDisplay.getWidth() / 2,
+                                mDisplay.getHeight() / 2)) {
+                            mDisplay.move(-dx, -dy);
                         }
                     }
                     return true;
                 }
-                switch (trend) {
-                    case 4:
-                    case 6:
-                        if (totalDiff[0] < 0) {
-                            mImageSwitcher.doScroll(
-                                    getBitmap(mCurrentPos),
-                                    getBitmap(mCurrentPos + 1),
-                                    true,
-                                    getScrolledFraction(totalDiff[0]));
-                        } else if (totalDiff[0] > 0) {
-                            mImageSwitcher.doScroll(
-                                    getBitmap(mCurrentPos),
-                                    getBitmap(mCurrentPos - 1),
-                                    false,
-                                    getScrolledFraction(totalDiff[0]));
-                        }
-                        mScrolledX = totalDiff[0];
-                        return true;
+
+                if (Math.abs(dxTotal) > Math.abs(dyTotal)
+                        && Math.abs(dxTotal) > 100) {
+                    if (dxTotal < 0) {
+                        mDisplay.doScroll(
+                                getBitmap(mCurrentPos),
+                                getBitmap(mCurrentPos + 1),
+                                true,
+                                getScrolledFraction(dxTotal));
+                    } else if (dxTotal > 0) {
+                        mDisplay.doScroll(
+                                getBitmap(mCurrentPos),
+                                getBitmap(mCurrentPos - 1),
+                                false,
+                                getScrolledFraction(dxTotal));
+                    }
+                    mScrolledX = dxTotal;
+                    return true;
                 }
+
                 return false;
             }
 
             @Override
             public boolean onTapUp() {
-                if (mImageSwitcher.isScaled()) {
+                if (mDisplay.isScaled()) {
                     return false;
                 }
-                if (getScrolledFraction(mScrolledX) < 0.5f) {
+                if (getScrolledFraction(mScrolledX) < 0.4f) {
                     fallbackSwitching();
                 } else {
                     if (mScrolledX > 0) {
@@ -432,17 +434,13 @@ public class ImageActivity extends AbsMediaActivity {
             mModel.add(uri);
         }
         mCurrentPos = mModel.indexOf(uri);
-    }
 
-    private void setupSwitcher() {
-        mImageSwitcher = (ImageDisplay) findViewById(R.id.image);
         mCache = new PivotCache<Bitmap>();
         mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
     }
 
     private void startInitializeTask() {
         mUpdateCacheTaskArgument.set(mCurrentPos, null);
-
         new UpdateCacheTask() {
 
             @Override
@@ -471,22 +469,24 @@ public class ImageActivity extends AbsMediaActivity {
      * @return <code>true</code> if will successfully switch
      */
     private boolean switchBy(int offset) {
+        if (mDisplay.isSwitching()) {
+            return false;
+        }
+
         int pos = mCurrentPos + offset;
         if (!mModel.hasIndex(pos)) {
             return false;
         }
 
-        mImageSwitcher.doneSwitching();
-
         Bitmap bitmap = getBitmap(pos);
         if (offset == 0) {
-            mImageSwitcher.firstLoad(bitmap);
+            mDisplay.firstLoad(bitmap);
         } else if (offset > 0) {
-            mImageSwitcher.doSwitch(getBitmap(mCurrentPos), bitmap,
+            mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap,
                     true,
                     getScrolledFraction(mScrolledX));
         } else {
-            mImageSwitcher.doSwitch(getBitmap(mCurrentPos), bitmap,
+            mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap,
                     false,
                     getScrolledFraction(mScrolledX));
         }
@@ -503,12 +503,14 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private void switchOrFallback(int offset, boolean triggedByButton) {
-        if (!switchBy(offset)) {
+        if (!mModel.hasIndex(mCurrentPos + offset)) {
             if (triggedByButton) {
                 fallbackSwitchingForButton(offset);
             } else {
                 fallbackSwitching();
             }
+        } else {
+            switchBy(offset);
         }
     }
 }

@@ -39,6 +39,18 @@ define sign_apk
     $(call sign_jar, $(1).aligned, $(2))
 endef
 
+define sign_jar_no_tsa
+    @jarsigner \
+        -digestalg SHA1 -sigalg MD5withRSA \
+        -keystore $(ANDROID_KEYSTORE) -storepass $(ANDROID_KEYSTORE_PASS) \
+        -signedjar $(2) -sigfile cert $(1) $(ANDROID_KEYSTORE_ALIAS)
+endef
+
+define sign_apk_no_tsa
+    @$(ANDROID_BUILD_TOOLS)/zipalign -f 4 $(1) $(1).aligned
+    $(call sign_jar_no_tsa, $(1).aligned, $(2))
+endef
+
 define do_add_assign
     ifndef $(1)
         $(1) := $(2)

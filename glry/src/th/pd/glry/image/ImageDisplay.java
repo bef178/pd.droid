@@ -1,4 +1,4 @@
-package th.pd.glry.elementary;
+package th.pd.glry.image;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -27,11 +27,11 @@ import th.pd.common.android.SimpleAnimatorListener;
  * length(animatedFraction) and f is seldom linear. So there
  * would be a distinguishable difference between x and y.<br/>
  * <br/>
- * All update requests are applied to {@link Frame} for {@link #onDraw(Canvas)}
+ * All update requests are applied to {@link ImageFrame} for {@link #onDraw(Canvas)}
  * reading.<br/>
  * <br/>
  */
-public class FramedView extends View {
+public class ImageDisplay extends View {
 
     private static final int FLAG_ENTER = 0x1;
     private static final int FLAG_SCALE = 0x10;
@@ -99,7 +99,7 @@ public class FramedView extends View {
         }
     }
 
-    private static void updateFrame(Frame frame, int flags,
+    private static void updateFrame(ImageFrame frame, int flags,
             float animatedFraction, int hostWidth, int hostHeight) {
         if (!frame.isValid() || hostWidth == 0 || hostHeight == 0) {
             return;
@@ -173,8 +173,8 @@ public class FramedView extends View {
 
     private AnimatorSet mAnimatorSet = null;
 
-    private Frame mSrcFrame;
-    private Frame mDstFrame;
+    private ImageFrame mSrcFrame;
+    private ImageFrame mDstFrame;
 
     // mainly for onDraw() to keep consistent animation
     private boolean mDstIsNext = true;
@@ -184,10 +184,10 @@ public class FramedView extends View {
     // to fix the time sequence of data load and view load
     private Runnable mFirstLoadRunnable;
 
-    public FramedView(Context context, AttributeSet attrs) {
+    public ImageDisplay(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mSrcFrame = new Frame();
-        mDstFrame = new Frame();
+        mSrcFrame = new ImageFrame();
+        mDstFrame = new ImageFrame();
         mPaint = new Paint();
     }
 
@@ -391,7 +391,7 @@ public class FramedView extends View {
         mAnimatorSet.start();
     }
 
-    private void drawFrame(Canvas canvas, Paint paint, Frame frame) {
+    private void drawFrame(Canvas canvas, Paint paint, ImageFrame frame) {
         if (frame.isValid()) {
             paint.setAlpha(frame.getAlpha());
             canvas.drawBitmap(frame.bitmap, null, frame.rect, paint);
@@ -417,7 +417,7 @@ public class FramedView extends View {
         return new Rect(mSrcFrame.rect);
     }
 
-    public void initAndFit(Frame frame, Bitmap bitmap,
+    public void initAndFit(ImageFrame frame, Bitmap bitmap,
             int hostWidth, int hostHeight) {
         frame.init(bitmap);
         if (bitmap == null || hostWidth <= 0 || hostHeight <= 0) {

@@ -19,10 +19,8 @@ import th.pd.common.android.QueryUtil;
 import th.pd.common.android.SystemUiUtil;
 import th.pd.common.android.mime.MimeTypeUtil;
 import th.pd.glry.AbsMediaActivity;
-import th.pd.glry.GesturePipeline;
-import th.pd.glry.GesturePipeline.Callback;
+import th.pd.glry.image.GesturePipeline.Callback;
 import th.pd.glry.R;
-import th.pd.glry.elementary.FramedView;
 
 public class ImageActivity extends AbsMediaActivity {
 
@@ -76,7 +74,7 @@ public class ImageActivity extends AbsMediaActivity {
 
     private Model mModel;
     private int mCurrentPos;
-    private FramedView mImageSwitcher;
+    private ImageDisplay mImageSwitcher;
 
     private PivotCache<Bitmap> mCache;
     private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
@@ -437,7 +435,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private void setupSwitcher() {
-        mImageSwitcher = (FramedView) findViewById(R.id.image);
+        mImageSwitcher = (ImageDisplay) findViewById(R.id.image);
         mCache = new PivotCache<Bitmap>();
         mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
     }

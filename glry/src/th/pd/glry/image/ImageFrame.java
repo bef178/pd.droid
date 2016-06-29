@@ -1,10 +1,10 @@
-package th.pd.glry.elementary;
+package th.pd.glry.image;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 /**
- * **Used by <code>{@link FramedView}</code> for painting**<br/>
+ * **Used by <code>{@link ImageDisplay}</code> for painting**<br/>
  * For an image, there're several rects:<br/>
  * <code>origRect</code> - the bitmap dimension<br/>
  * <code>hostRect</code> - the container dimension<br/>
@@ -13,7 +13,7 @@ import android.graphics.Rect;
  *
  * @author tanghao
  */
-class Frame {
+class ImageFrame {
 
     Bitmap bitmap;
 
@@ -23,7 +23,7 @@ class Frame {
     // an instantaneous value that may change during animation, finalize to 0xFF
     private int alpha;
 
-    public Frame() {
+    public ImageFrame() {
         rect = new Rect();
         init(null);
     }

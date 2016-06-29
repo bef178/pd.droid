@@ -1,4 +1,4 @@
-package th.pd.glry.elementary;
+package th.pd.glry.image;
 
 import android.view.animation.Interpolator;
 

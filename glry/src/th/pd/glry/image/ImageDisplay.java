@@ -63,27 +63,34 @@ public class ImageDisplay extends View {
     }
 
     public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
-            float start) {
-        doSwitch(from, to, isForward, start, 2f);
+            float startPoint, final Runnable onAnimEnd) {
+        doSwitch(from, to, isForward, startPoint, 2f, onAnimEnd);
+    }
+
+    public void doFallback(Bitmap from, Bitmap to, boolean isForward,
+            float startPoint, final Runnable onAnimEnd) {
+        doSwitch(to, from, !isForward, 1 - startPoint, onAnimEnd);
     }
 
     public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
-            float start, float fallback) {
+            float startPoint, float rollbackPoint, final Runnable onAnimEnd) {
         if (mAgent.isSwitching()) {
             return;
         }
         mAgent.init(from, to, isForward);
-        mAgent.goSwitch(start, fallback,
-                new Runnable() {
+        mAgent.goSwitch(startPoint, rollbackPoint, new Runnable() {
 
-                    @Override
-                    public void run() {
-                        Util.init(mFrame,
-                                mAgent.getDstFrame().getBitmap(),
-                                ImageDisplay.this.getWidth(),
-                                ImageDisplay.this.getHeight());
-                    }
-                });
+            @Override
+            public void run() {
+                Util.init(mFrame,
+                        mAgent.getDstFrame().getBitmap(),
+                        ImageDisplay.this.getWidth(),
+                        ImageDisplay.this.getHeight());
+                if (onAnimEnd != null) {
+                    onAnimEnd.run();
+                }
+            }
+        });
     }
 
     public void firstLoad(final Bitmap bitmap) {

@@ -70,6 +70,8 @@ public class ImageActivity extends AbsMediaActivity {
         }
     }
 
+    private static final float FALLBACK_POINT = 0.45f;
+
     private int[] mResolution = null;
 
     private Model mModel;
@@ -108,36 +110,16 @@ public class ImageActivity extends AbsMediaActivity {
         return null;
     }
 
-    private void fallbackSwitching() {
-        if (mScrolledX > 0) {
-            mDisplay.doSwitch(getBitmap(mCurrentPos - 1),
-                    getBitmap(mCurrentPos),
-                    true,
-                    1 - getScrolledFraction(mScrolledX));
-        } else if (mScrolledX < 0) {
-            mDisplay.doSwitch(getBitmap(mCurrentPos + 1),
-                    getBitmap(mCurrentPos),
-                    false,
-                    1 - getScrolledFraction(mScrolledX));
-        }
-        mScrolledX = 0;
-    }
-
     /**
-     * for key triggered fallback, we don't have scrolledX, so play a
-     * forth-and-back animation to tell no more images
+     * play a reverse-scroll animation
      */
-    private void fallbackSwitchingForButton(int offset) {
-        final float turnPoint = 0.45f;
-        if (offset > 0) {
-            mDisplay.doSwitch(getBitmap(mCurrentPos),
-                    getBitmap(mCurrentPos + 1),
-                    true, 0f, turnPoint);
-        } else if (offset < 0) {
-            mDisplay.doSwitch(getBitmap(mCurrentPos),
-                    getBitmap(mCurrentPos - 1),
-                    false, 0f, turnPoint);
-        }
+    private void fallbackSwitching() {
+        boolean isForward = mScrolledX < 0;
+        mDisplay.doFallback(getBitmap(mCurrentPos),
+                getBitmap(mCurrentPos + (isForward ? 1 : -1)),
+                isForward,
+                getScrolledFraction(mScrolledX),
+                null);
         mScrolledX = 0;
     }
 
@@ -151,10 +133,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private float getScrolledFraction(int scrolledX) {
-        if (scrolledX < 0) {
-            scrolledX = -scrolledX;
-        }
-        float fraction = 1f * scrolledX / mDisplay.getWidth();
+        float fraction = 1f * Math.abs(scrolledX) / mDisplay.getWidth();
         if (fraction > 1f) {
             fraction = 1f;
         }
@@ -446,7 +425,23 @@ public class ImageActivity extends AbsMediaActivity {
             @Override
             protected void onPostExecute(Void result) {
                 super.onPostExecute(result);
-                switchBy(0);
+
+                // first load
+                int pos = mCurrentPos;
+                if (mModel.hasIndex(pos)) {
+                    Bitmap bitmap = getBitmap(pos);
+                    mDisplay.firstLoad(bitmap);
+
+                    mScrolledX = 0;
+                    mCurrentPos = pos;
+
+                    setTitleByUri(mModel.getData(pos));
+                    setSummary(String.format("%d / %d",
+                            pos + 1,
+                            mModel.getCount()));
+
+                    startUpdateCacheTask(pos, bitmap);
+                }
             }
         }.execute(mUpdateCacheTaskArgument);
     }
@@ -461,56 +456,41 @@ public class ImageActivity extends AbsMediaActivity {
         mUpdateCacheTask.execute(mUpdateCacheTaskArgument);
     }
 
-    /**
-     * switch next/prev item with animation<br/>
-     *
-     * @param offset
-     *            switch to next if positive, to prev if negative
-     * @return <code>true</code> if will successfully switch
-     */
-    private boolean switchBy(int offset) {
-        if (mDisplay.isSwitching()) {
-            return false;
-        }
-
-        int pos = mCurrentPos + offset;
+    private void switchOrFallback(int offset, boolean keyTriggered) {
+        boolean isForward = offset > 0;
+        final int pos = mCurrentPos + offset;
         if (!mModel.hasIndex(pos)) {
-            return false;
-        }
-
-        Bitmap bitmap = getBitmap(pos);
-        if (offset == 0) {
-            mDisplay.firstLoad(bitmap);
-        } else if (offset > 0) {
-            mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap,
-                    true,
-                    getScrolledFraction(mScrolledX));
-        } else {
-            mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap,
-                    false,
-                    getScrolledFraction(mScrolledX));
-        }
-
-        mScrolledX = 0;
-        mCurrentPos = pos;
-
-        setTitleByUri(mModel.getData(pos));
-        setSummary(String.format("%d / %d", pos + 1, mModel.getCount()));
-
-        startUpdateCacheTask(pos, bitmap);
-
-        return true;
-    }
-
-    private void switchOrFallback(int offset, boolean triggedByButton) {
-        if (!mModel.hasIndex(mCurrentPos + offset)) {
-            if (triggedByButton) {
-                fallbackSwitchingForButton(offset);
+            // fallback
+            if (keyTriggered) {
+                // for key triggered fallback, we don't have scrolledX, so play a
+                // forth-and-back animation to tell no more images
+                Bitmap bitmap = getBitmap(pos);
+                mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap, isForward,
+                        0f, FALLBACK_POINT, null);
+                mScrolledX = 0;
             } else {
                 fallbackSwitching();
             }
         } else {
-            switchBy(offset);
+            // switch
+            if (mDisplay.isSwitching()) {
+                return;
+            }
+
+            Bitmap bitmap = getBitmap(pos);
+            mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap, isForward,
+                    getScrolledFraction(mScrolledX), new Runnable() {
+
+                        @Override
+                        public void run() {
+                            setTitleByUri(mModel.getData(pos));
+                            setSummary(String.format("%d / %d", pos + 1,
+                                    mModel.getCount()));
+                            mCurrentPos = pos;
+                        }
+                    });
+            mScrolledX = 0;
+            startUpdateCacheTask(pos, bitmap);
         }
     }
 }

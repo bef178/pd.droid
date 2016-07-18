@@ -75,26 +75,8 @@ public abstract class AbsMediaActivity extends Activity implements
         mPageheaderController.hideWithDelay();
     }
 
-    private void setLogo() {
-        Bitmap logo = getIntent().getParcelableExtra(INTENT_EXTRA_LOGO);
-        if (logo != null) {
-            mPageheaderController.setLogo(new BitmapDrawable(
-                    getResources(), logo));
-        }
-    }
-
     protected void setSummary(CharSequence summary) {
         mPageheaderController.setSummary(summary);
-    }
-
-    private void setTitle() {
-        String title = getIntent().getStringExtra(Intent.EXTRA_TITLE);
-        if (title != null) {
-            mPageheaderController.setTitle(title);
-            mHasIntentTitle = true;
-            return;
-        }
-        setTitleByUri(getIntent().getData());
     }
 
     private void setTitleAsync(Uri contentUri) {
@@ -138,20 +120,19 @@ public abstract class AbsMediaActivity extends Activity implements
         if (uri.isRelative()) {
             // try file scheme
             File f = new File(uri.toString());
-            if (f.exists() && f.isFile()) {
-                // same as file scheme
+            if (f.isFile()) {
                 mPageheaderController.setTitle(f.getName());
                 return true;
             }
             return false;
         }
 
-        String origUriScheme = uri.getScheme();
-        if (origUriScheme != null) {
-            if (origUriScheme.equals("content")) {
+        String scheme = uri.getScheme();
+        if (scheme != null) {
+            if (scheme.equals("content")) {
                 setTitleAsync(uri);
                 return true;
-            } else if (origUriScheme.equals("file")) {
+            } else if (scheme.equals("file")) {
                 mPageheaderController.setTitle(
                         new File(uri.toString()).getName());
                 return true;
@@ -185,7 +166,18 @@ public abstract class AbsMediaActivity extends Activity implements
                     }
                 });
 
-        setLogo();
-        setTitle();
+        Bitmap logo = getIntent().getParcelableExtra(INTENT_EXTRA_LOGO);
+        if (logo != null) {
+            mPageheaderController.setLogo(new BitmapDrawable(
+                    getResources(), logo));
+        }
+
+        String title = getIntent().getStringExtra(Intent.EXTRA_TITLE);
+        if (title != null) {
+            mPageheaderController.setTitle(title);
+            mHasIntentTitle = true;
+        } else {
+            setTitleByUri(getIntent().getData());
+        }
     }
 }

@@ -66,14 +66,14 @@ public class ImageSwitchingAgent {
     }
 
     public void goSwitch(float start, final float fallback,
-            final Runnable callback) {
+            final Runnable onAnimEnd) {
         mAnimSet = new AnimatorSet();
         mAnimSet.addListener(new SimpleAnimatorListener() {
 
             @Override
             public void onAnimationEnd(Animator a) {
-                if (callback != null) {
-                    callback.run();
+                if (onAnimEnd != null) {
+                    onAnimEnd.run();
                 }
                 isScrolling = false;
                 src.init(null);

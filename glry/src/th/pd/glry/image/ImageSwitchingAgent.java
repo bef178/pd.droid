@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.View;
 
+import th.pd.android.InvertibleInterpolator;
 import th.pd.common.android.SimpleAnimatorListener;
 
 public class ImageSwitchingAgent {
@@ -18,7 +19,7 @@ public class ImageSwitchingAgent {
     private static final float MIN_SCALE = 0.4f;
     private static final float MAX_SCALE = 1.0f;
 
-    private static final ExpInterpolator f = new ExpInterpolator();
+    private static final InvertibleInterpolator f = new ExpInterpolator();
 
     private static ValueAnimator getAnimator(final float fx) {
 
@@ -35,7 +36,7 @@ public class ImageSwitchingAgent {
                 if (animator instanceof ValueAnimator) {
                     ValueAnimator a = (ValueAnimator) animator;
                     a.setCurrentPlayTime(
-                            (int) (f.getInverseInterpolation(fx) * DURATION));
+                            (int) (f.getInvertedInterpolation(fx) * DURATION));
                 }
             }
         });

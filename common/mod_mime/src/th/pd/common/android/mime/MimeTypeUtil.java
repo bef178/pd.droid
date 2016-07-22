@@ -39,6 +39,10 @@ public class MimeTypeUtil {
         return getCategory(mimeType) == Category.IMAGE;
     }
 
+    public static boolean isVideo(String mimeType) {
+        return getCategory(mimeType) == Category.VIDEO;
+    }
+
     private static String majorMimeType(String mimeType) {
         return splitMimeType(mimeType)[0];
     }

@@ -7,12 +7,16 @@ import android.view.WindowManager;
 
 public class SystemUiUtil {
 
-    public static void findScreenResolution(WindowManager m, int[] result) {
+    public static int[] findScreenResolution(WindowManager m, int[] result) {
         Display defDisplay = m.getDefaultDisplay();
         Rect r = new Rect();
         defDisplay.getRectSize(r);
+        if (result == null) {
+            result = new int[2];
+        }
         result[0] = r.width();
         result[1] = r.height();
+        return result;
     }
 
     private static int flagsHideAllSystemUi() {

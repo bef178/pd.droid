@@ -52,33 +52,28 @@ public class ImageDisplay extends View {
         return new Rect(mFrame.getRect());
     }
 
-    public void doScroll(Bitmap from, Bitmap to,
-            boolean isForward, float start) {
-        if (mAgent.isSwitching()) {
-            return;
-        }
-        mAgent.init(from, to, isForward);
-        mAgent.goScroll(start);
-        invalidate();
-    }
-
-    public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
-            float startPoint, final Runnable onAnimEnd) {
-        doSwitch(from, to, isForward, startPoint, 2f, onAnimEnd);
-    }
-
     public void doFallback(Bitmap from, Bitmap to, boolean isForward,
             float startPoint, final Runnable onAnimEnd) {
         doSwitch(to, from, !isForward, 1 - startPoint, onAnimEnd);
     }
 
-    public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
-            float startPoint, float rollbackPoint, final Runnable onAnimEnd) {
+    public void doScroll(Bitmap from, Bitmap to,
+            boolean isForward, float startPoint) {
         if (mAgent.isSwitching()) {
             return;
         }
         mAgent.init(from, to, isForward);
-        mAgent.goSwitch(startPoint, rollbackPoint, new Runnable() {
+        mAgent.goScroll(startPoint);
+        invalidate();
+    }
+
+    public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
+            float startPoint, float fallbackPoint, final Runnable onAnimEnd) {
+        if (mAgent.isSwitching()) {
+            return;
+        }
+        mAgent.init(from, to, isForward);
+        mAgent.goSwitch(startPoint, fallbackPoint, new Runnable() {
 
             @Override
             public void run() {
@@ -91,6 +86,11 @@ public class ImageDisplay extends View {
                 }
             }
         });
+    }
+
+    public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
+            float startPoint, final Runnable onAnimEnd) {
+        doSwitch(from, to, isForward, startPoint, 2f, onAnimEnd);
     }
 
     public void firstLoad(final Bitmap bitmap) {

@@ -5,131 +5,44 @@ import java.io.File;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
+import th.pd.android.GesturePipeline;
+import th.pd.android.GesturePipeline.Callback;
 import th.pd.common.android.QueryUtil;
-import th.pd.common.android.SystemUiUtil;
 import th.pd.common.android.mime.MimeTypeUtil;
 import th.pd.glry.AbsMediaActivity;
 import th.pd.glry.R;
-import th.pd.glry.image.GesturePipeline.Callback;
 
 public class ImageActivity extends AbsMediaActivity {
 
-    private class UpdateCacheTask extends
-            AsyncTask<UpdateCacheTaskArgument, Void, Void> {
-
-        @Override
-        protected Void doInBackground(UpdateCacheTaskArgument... params) {
-            UpdateCacheTaskArgument a = params[0];
-            updateCache(a.pos, a.bitmap);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            mUpdateCacheTask = null;
-        }
-
-        private void updateCache(int pos, Bitmap bitmap) {
-            if (bitmap == null) {
-                bitmap = createBitmap(pos);
-            }
-            mCache.focus(pos);
-            mCache.set(pos, bitmap);
-            for (int i = 1; i <= mCache.RADIUS; ++i) {
-                if (mCache.get(pos + i) == null) {
-                    bitmap = createBitmap(pos + i);
-                    mCache.set(pos + i, bitmap);
-                }
-                if (mCache.get(pos - i) == null) {
-                    bitmap = createBitmap(pos - i);
-                    mCache.set(pos - i, bitmap);
-                }
-            }
-        }
-    }
-
-    private class UpdateCacheTaskArgument {
-
-        private int pos;
-        private Bitmap bitmap;
-
-        void set(int pos, Bitmap bitmap) {
-            this.pos = pos;
-            this.bitmap = bitmap;
-        }
-    }
-
     private static final float FALLBACK_POINT = 0.45f;
 
-    private int[] mResolution = null;
-
-    private Model mModel;
+    private Warehouse mModel;
     private int mCurrentPos;
 
     private ImageDisplay mDisplay;
 
-    private PivotCache<Bitmap> mCache;
-    private UpdateCacheTaskArgument mUpdateCacheTaskArgument;
-    private UpdateCacheTask mUpdateCacheTask;
-
     private GesturePipeline mGesturePipeline;
 
     private int mScrolledX;
-
-    private Bitmap createBitmap(int pos) {
-        Uri uri = mModel.getData(pos);
-        if (uri != null) {
-            // sample to avoid OOM
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(uri.getPath(), options);
-            double invSampleScale = 1;
-            {
-                double wScale = 1f * options.outWidth / mResolution[0];
-                double hScale = 1f * options.outHeight / mResolution[1];
-                if (wScale > 2 || hScale > 2) {
-                    invSampleScale = Math.pow(wScale * hScale, 0.5);
-                }
-                Log.d(TAG, "pos:" + pos + ";sampleScale:" + invSampleScale);
-            }
-            options.inJustDecodeBounds = false;
-            options.inSampleSize = (int) Math.round(invSampleScale);
-            return BitmapFactory.decodeFile(uri.getPath(), options);
-        }
-        return null;
-    }
 
     /**
      * play a reverse-scroll animation
      */
     private void fallbackSwitching() {
         boolean isForward = mScrolledX < 0;
-        mDisplay.doFallback(getBitmap(mCurrentPos),
-                getBitmap(mCurrentPos + (isForward ? 1 : -1)),
+        mDisplay.doFallback(mModel.getBitmap(mCurrentPos),
+                mModel.getBitmap(mCurrentPos + (isForward ? 1 : -1)),
                 isForward,
                 getScrolledFraction(mScrolledX),
                 null);
         mScrolledX = 0;
-    }
-
-    private Bitmap getBitmap(int pos) {
-        Bitmap bitmap = mCache.get(pos);
-        if (bitmap != null) {
-            return bitmap;
-        } else {
-            return createBitmap(pos);
-        }
     }
 
     private float getScrolledFraction(int scrolledX) {
@@ -161,7 +74,7 @@ public class ImageActivity extends AbsMediaActivity {
                 mDisplay.restore();
                 return true;
             case R.id.actionSetImageAs:
-                Uri currentUri = mModel.getData(mCurrentPos);
+                Uri currentUri = mModel.getUri(mCurrentPos);
                 String mimeType = MimeTypeUtil.mimeTypeByFile(new File(
                         currentUri.getPath()));
                 Intent intent = new Intent(Intent.ACTION_ATTACH_DATA)
@@ -195,14 +108,20 @@ public class ImageActivity extends AbsMediaActivity {
 
         super.onCreate(savedInstanceState, R.layout.image_main);
 
-        mResolution = new int[2];
-        SystemUiUtil.findScreenResolution(getWindowManager(), mResolution);
-
         mDisplay = (ImageDisplay) findViewById(R.id.image);
         setupModel(imageUri);
         setupController();
 
-        startInitializeTask();
+        // first load
+        if (mModel.hasIndex(mCurrentPos)) {
+            setTitleByUri(mModel.getUri(mCurrentPos));
+            setSummary(String.format("%d / %d",
+                    mCurrentPos + 1,
+                    mModel.getCount()));
+
+            mDisplay.firstLoad(mModel.getBitmap(mCurrentPos));
+            mScrolledX = 0;
+        }
     }
 
     @Override
@@ -238,10 +157,7 @@ public class ImageActivity extends AbsMediaActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mGesturePipeline.onTouchEvent(event)) {
-            return true;
-        }
-        return false;
+        return mGesturePipeline.onTouchEvent(event);
     }
 
     private void setupController() {
@@ -322,14 +238,14 @@ public class ImageActivity extends AbsMediaActivity {
                         && Math.abs(dxTotal) > 100) {
                     if (dxTotal < 0) {
                         mDisplay.doScroll(
-                                getBitmap(mCurrentPos),
-                                getBitmap(mCurrentPos + 1),
+                                mModel.getBitmap(mCurrentPos),
+                                mModel.getBitmap(mCurrentPos + 1),
                                 true,
                                 getScrolledFraction(dxTotal));
                     } else if (dxTotal > 0) {
                         mDisplay.doScroll(
-                                getBitmap(mCurrentPos),
-                                getBitmap(mCurrentPos - 1),
+                                mModel.getBitmap(mCurrentPos),
+                                mModel.getBitmap(mCurrentPos - 1),
                                 false,
                                 getScrolledFraction(dxTotal));
                     }
@@ -378,7 +294,7 @@ public class ImageActivity extends AbsMediaActivity {
     }
 
     private void setupModel(Uri uri) {
-        mModel = new Model();
+        mModel = new Warehouse(this);
 
         if (uri == null) {
             return;
@@ -413,47 +329,6 @@ public class ImageActivity extends AbsMediaActivity {
             mModel.add(uri);
         }
         mCurrentPos = mModel.indexOf(uri);
-
-        mCache = new PivotCache<Bitmap>();
-        mUpdateCacheTaskArgument = new UpdateCacheTaskArgument();
-    }
-
-    private void startInitializeTask() {
-        mUpdateCacheTaskArgument.set(mCurrentPos, null);
-        new UpdateCacheTask() {
-
-            @Override
-            protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
-
-                // first load
-                int pos = mCurrentPos;
-                if (mModel.hasIndex(pos)) {
-                    Bitmap bitmap = getBitmap(pos);
-                    mDisplay.firstLoad(bitmap);
-
-                    mScrolledX = 0;
-                    mCurrentPos = pos;
-
-                    setTitleByUri(mModel.getData(pos));
-                    setSummary(String.format("%d / %d",
-                            pos + 1,
-                            mModel.getCount()));
-
-                    startUpdateCacheTask(pos, bitmap);
-                }
-            }
-        }.execute(mUpdateCacheTaskArgument);
-    }
-
-    private void startUpdateCacheTask(int pos, Bitmap bitmap) {
-        mUpdateCacheTaskArgument.set(pos, bitmap);
-        if (mUpdateCacheTask != null) {
-            Log.d(TAG, "cancel on-going UpdateCacheTask");
-            mUpdateCacheTask.cancel(false);
-        }
-        mUpdateCacheTask = new UpdateCacheTask();
-        mUpdateCacheTask.execute(mUpdateCacheTaskArgument);
     }
 
     private void switchOrFallback(int offset, boolean keyTriggered) {
@@ -464,8 +339,9 @@ public class ImageActivity extends AbsMediaActivity {
             if (keyTriggered) {
                 // for key triggered fallback, we don't have scrolledX, so play a
                 // forth-and-back animation to tell no more images
-                Bitmap bitmap = getBitmap(pos);
-                mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap, isForward,
+                Bitmap bitmap = mModel.getBitmap(pos);
+                mDisplay.doSwitch(mModel.getBitmap(mCurrentPos), bitmap,
+                        isForward,
                         0f, FALLBACK_POINT, null);
                 mScrolledX = 0;
             } else {
@@ -477,20 +353,20 @@ public class ImageActivity extends AbsMediaActivity {
                 return;
             }
 
-            Bitmap bitmap = getBitmap(pos);
-            mDisplay.doSwitch(getBitmap(mCurrentPos), bitmap, isForward,
+            Bitmap bitmap = mModel.getBitmap(pos);
+            mDisplay.doSwitch(mModel.getBitmap(mCurrentPos), bitmap,
+                    isForward,
                     getScrolledFraction(mScrolledX), new Runnable() {
 
                         @Override
                         public void run() {
-                            setTitleByUri(mModel.getData(pos));
+                            setTitleByUri(mModel.getUri(pos));
                             setSummary(String.format("%d / %d", pos + 1,
                                     mModel.getCount()));
                             mCurrentPos = pos;
                         }
                     });
             mScrolledX = 0;
-            startUpdateCacheTask(pos, bitmap);
         }
     }
 }

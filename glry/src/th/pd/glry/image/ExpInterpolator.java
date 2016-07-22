@@ -1,8 +1,8 @@
 package th.pd.glry.image;
 
-import android.view.animation.Interpolator;
+import th.pd.android.InvertibleInterpolator;
 
-public class ExpInterpolator implements Interpolator {
+public class ExpInterpolator implements InvertibleInterpolator {
 
     private static double getInterpolated(float x, double exp) {
         return Math.pow(x, exp);
@@ -26,7 +26,8 @@ public class ExpInterpolator implements Interpolator {
         return (float) getInterpolated(x, exp);
     }
 
-    public float getInverseInterpolation(float y) {
+    @Override
+    public float getInvertedInterpolation(float y) {
         return (float) (Math.pow(y, invExp));
     }
 }

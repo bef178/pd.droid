@@ -7,22 +7,22 @@ import android.net.NetworkInfo;
 public final class DataNetworkUtil {
 
     public static boolean isConnected(Context context) {
-        return getConnected(context) != null;
+        return getConnectedNetwork(context) != null;
     }
 
     public static boolean isMobile(Context context) {
-        NetworkInfo connected = getConnected(context);
+        NetworkInfo connected = getConnectedNetwork(context);
         return connected != null
                 && connected.getType() == ConnectivityManager.TYPE_MOBILE;
     }
 
     public static boolean isWifi(Context context) {
-        NetworkInfo connected = getConnected(context);
+        NetworkInfo connected = getConnectedNetwork(context);
         return connected != null
                 && connected.getType() == ConnectivityManager.TYPE_WIFI;
     }
 
-    private static NetworkInfo getConnected(Context context) {
+    private static NetworkInfo getConnectedNetwork(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm != null) {

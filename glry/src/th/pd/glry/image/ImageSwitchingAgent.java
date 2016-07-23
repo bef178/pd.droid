@@ -7,17 +7,17 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.view.View;
+import android.graphics.Rect;
 
 import th.pd.android.InvertibleInterpolator;
 import th.pd.common.android.SimpleAnimatorListener;
 
 public class ImageSwitchingAgent {
 
-    private static final float MIN_ALPHA = 0.4f;
-    private static final float MAX_ALPHA = 1.0f;
-    private static final float MIN_SCALE = 0.4f;
-    private static final float MAX_SCALE = 1.0f;
+    private static final float ANIM_MIN_ALPHA = 0.4f;
+    private static final float ANIM_MAX_ALPHA = 1.0f;
+    private static final float ANIM_MIN_SCALE = 0.4f;
+    private static final float ANIM_MAX_SCALE = 1.0f;
 
     private static final InvertibleInterpolator f = new ExpInterpolator();
 
@@ -44,15 +44,88 @@ public class ImageSwitchingAgent {
         return a;
     }
 
-    private View mView = null;
+    /**
+     * upper:leave
+     */
+    private static void initAnimMoveFromCenterToLeft(
+            ImageFrame1 frame, Bitmap bitmap,
+            int hostWidth, int hostHeight) {
+        Util.init(frame, bitmap, hostWidth, hostHeight);
+        frame.initAnim();
+        Rect start = new Rect(frame.getRect());
+        Rect end = new Rect(frame.getRect());
+        end.left = -end.width();
+        frame.setAnimRects(start, end);
+    }
+
+    /**
+     * upper:enter
+     */
+    private static void initAnimMoveFromLeftToCenter(
+            ImageFrame1 frame, Bitmap bitmap,
+            int hostWidth, int hostHeight) {
+        Util.init(frame, bitmap, hostWidth, hostHeight);
+        frame.initAnim();
+        Rect start = new Rect(frame.getRect());
+        start.left = -start.width();
+        Rect end = new Rect(frame.getRect());
+        frame.setAnimRects(start, end);
+    }
+
+    /**
+     * lower:enter
+     */
+    private static void initAnimZoomInAndFadeIn(
+            ImageFrame1 frame, Bitmap bitmap,
+            int hostWidth, int hostHeight) {
+        Util.init(frame, bitmap, hostWidth, hostHeight);
+        frame.initAnim();
+        frame.setAnimAlpha(ANIM_MIN_ALPHA, ANIM_MAX_ALPHA);
+        Rect start = new Rect(frame.getRect());
+        start.right = (int) (start.width() * ANIM_MIN_SCALE + start.left);
+        start.bottom = (int) (start.height() * ANIM_MIN_SCALE + start.top);
+        start.offset((frame.getRect().right - start.right) / 2,
+                (frame.getRect().bottom - start.bottom) / 2);
+        Rect end = frame.getRect();
+        end.right = (int) (end.width() * ANIM_MAX_SCALE + end.left);
+        end.bottom = (int) (end.height() * ANIM_MAX_SCALE + end.top);
+        end.offset((frame.getRect().right - end.right) / 2,
+                (frame.getRect().bottom - end.bottom) / 2);
+        frame.setAnimRects(start, end);
+    }
+
+    /**
+     *  lower:leave
+     */
+    private static void initAnimZoomOutAndFadeOut(
+            ImageFrame1 frame, Bitmap bitmap,
+            int hostWidth, int hostHeight) {
+        Util.init(frame, bitmap, hostWidth, hostHeight);
+        frame.initAnim();
+        frame.setAnimAlpha(ANIM_MAX_ALPHA, ANIM_MIN_ALPHA);
+        Rect start = new Rect(frame.getRect());
+        start.right = (int) (start.width() * ANIM_MAX_SCALE + start.left);
+        start.bottom = (int) (start.height() * ANIM_MAX_SCALE + start.top);
+        start.offset((frame.getRect().right - start.right) / 2,
+                (frame.getRect().bottom - start.bottom) / 2);
+        Rect end = new Rect(frame.getRect());
+        end.right = (int) (end.width() * ANIM_MIN_SCALE + end.left);
+        end.bottom = (int) (end.height() * ANIM_MIN_SCALE + end.top);
+        end.offset((frame.getRect().right - end.right) / 2,
+                (frame.getRect().bottom - end.bottom) / 2);
+        frame.setAnimRects(start, end);
+    }
+
+    private ImageDisplay mView = null;
     private AnimatorSet mAnimSet = null;
 
     private ImageFrame1 src = new ImageFrame1();
     private ImageFrame1 dst = new ImageFrame1();
     private boolean isForward = true;
+
     private boolean isScrolling = false;
 
-    public ImageSwitchingAgent(View view) {
+    public ImageSwitchingAgent(ImageDisplay view) {
         assert view != null;
         mView = view;
     }
@@ -61,13 +134,28 @@ public class ImageSwitchingAgent {
         return dst;
     }
 
-    public void goScroll(float fx) {
-        isScrolling = fx != 0f;
-        updateFrames(fx);
+    public boolean startScrolling(Bitmap from, Bitmap to, boolean isForward,
+            float startPoint) {
+        if (isSwitching()) {
+            return false;
+        }
+        initAnim(from, to, isForward);
+
+        isScrolling = startPoint != 0f;
+        updateFrames(startPoint);
+
+        mView.invalidate();
+        return true;
     }
 
-    public void goSwitch(float start, final float fallback,
+    public boolean startSwitching(Bitmap from, Bitmap to, boolean isForward,
+            float startPoint, final float fallbackPoint,
             final Runnable onAnimEnd) {
+        if (isSwitching()) {
+            return false;
+        }
+        initAnim(from, to, isForward);
+
         mAnimSet = new AnimatorSet();
         mAnimSet.addListener(new SimpleAnimatorListener() {
 
@@ -79,37 +167,37 @@ public class ImageSwitchingAgent {
                 isScrolling = false;
                 src.init(null);
                 dst.init(null);
-                isForward = true;
+                ImageSwitchingAgent.this.isForward = true;
                 mView.invalidate();
             }
         });
 
-        ValueAnimator animator = getAnimator(start);
+        ValueAnimator animator = getAnimator(startPoint);
         animator.addUpdateListener(new AnimatorUpdateListener() {
 
             @Override
             public void onAnimationUpdate(ValueAnimator a) {
-                float fx1 = a.getAnimatedFraction();
-                if (fx1 >= fallback) {
+                float y = a.getAnimatedFraction();
+                if (y >= fallbackPoint) {
                     a.cancel();
                 }
-                updateFrames(fx1);
+                updateFrames(y);
                 mView.invalidate();
             }
         });
 
-        if (fallback >= 1) {
+        if (fallbackPoint >= 1) {
             mAnimSet.playTogether(animator);
             mAnimSet.start();
-            return;
+            return true;
         }
 
-        ValueAnimator fallbackAnimator = getAnimator(1 - fallback);
+        ValueAnimator fallbackAnimator = getAnimator(1 - fallbackPoint);
         fallbackAnimator.addListener(new SimpleAnimatorListener() {
 
             @Override
             public void onAnimationStart(Animator animation) {
-                ImageSwitchingAgent.this.init(dst.getBitmap(),
+                ImageSwitchingAgent.this.initAnim(dst.getBitmap(),
                         src.getBitmap(),
                         !ImageSwitchingAgent.this.isForward);
             }
@@ -118,49 +206,30 @@ public class ImageSwitchingAgent {
 
             @Override
             public void onAnimationUpdate(ValueAnimator a) {
-                float fx1 = a.getAnimatedFraction();
-                updateFrames(fx1);
+                float y = a.getAnimatedFraction();
+                updateFrames(y);
                 mView.invalidate();
             }
         });
 
         mAnimSet.playSequentially(animator, fallbackAnimator);
         mAnimSet.start();
+        return true;
     }
 
-    public void init(Bitmap from, Bitmap to, boolean isForward) {
-        Util.init(src, from, mView.getWidth(), mView.getHeight());
-        Util.init(dst, to, mView.getWidth(), mView.getHeight());
+    public void initAnim(Bitmap from, Bitmap to, boolean isForward) {
         this.isForward = isForward;
         if (isForward) {
-            initAnimPullNext(src, dst);
+            initAnimMoveFromCenterToLeft(src, from,
+                    mView.getWidth(), mView.getHeight());
+            initAnimZoomInAndFadeIn(dst, to,
+                    mView.getWidth(), mView.getHeight());
         } else {
-            initAnimPullPrev(src, dst);
+            initAnimZoomOutAndFadeOut(src, from,
+                    mView.getWidth(), mView.getHeight());
+            initAnimMoveFromLeftToCenter(dst, to,
+                    mView.getWidth(), mView.getHeight());
         }
-    }
-
-    private void initAnimPullNext(ImageFrame1 src, ImageFrame1 dst) {
-        src.initAnim()
-                .setAnimTransRange(
-                        mView.getWidth() / 2,
-                        mView.getHeight() / 2,
-                        mView.getWidth() / 2 - mView.getWidth(),
-                        mView.getHeight() / 2);
-        dst.initAnim()
-                .setAnimAlphaRange(MIN_ALPHA, MAX_ALPHA)
-                .setAnimScaleRange(MIN_SCALE, MAX_SCALE);
-    }
-
-    private void initAnimPullPrev(ImageFrame1 src, ImageFrame1 dst) {
-        dst.initAnim()
-                .setAnimTransRange(
-                        mView.getWidth() / 2 - mView.getWidth(),
-                        mView.getHeight() / 2,
-                        mView.getWidth() / 2,
-                        mView.getHeight() / 2);
-        src.initAnim()
-                .setAnimAlphaRange(MAX_ALPHA, MIN_ALPHA)
-                .setAnimScaleRange(MAX_SCALE, MIN_SCALE);
     }
 
     public boolean interceptOnDraw(Canvas canvas, Paint paint) {
@@ -181,8 +250,8 @@ public class ImageSwitchingAgent {
         return mAnimSet != null && mAnimSet.isRunning();
     }
 
-    private void updateFrames(float fx) {
-        src.onAnimUpdate(fx);
-        dst.onAnimUpdate(fx);
+    private void updateFrames(float y) {
+        src.onAnimUpdate(y);
+        dst.onAnimUpdate(y);
     }
 }

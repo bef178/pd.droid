@@ -57,35 +57,27 @@ public class ImageDisplay extends View {
         doSwitch(to, from, !isForward, 1 - startPoint, onAnimEnd);
     }
 
-    public void doScroll(Bitmap from, Bitmap to,
-            boolean isForward, float startPoint) {
-        if (mAgent.isSwitching()) {
-            return;
-        }
-        mAgent.init(from, to, isForward);
-        mAgent.goScroll(startPoint);
-        invalidate();
+    public void doScroll(Bitmap from, Bitmap to, boolean isForward,
+            float startPoint) {
+        mAgent.startScrolling(from, to, isForward, startPoint);
     }
 
     public void doSwitch(Bitmap from, Bitmap to, boolean isForward,
             float startPoint, float fallbackPoint, final Runnable onAnimEnd) {
-        if (mAgent.isSwitching()) {
-            return;
-        }
-        mAgent.init(from, to, isForward);
-        mAgent.goSwitch(startPoint, fallbackPoint, new Runnable() {
+        mAgent.startSwitching(from, to, isForward, startPoint, fallbackPoint,
+                new Runnable() {
 
-            @Override
-            public void run() {
-                Util.init(mFrame,
-                        mAgent.getDstFrame().getBitmap(),
-                        ImageDisplay.this.getWidth(),
-                        ImageDisplay.this.getHeight());
-                if (onAnimEnd != null) {
-                    onAnimEnd.run();
-                }
-            }
-        });
+                    @Override
+                    public void run() {
+                        Util.init(mFrame,
+                                mAgent.getDstFrame().getBitmap(),
+                                ImageDisplay.this.getWidth(),
+                                ImageDisplay.this.getHeight());
+                        if (onAnimEnd != null) {
+                            onAnimEnd.run();
+                        }
+                    }
+                });
     }
 
     public void doSwitch(Bitmap from, Bitmap to, boolean isForward,

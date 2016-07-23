@@ -12,7 +12,7 @@ import android.graphics.Rect;
 import th.pd.android.InvertibleInterpolator;
 import th.pd.common.android.SimpleAnimatorListener;
 
-public class ImageSwitchingAgent {
+public class ImageAnimAgent {
 
     private static final float ANIM_MIN_ALPHA = 0.4f;
     private static final float ANIM_MAX_ALPHA = 1.0f;
@@ -125,7 +125,7 @@ public class ImageSwitchingAgent {
 
     private boolean isScrolling = false;
 
-    public ImageSwitchingAgent(ImageDisplay view) {
+    public ImageAnimAgent(ImageDisplay view) {
         assert view != null;
         mView = view;
     }
@@ -167,7 +167,7 @@ public class ImageSwitchingAgent {
                 isScrolling = false;
                 src.init(null);
                 dst.init(null);
-                ImageSwitchingAgent.this.isForward = true;
+                ImageAnimAgent.this.isForward = true;
                 mView.invalidate();
             }
         });
@@ -197,9 +197,9 @@ public class ImageSwitchingAgent {
 
             @Override
             public void onAnimationStart(Animator animation) {
-                ImageSwitchingAgent.this.initAnim(dst.getBitmap(),
+                ImageAnimAgent.this.initAnim(dst.getBitmap(),
                         src.getBitmap(),
-                        !ImageSwitchingAgent.this.isForward);
+                        !ImageAnimAgent.this.isForward);
             }
         });
         fallbackAnimator.addUpdateListener(new AnimatorUpdateListener() {

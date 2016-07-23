@@ -35,7 +35,7 @@ public class ImageDisplay extends View {
     private static final float MIN_SCALE = 0.1f;
 
     private ImageFrame mFrame;
-    private ImageSwitchingAgent mAgent = null;
+    private ImageAnimAgent mAgent = null;
     private Paint mPaint;
 
     // to fix the time sequence of data load and view load
@@ -45,7 +45,7 @@ public class ImageDisplay extends View {
         super(context, attrs);
         mFrame = new ImageFrame();
         mPaint = new Paint();
-        mAgent = new ImageSwitchingAgent(this);
+        mAgent = new ImageAnimAgent(this);
     }
 
     public Rect copyFrameRect() {

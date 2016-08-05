@@ -1,10 +1,22 @@
-package th.pd.common.android;
+package t.typedef.droid;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-public final class DataNetworkUtil {
+public final class DataNetworkUtility {
+
+    private static NetworkInfo getConnectedNetwork(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            if (networkInfo.isConnected()) {
+                return networkInfo;
+            }
+        }
+        return null;
+    }
 
     public static boolean isConnected(Context context) {
         return getConnectedNetwork(context) != null;
@@ -22,15 +34,7 @@ public final class DataNetworkUtil {
                 && connected.getType() == ConnectivityManager.TYPE_WIFI;
     }
 
-    private static NetworkInfo getConnectedNetwork(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm != null) {
-            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-            if (networkInfo.isConnected()) {
-                return networkInfo;
-            }
-        }
-        return null;
+    private DataNetworkUtility() {
+        // dummy
     }
 }

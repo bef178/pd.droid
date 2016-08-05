@@ -55,6 +55,11 @@ $(OUT_JAVA_R): $(RES_FILES)
 		-S $(OUT_RES_DIR) \
 		-m -J $(OUT_SRC_DIR)
 
+.PHONY: demo
+demo:
+	@-rm -rf $(OUT_OBJ_DIR)
+	@make -f demo.mk
+
 .PHONY: clean
 clean:
 	@echo "cleaning ..."

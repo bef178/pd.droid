@@ -14,7 +14,7 @@
 LOCAL_DEP_JAR += $(TOP)/../typedef/$(OUT_DIR)/typedef.jar
 
 LOCAL_SRC_FILES := $(call find_typef, "*.java", $(LOCAL_SRC_DIR))
-LOCAL_MANIFEST := ./AndroidManifest.xml
+LOCAL_MANIFEST ?= ./AndroidManifest.xml
 
 JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
 CLASSES_DEX := $(OUT_DIR)/classes.dex

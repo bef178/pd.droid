@@ -12,10 +12,10 @@ import android.os.SystemClock;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 
+import t.typedef.io.FormatCodec;
 import th.pd.mail.MailApp;
 import th.pd.mail.dao.Message;
 import th.pd.mail.dao.Message.Attachment;
-import τ.typedef.io.FormatCodec;
 
 class MessageExporter {
 

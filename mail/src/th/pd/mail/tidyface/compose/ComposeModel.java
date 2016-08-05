@@ -4,9 +4,9 @@ import java.util.List;
 
 import android.net.Uri;
 
+import t.typedef.Bits;
 import th.pd.mail.dao.Message;
 import th.pd.mail.dao.Message.Attachment;
-import τ.typedef.Bits;
 
 class ComposeModel {
 

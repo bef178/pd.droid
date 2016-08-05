@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import th.pd.common.android.OnActionCallback;
+import t.typedef.droid.OnActionCallback;
 import th.pd.fmgr.R;
 
 public class ContentFragment extends Fragment {

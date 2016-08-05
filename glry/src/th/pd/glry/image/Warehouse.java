@@ -14,10 +14,10 @@ import android.os.Message;
 import android.os.Process;
 import android.view.WindowManager;
 
-import th.pd.android.ImageLoader;
-import th.pd.common.SlidingCache;
-import th.pd.common.android.SystemUiUtil;
-import th.pd.common.android.mime.MimeTypeUtil;
+import t.typedef.SlidingCache;
+import t.typedef.droid.ImageLoader;
+import t.typedef.droid.SystemUiUtil;
+import t.typedef.droid.mime.MimeTypeUtil;
 
 class Warehouse {
 

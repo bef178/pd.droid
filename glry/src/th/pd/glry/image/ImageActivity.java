@@ -12,10 +12,10 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import th.pd.android.GesturePipeline;
-import th.pd.android.GesturePipeline.Callback;
-import th.pd.common.android.QueryUtil;
-import th.pd.common.android.mime.MimeTypeUtil;
+import t.typedef.droid.GesturePipeline;
+import t.typedef.droid.GesturePipeline.Callback;
+import t.typedef.droid.QueryUtil;
+import t.typedef.droid.mime.MimeTypeUtil;
 import th.pd.glry.AbsMediaActivity;
 import th.pd.glry.R;
 

@@ -10,7 +10,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import th.pd.common.android.FormatUtil;
+import t.typedef.droid.FormatUtil;
 
 public class VideoActivity extends AbsMediaActivity {
 

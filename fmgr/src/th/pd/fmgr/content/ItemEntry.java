@@ -5,7 +5,7 @@ import java.io.File;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
-import th.pd.common.android.mime.MimeTypeUtil;
+import t.typedef.droid.mime.MimeTypeUtil;
 
 /**
  * the model indicating a row in content list view

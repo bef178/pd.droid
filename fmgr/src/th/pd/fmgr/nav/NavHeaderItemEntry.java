@@ -1,6 +1,6 @@
 package th.pd.fmgr.nav;
 
-import th.pd.common.android.FormatUtil;
+import t.typedef.droid.FormatUtil;
 
 final class NavHeaderItemEntry extends NavItemEntry {
 

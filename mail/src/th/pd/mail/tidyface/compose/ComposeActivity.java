@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import th.pd.common.android.win98.Win98TitlebarActivity;
+import t.typedef.droid.win98.Win98TitlebarActivity;
 import th.pd.mail.R;
 
 public class ComposeActivity extends Win98TitlebarActivity {

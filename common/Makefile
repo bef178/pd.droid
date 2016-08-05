@@ -21,6 +21,10 @@ OUT_JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
 
 ########
 
+.PHONY: demo
+demo: $(LOCAL_OUT_JAR)
+	@make -f demo.mk
+
 $(LOCAL_OUT_JAR): $(SRC_FILES) $(OUT_JAVA_R)
 	@echo "compiling R ..."
 # don't generate R.class into the package place
@@ -37,7 +41,7 @@ $(LOCAL_OUT_JAR): $(SRC_FILES) $(OUT_JAVA_R)
 	@-rm -f `find $(OUT_OBJ_DIR) -regex ".*/R\($$.+\)?\.class"`
 	@jar cfm $@.unsigned $(TOP)/build/manifest.mf -C $(OUT_OBJ_DIR) .
 	@echo "signing ..."
-	$(call sign_jar, $@.unsigned, $@)
+	$(call sign_jar, $@.unsigned, $@) >/dev/null
 
 # also produce out res files
 $(OUT_JAVA_R): $(RES_FILES)
@@ -54,11 +58,6 @@ $(OUT_JAVA_R): $(RES_FILES)
 		-I $(ANDROID_JAR) \
 		-S $(OUT_RES_DIR) \
 		-m -J $(OUT_SRC_DIR)
-
-.PHONY: demo
-demo:
-	@-rm -rf $(OUT_OBJ_DIR)
-	@make -f demo.mk
 
 .PHONY: clean
 clean:

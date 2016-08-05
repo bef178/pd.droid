@@ -10,8 +10,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import th.pd.common.android.OnActionCallback;
-import th.pd.common.android.pinnable.PinnableList;
+import t.typedef.droid.OnActionCallback;
+import t.typedef.droid.pinnable.PinnableList;
 import th.pd.mail.R;
 import th.pd.mail.tidyface.FakeData;
 

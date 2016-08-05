@@ -6,7 +6,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
-import th.pd.common.android.OnActionCallback;
+import t.typedef.droid.OnActionCallback;
 import th.pd.fmgr.content.ContentFragment;
 import th.pd.fmgr.nav.NavFragment;
 

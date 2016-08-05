@@ -19,7 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import th.pd.common.android.TabController;
+import t.typedef.droid.TabController;
 import th.pd.mail.R;
 import th.pd.mail.dao.Message.Attachment;
 

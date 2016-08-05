@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import th.pd.common.android.FormatUtil;
+import t.typedef.droid.FormatUtil;
 import th.pd.fmgr.R;
 
 public final class ContentListAdapter extends BaseAdapter {

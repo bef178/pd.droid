@@ -9,8 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import th.pd.android.InvertibleInterpolator;
-import th.pd.common.android.SimpleAnimatorListener;
+import t.typedef.droid.InvertibleInterpolator;
+import t.typedef.droid.SimpleAnimatorListener;
 
 public class ImageAnimAgent {
 

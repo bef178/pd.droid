@@ -16,8 +16,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import th.pd.common.android.OnActionCallback;
-import th.pd.common.android.pageheader.PageheaderController;
+import t.typedef.droid.OnActionCallback;
+import t.typedef.droid.pageheader.PageheaderController;
 
 /**
  * General media view activity.<br/>

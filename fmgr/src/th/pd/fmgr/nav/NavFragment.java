@@ -9,9 +9,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import th.pd.common.android.OnActionCallback;
+import t.typedef.droid.OnActionCallback;
 import th.pd.fmgr.R;
-import th.pd.fmgr.nav.NavListAdapter;
 
 public class NavFragment extends Fragment {
 
@@ -20,12 +19,6 @@ public class NavFragment extends Fragment {
 
     public NavFragment(OnActionCallback callback) {
         mCallback = callback;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.nav_fragment, container, false);
     }
 
     @Override
@@ -48,5 +41,11 @@ public class NavFragment extends Fragment {
                 }
             }
         });
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.nav_fragment, container, false);
     }
 }

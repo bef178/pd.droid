@@ -1,6 +1,6 @@
 package th.pd.glry.image;
 
-import th.pd.android.InvertibleInterpolator;
+import t.typedef.droid.InvertibleInterpolator;
 
 public class ExpInterpolator implements InvertibleInterpolator {
 

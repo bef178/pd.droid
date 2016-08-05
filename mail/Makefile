@@ -1,13 +1,11 @@
-########
-# pd-mail
-#
-
 TOP := ..
-include $(TOP)/build/def.mk
-$(call expand_dep_jar, $(TOP)/common)
+-include $(TOP)/build/env.mk
+include $(TOP)/build/f.mk
 
-LOCAL_MODULE := pd-mail
-LOCAL_PACKAGE := th.pd.mail
-LOCAL_SRC_DIR := ./src
-LOCAL_RES_DIR := ./res
-include ../build/apk.mk
+LOCAL_DEP_PKG_S := t.typedef.droid
+LOCAL_DEP_JAR_F := $(TOP)/common/out/pd-common.jar
+LOCAL_DEP_RES_D := $(TOP)/common/out/res
+
+LOCAL_DEP_JAR_F += $(TOP)/../typedef/out/typedef.jar
+
+include $(TOP)/build/build_apk.mk

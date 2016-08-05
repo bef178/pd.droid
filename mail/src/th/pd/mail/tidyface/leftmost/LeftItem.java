@@ -1,6 +1,6 @@
 package th.pd.mail.tidyface.leftmost;
 
-import th.pd.common.android.pinnable.Pinnable;
+import t.typedef.droid.pinnable.Pinnable;
 
 public class LeftItem implements Pinnable {
 

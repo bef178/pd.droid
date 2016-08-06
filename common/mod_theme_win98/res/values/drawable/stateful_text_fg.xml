@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:stateful="http://schemas.android.com/apk/th.pd.common.android">
+  <item android:drawable="@color/stateful_state_disabled"
+      stateful:state_enabled="false"/>
+  <item android:drawable="@color/stateful_state_visited"
+      stateful:state_visited="true"/>
+  <item android:drawable="@color/stateful_state_default_fg"/>
+</selector>

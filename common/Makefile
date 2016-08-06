@@ -6,60 +6,81 @@
 # - lib's package name is required when app generating lib's R
 #
 
-include ../build/def.mk
+TOP := ..
+-include $(TOP)/build/env.mk
+include $(TOP)/build/f.mk
 include include.mk
 
-SRC_DIR := $(wildcard ./mod_*/src) ./src
-RES_DIR := $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
+LOCAL_RES_D ?= $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
+LOCAL_RES_F := $(wildcard $(addsuffix /*/*,$(LOCAL_RES_D)))
 
-# inferred files
-SRC_FILES := $(foreach d, $(SRC_DIR), $(call find_typef, "*.java", $(d)))
-RES_FILES := $(wildcard $(addsuffix /*/*,$(RES_DIR)))
+LOCAL_SRC_D ?= $(wildcard ./mod_*/src) ./src
+LOCAL_SRC_F := $(foreach d, $(LOCAL_SRC_D), $(call find_typef, "*.java", $(d)))
+
+LOCAL_AMF_F ?= ./AndroidManifest.xml
+LOCAL_PKG_S ?= $(shell grep -oe 'package="\(.*\)"' $(LOCAL_AMF_F) | cut -d \" -f2)
+
+LOCAL_OUT_D ?= ./out
+
+LOCAL_SIGN_WITH_TSA ?= false
+
+########
 
 # *OUT_* are inferred variables as target
-OUT_JAVA_R := $(OUT_SRC_DIR)/$(subst .,/,$(LOCAL_PACKAGE))/R.java
+OUT_RES_D := $(LOCAL_OUT_D)/res
+OUT_SRC_D := $(LOCAL_OUT_D)/src
+OUT_OBJ_D := $(LOCAL_OUT_D)/obj
+OUT_AMF_F := $(LOCAL_OUT_D)/AndroidManifest.xml
+OUT_R_F := $(OUT_SRC_D)/$(subst .,/,$(LOCAL_PKG_S))/R.java
+OUT_JAR := $(LOCAL_OUT_D)/$(LOCAL_PKG_S).jar
 
 ########
 
 .PHONY: demo
-demo: $(LOCAL_OUT_JAR)
-	@make -f demo.mk
+demo: $(OUT_JAR)
+	@make -ef demo.mk
 
-$(LOCAL_OUT_JAR): $(SRC_FILES) $(OUT_JAVA_R)
-	@echo "compiling R ..."
+$(OUT_JAR): $(LOCAL_RES_D) $(OUT_R_F) $(LOCAL_SRC_F)
+	@echo "Compiling R ..."
 # don't generate R.class into the package place
-	@javac $(OUT_JAVA_R) \
-		-d $(OUT_SRC_DIR)
-	@echo "compiling java ..."
-	@-mkdir -p $(OUT_OBJ_DIR)
-	@javac $(SRC_FILES) \
-		-classpath $(ANDROID_JAR):$(OUT_SRC_DIR) \
-		-d $(OUT_OBJ_DIR)
-	@echo "packaging ..."
+	@javac $(OUT_R_F) \
+		-d $(OUT_SRC_D)
+	@echo "Compiling java ..."
+	@-mkdir -p $(OUT_OBJ_D)
+	@javac $(LOCAL_SRC_F) \
+		-classpath $(ANDROID_JAR):$(OUT_SRC_D) \
+		-d $(OUT_OBJ_D)
+	@echo "Packaging ..."
 # with openjdk 1.7 sometimes the R stuff appears in this directory
 # have no idea why it is but just remove them for a clear package place
-	@-rm -f `find $(OUT_OBJ_DIR) -regex ".*/R\($$.+\)?\.class"`
-	@jar cfm $@.unsigned $(TOP)/build/manifest.mf -C $(OUT_OBJ_DIR) .
-	@echo "signing ..."
-	$(call sign_jar, $@.unsigned, $@) >/dev/null
+	@-rm -f `find $(OUT_OBJ_D) -regex ".*/R\($$.+\)?\.class"`
+	@jar cfm $@.unsigned ../build/manifest.mf -C $(OUT_OBJ_D) .
+	@echo "Signing ..."
+	$(call sign_jar,$@.unsigned,$@,$(LOCAL_SIGN_WITH_TSA)) >/dev/null
 
-# also produce out res files
-$(OUT_JAVA_R): $(RES_FILES)
-	@echo "copying res ..."
-	@-mkdir -p $(OUT_RES_DIR)
-	@cp -ru $(addsuffix /*,$(RES_DIR)) $(OUT_RES_DIR)
-	@echo "generating R ..."
+# copy manifest so it's easier to change package/version
+$(OUT_AMF_F): $(LOCAL_AMF_F)
+	@echo "Generating manifest ..."
+	@-mkdir -p $(@D)
+	@cp $(LOCAL_AMF_F) $@
+
+$(OUT_R_F): $(OUT_AMF_F) $(LOCAL_RES_F)
+	@echo "Copying res ..."
+	@-mkdir -p $(OUT_RES_D)
+	@cp -ru $(addsuffix /*,$(LOCAL_RES_D)) $(OUT_RES_D)
+	@echo "Generating R ..."
+	echo $(@D)
 	@-mkdir -p $(@D)
 	@$(AAPT) package \
 		--auto-add-overlay -f \
-		-M ./AndroidManifest.xml \
+		-M $(OUT_AMF_F) \
 		--non-constant-id \
-		--custom-package $(LOCAL_PACKAGE) \
+		--custom-package $(LOCAL_PKG_S) \
 		-I $(ANDROID_JAR) \
-		-S $(OUT_RES_DIR) \
-		-m -J $(OUT_SRC_DIR)
+		-S $(OUT_RES_D) \
+		-m -J $(OUT_SRC_D)
 
 .PHONY: clean
 clean:
 	@echo "cleaning ..."
-	@-rm -rf $(OUT_DIR)
+	@-rm -rf $(LOCAL_OUT_D)

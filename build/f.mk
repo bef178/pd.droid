@@ -19,13 +19,9 @@ DX   := $(ANDROID_BUILD_TOOLS)/dx
 
 ########
 
-define find_typef
-    $(shell find -L $(2) -type f -name $(strip $(1)) -and -not -name ".*")
-endef
-
 define sign_jar
     @jarsigner \
-        -tsa http://timestamp.digicert.com \
+        $(shell if test "$(3)" != "false"; then echo "-tsa http://timestamp.digicert.com"; fi) \
         -digestalg SHA1 -sigalg MD5withRSA \
         -keystore $(ANDROID_KEYSTORE) -storepass $(ANDROID_KEYSTORE_PASS) \
         -signedjar $(2) -sigfile cert $(1) $(ANDROID_KEYSTORE_ALIAS)
@@ -33,17 +29,21 @@ endef
 
 define sign_apk
     @$(ANDROID_BUILD_TOOLS)/zipalign -f 4 $(1) $(1).aligned
-    $(call sign_jar, $(1).aligned, $(2))
+    $(call sign_jar,$(1).aligned,$(2),$(3))
 endef
 
-define sign_jar_no_tsa
-    @jarsigner \
-        -digestalg SHA1 -sigalg MD5withRSA \
-        -keystore $(ANDROID_KEYSTORE) -storepass $(ANDROID_KEYSTORE_PASS) \
-        -signedjar $(2) -sigfile cert $(1) $(ANDROID_KEYSTORE_ALIAS)
+define find_typef
+    $(shell find -L $(2) -type f -name $(strip $(1)) -and -not -name ".*")
 endef
 
-define sign_apk_no_tsa
-    @$(ANDROID_BUILD_TOOLS)/zipalign -f 4 $(1) $(1).aligned
-    $(call sign_jar_no_tsa, $(1).aligned, $(2))
+define do_assign_if_not_yet
+	ifndef $(1)
+		$(1) := $(2)
+	endif
+	ifeq ($($(1)),)
+		$(1) := $(2)
+	endif
+endef
+define assign_if_not_yet
+	$(eval $(call do_$(0),$(1),$(2)))
 endef

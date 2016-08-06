@@ -5,34 +5,28 @@
 #
 # check list:
 #  o. make clean && make
-#  o. touch .java in src and make
-#  o. touch .png/.xml in res and make
-#  o. add .png/.xml in res and make
-#  x. TODO rm .java/.png/.xml and make
+#  o. touch java in src and make
+#  o. touch png/xml in res and make
+#  o. add png/xml in res and make
+#  x. TODO rm java/png/xml and make
 
 LOCAL_DEP_PKG_S ?=
 LOCAL_DEP_JAR_F ?=
 LOCAL_DEP_RES_D ?=
 
-LOCAL_RES_D ?= ./res
+$(call assign_if_not_yet,LOCAL_RES_D,./res)
 
-LOCAL_SRC_D ?= ./src
+$(call assign_if_not_yet,LOCAL_SRC_D,./src)
 LOCAL_SRC_F := $(shell find -L $(LOCAL_SRC_D) -type f -name "*.java" -and -not -name ".*")
 
-LOCAL_AMF_F ?= ./AndroidManifest.xml
-LOCAL_PKG_S ?= $(shell grep -e 'package="\(.*\)"' $(LOCAL_AMF_F) | cut -d \" -f2)
+$(call assign_if_not_yet,LOCAL_AMF_F,./AndroidManifest.xml)
+$(call assign_if_not_yet,LOCAL_PKG_S,$(shell grep -oe 'package="\(.*\)"' $(LOCAL_AMF_F) | cut -d \" -f2))
 
-LOCAL_OUT_D ?= ./out
+$(call assign_if_not_yet,LOCAL_OUT_D,./out)
 
 LOCAL_SIGN_WITH_TSA ?= true
 
 ########
-
-ifeq ($(LOCAL_SIGN_WITH_TSA),false)
-	SIGNER := sign_apk_no_tsa
-else
-	SIGNER := sign_apk
-endif
 
 OUT_RES_D := $(LOCAL_OUT_D)/res
 OUT_SRC_D := $(LOCAL_OUT_D)/src
@@ -57,7 +51,7 @@ $(OUT_APK): $(OUT_AMF_F) $(OUT_DEX_F) $(LOCAL_RES_D) $(LOCAL_DEP_RES_D)
 		-F $(LOCAL_OUT_D)/$(@F).orig
 	@$(AAPT) add -k $(@).orig $(OUT_DEX_F) >/dev/null
 	@echo "Signing ..."
-	$(call $(SIGNER), $(LOCAL_OUT_D)/$(@F).orig, $@) >/dev/null
+	$(call sign_jar,$(LOCAL_OUT_D)/$(@F).orig,$@,$(LOCAL_SIGN_WITH_TSA)) >/dev/null
 
 # copy manifest so it's easier to change package/version
 $(OUT_AMF_F): $(LOCAL_AMF_F)

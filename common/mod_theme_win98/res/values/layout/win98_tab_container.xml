@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tabContainer"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/win98_tab_container_height"
+    android:background="@drawable/win98_tab_container_border"
+    android:gravity="bottom|start"
+    android:orientation="horizontal" />

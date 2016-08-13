@@ -9,7 +9,6 @@
 TOP := ..
 -include $(TOP)/build/env.mk
 include $(TOP)/build/f.mk
-include include.mk
 
 LOCAL_RES_D ?= $(wildcard ./mod_*/res) $(wildcard ./res_mod/*)
 LOCAL_RES_F := $(wildcard $(addsuffix /*/*,$(LOCAL_RES_D)))
@@ -38,7 +37,7 @@ OUT_JAR := $(LOCAL_OUT_D)/$(LOCAL_PKG_S).jar
 
 .PHONY: demo
 demo: $(OUT_JAR)
-	@make -ef demo.mk
+	@make -C demo
 
 $(OUT_JAR): $(LOCAL_RES_D) $(OUT_R_F) $(LOCAL_SRC_F)
 	@echo "Compiling R ..."

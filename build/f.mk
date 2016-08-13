@@ -21,7 +21,7 @@ DX   := $(ANDROID_BUILD_TOOLS)/dx
 
 define sign_jar
     @jarsigner \
-        $(shell if test "$(3)" != "false"; then echo "-tsa http://timestamp.digicert.com"; fi) \
+        $(shell if test "$(3)" != "true"; then echo "-tsa http://timestamp.digicert.com"; fi) \
         -digestalg SHA1 -sigalg MD5withRSA \
         -keystore $(ANDROID_KEYSTORE) -storepass $(ANDROID_KEYSTORE_PASS) \
         -signedjar $(2) -sigfile cert $(1) $(ANDROID_KEYSTORE_ALIAS)

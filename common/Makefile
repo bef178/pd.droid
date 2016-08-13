@@ -15,6 +15,6 @@ LOCAL_RES_D := $(wildcard ./mod_*/res)
 LOCAL_SRC_D := ./src $(wildcard ./mod_*/src)
 
 LOCAL_IS_LIB := true
-LOCAL_SIGN_WITH_TSA := false
+LOCAL_SIGNOUT_WITH_TSA := true
 
 include $(TOP)/build/core.mk

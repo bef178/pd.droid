@@ -20,4 +20,4 @@ LOCAL_PKG_S :=
 LOCAL_OUT_D := ./out
 
 LOCAL_IS_LIB := false
-LOCAL_SIGN_WITH_TSA := true
+LOCAL_SIGN_WITHOUT_TSA := false

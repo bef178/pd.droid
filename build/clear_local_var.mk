@@ -5,6 +5,8 @@
 LOCAL_DEP_JAR :=
 LOCAL_DEP_LIB :=
 LOCAL_DEP_PKG :=
+LOCAL_DEP_RES :=
+LOCAL_DEP_RES1 :=
 
 LOCAL_RES_D := ./res
 LOCAL_RES_F :=
@@ -17,4 +19,5 @@ LOCAL_PKG_S :=
 
 LOCAL_OUT_D := ./out
 
+LOCAL_IS_LIB := false
 LOCAL_SIGN_WITH_TSA := true

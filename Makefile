@@ -3,8 +3,8 @@
 
 MAKEFILES := $(wildcard */Makefile)
 
-.PHONY: each
-all-each: $(addsuffix .each, $(MAKEFILES))
+.PHONY: all
+all: $(addsuffix .each, $(MAKEFILES))
 
 %/Makefile.each: %/Makefile
 	make -C $(dir $<)

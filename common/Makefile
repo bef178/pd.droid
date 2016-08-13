@@ -17,4 +17,4 @@ LOCAL_SRC_D := ./src $(wildcard ./mod_*/src)
 LOCAL_IS_LIB := true
 LOCAL_SIGN_WITH_TSA := false
 
-include $(TOP)/build/build_apk.mk
+include $(TOP)/build/core.mk

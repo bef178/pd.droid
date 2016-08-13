@@ -1,1 +1,1 @@
-../build/Makefile.apk.mk
+../build/Makefile.apk

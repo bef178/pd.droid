@@ -1,5 +1,5 @@
 ########################################
-# build_apk.mk
+# core.mk
 #
 # must define LOCAL_* before including this file
 #

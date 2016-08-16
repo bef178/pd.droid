@@ -55,7 +55,7 @@ $(OUT_JAR): $(LOCAL_RES_D) $(OUT_R_F) $(LOCAL_SRC_F)
 	@echo "Compiling java ..."
 	@-mkdir -p $(OUT_OBJ_D)
 	@javac $(LOCAL_SRC_F) \
-		-classpath $(ANDROID_JAR):$(OUT_SRC_D) \
+		-classpath $(ANDROID_JAR):$(OUT_SRC_D)$(shell if test -n "$(LOCAL_DEP_JAR)"; then echo " "$(LOCAL_DEP_JAR) | sed "s/ \\+/:/g"; fi) \
 		-d $(OUT_OBJ_D)
 	@echo "Packaging ..."
 # with openjdk 1.7 sometimes the R stuff appears in this directory

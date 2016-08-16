@@ -96,7 +96,7 @@ public class MimeTypeUtil {
      */
     public static int resIdByMimeType(String mimeType) {
         if (mimeType.equalsIgnoreCase(MIME_DIRECTORY)) {
-            return R.drawable.mime_typed;
+            return R.drawable.mime_type_d;
         }
         switch (getCategory(mimeType)) {
             case IMAGE:
@@ -106,7 +106,7 @@ public class MimeTypeUtil {
             case VIDEO:
                 return R.drawable.mime_video;
             default:
-                return R.drawable.mime_typef;
+                return R.drawable.mime_type_f;
         }
     }
 

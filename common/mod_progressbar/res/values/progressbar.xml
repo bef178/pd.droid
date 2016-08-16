@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <!--
-    model: content-box
-    XXX is border-box better?
-   -->
+  <!-- model: border-box -->
   <declare-styleable name="progressbar">
-    <attr name="bgColor" format="color" />
-    <attr name="fgColor" format="color" />
-    <attr name="innerRadius" format="dimension" />
-    <attr name="outerRadius" format="dimension" />
-    <attr name="borderColor" format="color" />
-    <attr name="borderWidth" format="dimension" />
-    <attr name="startDegree" format="float" />
-    <attr name="sweptDegree" format="float" />
-    <attr name="valueTo" format="float" />
-    <attr name="value" format="float" />
+
+    <!-- the outer radius of the ring -->
+    <attr name="radius" format="dimension"/>
+
+    <!-- including both borders -->
+    <attr name="strokeWidth" format="dimension"/>
+
+    <attr name="bgColor" format="color"/>
+    <attr name="fgColor" format="color"/>
+
+    <attr name="borderColor" format="color"/>
+    <attr name="borderStrokeWidth" format="dimension"/>
+
+    <attr name="startDegree" format="float"/>
+    <attr name="sweptDegree" format="float"/>
+
+    <!-- value in [0f,1f] -->
+    <attr name="value" format="float"/>
+
+    <attr name="isCounterClockwise" format="boolean"/>
   </declare-styleable>
 </resources>

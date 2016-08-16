@@ -18,7 +18,7 @@
     android:label="@string/app_label"
     android:theme="@style/theme.win98">
     <activity
-      android:name=".ListDemoActivity"
+      android:name=".DemoActivity"
       android:label="@string/app_label">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

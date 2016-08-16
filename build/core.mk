@@ -97,7 +97,7 @@ $(OUT_DEX_F): $(LOCAL_SRC_F) $(OUT_R_F)
 		$(OUT_OBJ_D) $(LOCAL_DEP_JAR)
 
 .PHONY: install
-install:
+install: apk
 	@adb install -r $(OUT_APK)
 
 endif

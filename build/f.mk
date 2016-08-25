@@ -28,8 +28,8 @@ define sign_jar
 endef
 
 define sign_apk
-    @$(ANDROID_BUILD_TOOLS)/zipalign -f 4 $(1) $(1).aligned
-    $(call sign_jar,$(1).aligned,$(2),$(3))
+    $(call sign_jar,$(1),$(2).signed,$(3))
+    @$(ANDROID_BUILD_TOOLS)/zipalign -f 4 $(1) $(2)
 endef
 
 define find_typef

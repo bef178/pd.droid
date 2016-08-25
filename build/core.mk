@@ -80,10 +80,10 @@ $(OUT_APK): $(OUT_AMF_F) $(OUT_DEX_F) $(LOCAL_RES_D1)
 		-M $(OUT_AMF_F) \
 		-I $(ANDROID_JAR) \
 		$(addprefix -S ,$(LOCAL_RES_D1)) \
-		-F $(LOCAL_OUT_D)/$(@F).unsigned
-	@$(AAPT) add -k $(@).unsigned $(OUT_DEX_F) >/dev/null
+		-F $@.unsigned
+	@$(AAPT) add -k $@.unsigned $(OUT_DEX_F) >/dev/null
 	@echo "Signing ..."
-	$(call sign_apk,$(LOCAL_OUT_D)/$(@F).unsigned,$@,$(LOCAL_SIGN_WITHOUT_TSA)) >/dev/null
+	$(call sign_apk,$@.unsigned,$@,$(LOCAL_SIGN_WITHOUT_TSA)) >/dev/null
 
 $(OUT_DEX_F): $(LOCAL_DEP_JAR)
 $(OUT_DEX_F): $(LOCAL_SRC_F) $(OUT_R_F)

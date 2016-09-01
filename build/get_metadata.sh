@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function get_lib_out_pkg() {
+function get_pkg() {
     local mf=$1
     if test -n "$mf"; then
         if test -d "$mf"; then
@@ -15,13 +15,13 @@ function get_lib_out_pkg() {
     return 1
 }
 
-function get_lib_out_jar() {
+function get_jar() {
     local p=$1
     local pkg=$2
     echo $p/out/$pkg.jar
 }
 
-function get_lib_out_res() {
+function get_res() {
     local p=$1
     echo $p/out/res
 }
@@ -51,23 +51,23 @@ unset opts
 case "$meta" in
     pkg|package)
         for p in $@; do
-            get_lib_out_pkg $p
+            get_pkg $p
         done
         ;;
     jar)
         for p in $@; do
-            pkg=$(get_lib_out_pkg $p)
+            pkg=$(get_pkg $p)
             if test $? = 0; then
-                get_lib_out_jar $p $pkg
+                get_jar $p $pkg
             fi
         done
         ;;
     res)
         for p in $@; do
             # as check
-            pkg=$(get_lib_out_pkg $p)
+            pkg=$(get_pkg $p)
             if test $? = 0; then
-                get_lib_out_res $p
+                get_res $p
             fi
         done
         ;;

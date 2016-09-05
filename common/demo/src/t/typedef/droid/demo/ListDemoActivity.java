@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import t.typedef.droid.DataNetworkUtility;
 import t.typedef.droid.OnScrollReachEndListener;
-import t.typedef.droid.demo.R;
 
 public class ListDemoActivity extends Activity {
 

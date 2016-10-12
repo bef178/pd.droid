@@ -112,7 +112,7 @@ $(OUT_APK): $(OUT_AMF_F) $(OUT_DEX_F) $(LOCAL_RES_D1)
 	@ PATH=$(PATH) bash $(TOP)/build/sign_apk.sh \
 		--store_name $(KEYSTORE) \
 		--store_pass $(KEYSTORE_PASS) \
-		--key_name $(KEY_NAME) \
+		--key_name $(KEYSTORE_KEY_NAME) \
 		$@.unsigned $@
 
 $(OUT_DEX_F): $(LOCAL_DEP_JAR)

@@ -1,11 +1,14 @@
 package t.typedef.droid.demo;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.KeyEvent;
@@ -93,6 +96,22 @@ public class DemoActivity extends Activity {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void startDocumentsUi() {
+        Uri uri = new Uri.Builder()
+            .scheme(ContentResolver.SCHEME_CONTENT)
+            .authority("com.android.externalstorage.documents")
+            .appendPath("root")
+            .appendPath("primary")
+            .build();
+        final Intent intent = new Intent("android.provider.action.BROWSE")
+            .addCategory(Intent.CATEGORY_DEFAULT)
+            .setData(uri)
+            .putExtra("android.content.extra.SHOW_ADVANCED", true)
+            .putExtra("android.content.extra.FANCY", true)
+            .putExtra("android.content.extra.SHOW_FILESIZE", true);
+        startActivity(intent);
     }
 
     private JSONObject sumUpNetworkInterfaceStat(Context context)

@@ -73,7 +73,7 @@ all: lib
 
 .PHONY: lib
 lib: $(OUT_JAR)
-	@make $(MAKECMDGOALS) -C demo
+	@make $(MAKECMDGOALS) -C ../droid.demo
 
 $(OUT_JAR): $(LOCAL_RES_D) $(OUT_R_F) $(LOCAL_SRC_F)
 	@echo "Compiling R ..."

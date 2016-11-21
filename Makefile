@@ -4,7 +4,11 @@
 MAKEFILES := $(wildcard */Makefile)
 
 .PHONY: all
-all: $(addsuffix .each, $(MAKEFILES))
+all: droid $(addsuffix .each, $(MAKEFILES))
+
+.PHONY: droid
+droid:
+	make -C droid
 
 %/Makefile.each: %/Makefile
 	make -C $(dir $<)

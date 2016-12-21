@@ -152,20 +152,6 @@ public abstract class AbsMediaActivity extends Activity implements
                     }
                 });
 
-        findViewById(R.id.btnToggleHeader).setOnClickListener(
-                new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        if (mPageHeaderController.isFinallyVisible()) {
-                            mPageHeaderController.hideWithAnim();
-                        } else {
-                            mPageHeaderController.showWithAnim();
-                            mPageHeaderController.hideWithDelay();
-                        }
-                    }
-                });
-
         Bitmap logo = getIntent().getParcelableExtra(INTENT_EXTRA_LOGO);
         if (logo != null) {
             mPageHeaderController.setLogo(new BitmapDrawable(
@@ -178,6 +164,15 @@ public abstract class AbsMediaActivity extends Activity implements
             mHasIntentTitle = true;
         } else {
             setTitleByUri(getIntent().getData());
+        }
+    }
+
+    protected void togglePageHeader() {
+        if (mPageHeaderController.isFinallyVisible()) {
+            mPageHeaderController.hideWithAnim();
+        } else {
+            mPageHeaderController.showWithAnim();
+            mPageHeaderController.hideWithDelay();
         }
     }
 }

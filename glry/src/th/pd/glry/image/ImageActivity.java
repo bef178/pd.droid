@@ -259,6 +259,12 @@ public class ImageActivity extends AbsMediaActivity {
             }
 
             @Override
+            public boolean onSingleTapUp() {
+                togglePageHeader();
+                return true;
+            }
+
+            @Override
             public boolean onTapUp() {
                 if (mDisplay.isScaled()) {
                     return false;

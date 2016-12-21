@@ -159,6 +159,9 @@ class GestureListener implements OnGestureListener,
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
+        if (mCallback != null) {
+            return mCallback.onSingleTapUp();
+        }
         return false;
     }
 
@@ -188,6 +191,8 @@ public class GesturePipeline {
         boolean onScaleTo(float scale, int focusX, int focusY);
 
         boolean onScrollBy(int dxTotal, int dyTotal, int dx, int dy);
+
+        boolean onSingleTapUp();
 
         boolean onTapUp();
     }

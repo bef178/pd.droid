@@ -21,7 +21,6 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
-import android.util.Log;
 
 public class ImageLoader {
 
@@ -153,8 +152,6 @@ public class ImageLoader {
             if (wScale > 2 || hScale > 2) {
                 invSampleScale = Math.pow(wScale * hScale, 0.5);
             }
-            Log.d(context.getPackageName(),
-                    "fp:" + path + "; sample_scale:" + invSampleScale);
         }
         options.inJustDecodeBounds = false;
         options.inSampleSize = (int) Math.round(invSampleScale);

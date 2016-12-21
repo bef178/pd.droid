@@ -122,6 +122,7 @@ public class ImageActivity extends AbsMediaActivity {
 
             mDisplay.firstLoad(mModel.getBitmap(mCurrentPos));
             mScrolledX = 0;
+            mModel.schedulePrefetch(mCurrentPos);
         }
     }
 
@@ -365,6 +366,7 @@ public class ImageActivity extends AbsMediaActivity {
                             setSummary(String.format("%d / %d", pos + 1,
                                     mModel.getCount()));
                             mCurrentPos = pos;
+                            mModel.schedulePrefetch(pos);
                         }
                     });
             mScrolledX = 0;

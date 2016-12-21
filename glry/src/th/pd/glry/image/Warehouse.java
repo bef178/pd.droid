@@ -23,8 +23,8 @@ class Warehouse {
 
     private class PrefetchHandler extends Handler {
 
-        public static final int MSG_CLEAR = 0;
-        public static final int MSG_PREFETCH = 1;
+        public static final int MSG_PREFETCH = 0;
+        public static final int MSG_SKIP_PREFETCH = 1;
 
         public PrefetchHandler(Looper looper) {
             super(looper);
@@ -33,19 +33,19 @@ class Warehouse {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_CLEAR:
+                case MSG_SKIP_PREFETCH:
                     removeMessages(MSG_PREFETCH);
                     break;
                 case MSG_PREFETCH:
                     int index = msg.arg1;
-                    if (!Warehouse.this.cache.has(index)) {
+                    if (Warehouse.this.cache.has(index)) {
                         Bitmap bitmap = ImageLoader.load(
                                 Warehouse.this.mContext,
                                 (Uri) msg.obj,
                                 Warehouse.this.mResolution[0],
                                 Warehouse.this.mResolution[1]);
                         // check again since significant time has elapsed
-                        if (!Warehouse.this.cache.has(index)) {
+                        if (Warehouse.this.cache.has(index)) {
                             Warehouse.this.cache.set(index, bitmap);
                         }
                     }
@@ -63,7 +63,7 @@ class Warehouse {
 
     private List<Uri> data = new LinkedList<Uri>();
     private SlidingCache<Bitmap> cache = new SlidingCache<>(7);
-    private int cacheRadius = (cache.capacity() - 1) / 2;
+    private int cacheRadius = cache.capacity() / 2;
 
     public Warehouse(Context context) {
         mContext = context;
@@ -105,18 +105,9 @@ class Warehouse {
         cache.moveTo(index - cacheRadius);
         if (cache.get(index) == null) {
             // TODO show loading
-            mPrefetchHandler.sendEmptyMessage(PrefetchHandler.MSG_CLEAR);
+            mPrefetchHandler.sendEmptyMessage(PrefetchHandler.MSG_SKIP_PREFETCH);
             cache.set(index, ImageLoader.load(mContext, getUri(index),
                     mResolution[0], mResolution[1]));
-        }
-        // schedule prefetch
-        for (int i = 1; i <= cacheRadius; ++i) {
-            if (cache.has(index + i) && cache.get(index + i) == null) {
-                requestPrefetch(index + i);
-            }
-            if (cache.has(index - i) && cache.get(index - i) == null) {
-                requestPrefetch(index - i);
-            }
         }
         return cache.get(index);
     }
@@ -141,12 +132,23 @@ class Warehouse {
     }
 
     private void requestPrefetch(int index) {
-        if (hasIndex(index)) {
-            Message msg = Message.obtain();
-            msg.what = PrefetchHandler.MSG_PREFETCH;
-            msg.arg1 = index;
-            msg.obj = data.get(index);
-            mPrefetchHandler.sendMessage(msg);
+        Message msg = Message.obtain();
+        msg.what = PrefetchHandler.MSG_PREFETCH;
+        msg.arg1 = index;
+        msg.obj = data.get(index);
+        mPrefetchHandler.sendMessage(msg);
+    }
+
+    public void schedulePrefetch(int index) {
+        for (int i = 1; i <= cacheRadius; ++i) {
+            int j = index + i;
+            if (hasIndex(j) && cache.has(j) && cache.get(j) == null) {
+                requestPrefetch(j);
+            }
+            j = index - i;
+            if (hasIndex(j) && cache.has(j) && cache.get(j) == null) {
+                requestPrefetch(j);
+            }
         }
     }
 }

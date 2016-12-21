@@ -54,7 +54,7 @@ public class ImageAnimAgent {
         frame.initAnim();
         Rect start = new Rect(frame.getRect());
         Rect end = new Rect(frame.getRect());
-        end.left = -end.width();
+        end.offset(-end.width(), 0);
         frame.setAnimRects(start, end);
     }
 
@@ -67,7 +67,7 @@ public class ImageAnimAgent {
         Util.init(frame, bitmap, hostWidth, hostHeight);
         frame.initAnim();
         Rect start = new Rect(frame.getRect());
-        start.left = -start.width();
+        start.offset(-start.width(), 0);
         Rect end = new Rect(frame.getRect());
         frame.setAnimRects(start, end);
     }

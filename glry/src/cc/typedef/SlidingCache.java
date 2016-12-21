@@ -39,17 +39,20 @@ public class SlidingCache<E> {
             for (int i = 0; i < capacity; ++i) {
                 cache.add(null);
             }
-            this.start += offset;
+            start += offset;
             return;
         }
 
-        while (this.start < start) {
+        int newStart = start + offset;
+        while (start < newStart) {
             cache.remove(0);
             cache.add(null);
+            ++start;
         }
-        while (this.start > start) {
+        while (start > newStart) {
             cache.remove(capacity - 1);
             cache.add(0, null);
+            --start;
         }
     }
 

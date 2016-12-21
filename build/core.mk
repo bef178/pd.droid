@@ -158,6 +158,7 @@ endif
 
 .PHONY: install
 install:
+	@echo "Installing ..."
 ifeq ($(LOCAL_IS_LIB),true)
 	make -C demo install
 else

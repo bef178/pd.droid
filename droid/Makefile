@@ -12,7 +12,7 @@ include $(TOP)/build/clear_local_var.mk
 
 LOCAL_DEP_JAR := $(ANDROID_HOME)/extras/android/support/v4/android-support-v4.jar
 
-LOCAL_RES_D := $(wildcard ./mod_*/res)
+LOCAL_RES_D := ./res $(wildcard ./mod_*/res)
 LOCAL_SRC_D := ./src $(wildcard ./mod_*/src)
 
 LOCAL_IS_LIB := true

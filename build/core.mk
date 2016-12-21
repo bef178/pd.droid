@@ -28,12 +28,14 @@ endef
 
 ####
 
+JAVA_CC := javac -source 1.7 -target 1.7
+
 ANDROID_JAR := $(ANDROID_HOME)/platforms/$(LOCAL_API_REV)/android.jar
-$(info using $(ANDROID_JAR))
+$(info Using $(ANDROID_JAR))
 
 LOCAL_BUILDER_REV ?= $(shell \ls $(ANDROID_HOME)/build-tools | sort -nr | head -1)
 BUILDER := $(ANDROID_HOME)/build-tools/$(LOCAL_BUILDER_REV)
-$(info using $(BUILDER))
+$(info Using $(BUILDER))
 PATH := $(PATH):$(BUILDER)
 
 ####
@@ -73,16 +75,16 @@ all: lib
 
 .PHONY: lib
 lib: $(OUT_JAR)
-	@make $(MAKECMDGOALS) -C ../droid.demo
+	@make $(MAKECMDGOALS) -C demo
 
 $(OUT_JAR): $(LOCAL_RES_D) $(OUT_R_F) $(LOCAL_SRC_F)
 	@echo "Compiling R ..."
 # don't generate R.class into the package place
-	@javac $(OUT_R_F) \
+	@$(JAVA_CC) $(OUT_R_F) \
 		-d $(OUT_SRC_D)
 	@echo "Compiling java ..."
 	@-mkdir -p $(OUT_OBJ_D)
-	@javac $(LOCAL_SRC_F) \
+	@$(JAVA_CC) $(LOCAL_SRC_F) \
 		-classpath $(ANDROID_JAR):$(OUT_SRC_D)$(shell if test -n "$(LOCAL_DEP_JAR)"; then echo " "$(LOCAL_DEP_JAR) | sed "s/ \\+/:/g"; fi) \
 		-d $(OUT_OBJ_D)
 	@echo "Packaging ..."
@@ -113,22 +115,19 @@ $(OUT_APK): $(OUT_AMF_F) $(OUT_DEX_F) $(LOCAL_RES_D1)
 		--store_name $(KEYSTORE) \
 		--store_pass $(KEYSTORE_PASS) \
 		--key_name $(KEYSTORE_KEY_NAME) \
-		$@.unsigned $@
+		$@.unsigned $@.signing
+	@mv $@.signing $@
 
 $(OUT_DEX_F): $(LOCAL_DEP_JAR)
 $(OUT_DEX_F): $(LOCAL_SRC_F) $(OUT_R_F)
 	@echo "Compiling ..."
 	@-mkdir -p $(OUT_OBJ_D)
-	@javac $(LOCAL_SRC_F) $(shell find -L $(OUT_SRC_D) -type f -name R.java) \
+	@$(JAVA_CC) $(LOCAL_SRC_F) $(shell find -L $(OUT_SRC_D) -type f -name R.java) \
 		-classpath $(ANDROID_JAR)$(shell if test -n "$(LOCAL_DEP_JAR)"; then echo " "$(LOCAL_DEP_JAR) | sed "s/ \\+/:/g"; fi) \
 		-d $(OUT_OBJ_D)
 	@ PATH=$(PATH) dx --dex \
 		--output=$@ \
 		$(OUT_OBJ_D) $(LOCAL_DEP_JAR)
-
-.PHONY: install
-install: apk
-	@adb install -r $(OUT_APK)
 
 endif
 
@@ -157,6 +156,14 @@ endif
 		$(addprefix -S ,$(LOCAL_RES_D1)) \
 		-m -J $(OUT_SRC_D)
 
+.PHONY: install
+install:
+ifeq ($(LOCAL_IS_LIB),true)
+	make -C demo install
+else
+	@adb install -r $(OUT_APK)
+endif
+
 .PHONY: clean-build
 clean-build: clean all
 
@@ -164,3 +171,6 @@ clean-build: clean all
 clean:
 	@echo "Cleaning ..."
 	@-rm -rf $(LOCAL_OUT_D)
+ifeq ($(LOCAL_IS_LIB),true)
+	@make -C demo clean
+endif

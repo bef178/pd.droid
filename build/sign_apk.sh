@@ -60,7 +60,9 @@ sign_apk() {
     local cmd="jarsigner"
 
     if ping -c 2 -W 1 www.baidu.com >/dev/null 2>&1; then
-        cmd="$cmd -tsa http://timestamp.digicert.com"
+        local ntpServer="http://timestamp.digicert.com"
+        echo "Using $ntpServer"
+        cmd="$cmd -tsa $ntpServer"
     fi
 
     cmd="$cmd \

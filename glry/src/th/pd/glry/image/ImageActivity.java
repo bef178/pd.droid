@@ -2,6 +2,11 @@ package th.pd.glry.image;
 
 import java.io.File;
 
+import cc.typedef.droid.common.GesturePipeline;
+import cc.typedef.droid.common.GesturePipeline.Callback;
+import cc.typedef.droid.common.QueryUtil;
+import cc.typedef.droid.common.mime.MimeTypeUtil;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -12,10 +17,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import t.typedef.droid.GesturePipeline;
-import t.typedef.droid.GesturePipeline.Callback;
-import t.typedef.droid.QueryUtil;
-import t.typedef.droid.mime.MimeTypeUtil;
 import th.pd.glry.AbsMediaActivity;
 import th.pd.glry.R;
 

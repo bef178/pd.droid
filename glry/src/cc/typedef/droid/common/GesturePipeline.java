@@ -1,4 +1,4 @@
-package t.typedef.droid;
+package cc.typedef.droid.common;
 
 import android.content.Context;
 import android.view.GestureDetector;
@@ -8,8 +8,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
-import t.typedef.droid.ElementalGestureDetector.OnTapListener;
-import t.typedef.droid.GesturePipeline.Callback;
+import cc.typedef.droid.common.ElementalGestureDetector.OnTapListener;
+import cc.typedef.droid.common.GesturePipeline.Callback;
 
 class ElementalGestureDetector {
 

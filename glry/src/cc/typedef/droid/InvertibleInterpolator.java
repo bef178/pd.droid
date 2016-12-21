@@ -1,4 +1,4 @@
-package t.typedef.droid;
+package cc.typedef.droid;
 
 import android.view.animation.Interpolator;
 

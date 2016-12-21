@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import t.typedef.droid.OnActionCallback;
+import cc.typedef.droid.common.OnActionCallback;
 import th.pd.mail.Const;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;

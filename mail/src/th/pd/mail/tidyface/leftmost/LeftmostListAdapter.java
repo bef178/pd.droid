@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import t.typedef.droid.pinnable.PinnableListAdapter;
+import cc.typedef.droid.common.pinnable.PinnableListAdapter;
 import th.pd.mail.R;
 import th.pd.mail.dao.MailAcc;
 

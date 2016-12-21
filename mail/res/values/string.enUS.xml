@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_label">pd-mail</string>
+  <string name="app_label">pd.mail</string>
   <string name="leftmost_folder_list">邮件夹</string>
   <string name="leftmost_flag_list">标签</string>
   <string name="sync">sync</string>

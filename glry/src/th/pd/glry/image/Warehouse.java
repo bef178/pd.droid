@@ -4,6 +4,11 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import cc.typedef.SlidingCache;
+import cc.typedef.droid.ImageLoader;
+import cc.typedef.droid.common.SystemUiUtil;
+import cc.typedef.droid.common.mime.MimeTypeUtil;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -13,11 +18,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.view.WindowManager;
-
-import t.typedef.SlidingCache;
-import t.typedef.droid.ImageLoader;
-import t.typedef.droid.SystemUiUtil;
-import t.typedef.droid.mime.MimeTypeUtil;
 
 class Warehouse {
 

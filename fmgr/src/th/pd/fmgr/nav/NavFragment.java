@@ -9,7 +9,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import t.typedef.droid.OnActionCallback;
+import cc.typedef.droid.common.OnActionCallback;
 import th.pd.fmgr.R;
 
 public class NavFragment extends Fragment {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import android.net.Uri;
 
-import t.typedef.Bits;
+import cc.typedef.primitive.Ctype;
 import th.pd.mail.dao.Message;
 import th.pd.mail.dao.Message.Attachment;
 
@@ -67,7 +67,7 @@ class ComposeModel {
     }
 
     public boolean queryStatusIsCcBccRowShown() {
-        return Bits.hasAll(flags, FLAG_SHOWS_CC_BCC_ROW);
+        return Ctype.hasAllBits(flags, FLAG_SHOWS_CC_BCC_ROW);
     }
 
     public void setBcc(String bcc) {
@@ -98,11 +98,11 @@ class ComposeModel {
      * return <code>true</code> if it is shown after toggled
      */
     public boolean toggleShowCcBccRow() {
-        if (Bits.hasAll(flags, FLAG_SHOWS_CC_BCC_ROW)) {
-            Bits.clear(flags, FLAG_SHOWS_CC_BCC_ROW);
+        if (Ctype.hasAllBits(flags, FLAG_SHOWS_CC_BCC_ROW)) {
+            Ctype.clearBits(flags, FLAG_SHOWS_CC_BCC_ROW);
             return false;
         } else {
-            Bits.set(flags, FLAG_SHOWS_CC_BCC_ROW);
+            Ctype.setBits(flags, FLAG_SHOWS_CC_BCC_ROW);
             return true;
         }
     }

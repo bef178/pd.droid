@@ -1,4 +1,4 @@
-package t.typedef;
+package cc.typedef;
 
 import java.util.LinkedList;
 import java.util.List;

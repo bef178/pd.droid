@@ -1,4 +1,4 @@
-package t.typedef.droid;
+package cc.typedef.droid;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import cc.typedef.droid.common.mime.MimeTypeUtil;
+import cc.typedef.io.Util;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,9 +22,6 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
-
-import t.typedef.droid.mime.MimeTypeUtil;
-import t.typedef.io.Util;
 
 public class ImageLoader {
 

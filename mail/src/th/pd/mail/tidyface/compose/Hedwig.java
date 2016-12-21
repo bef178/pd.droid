@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import t.typedef.droid.QueryUtil;
+import cc.typedef.droid.common.QueryUtil;
 import th.pd.mail.Const;
 import th.pd.mail.R;
 import th.pd.mail.dao.FastSyncAccess;

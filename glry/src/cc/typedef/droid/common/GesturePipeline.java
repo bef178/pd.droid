@@ -8,10 +8,9 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
-import cc.typedef.droid.common.ElementalGestureDetector.OnTapListener;
 import cc.typedef.droid.common.GesturePipeline.Callback;
 
-class ElementalGestureDetector {
+class PrimitiveTapDetector {
 
     interface OnTapListener {
 
@@ -23,7 +22,7 @@ class ElementalGestureDetector {
     private OnTapListener mListener;
     private boolean isDown;
 
-    public ElementalGestureDetector(OnTapListener listener) {
+    public PrimitiveTapDetector(OnTapListener listener) {
         mListener = listener;
     }
 
@@ -32,18 +31,18 @@ class ElementalGestureDetector {
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        boolean isStatusChanged = false;
+        boolean changed = false;
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                isStatusChanged = setState(true);
+                changed = setDown(true);
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_POINTER_DOWN:
-                isStatusChanged = setState(false);
+                changed = setDown(false);
                 break;
         }
-        if (isStatusChanged && mListener != null) {
+        if (changed && mListener != null) {
             if (this.isDown) {
                 return mListener.onTapDown(event);
             } else {
@@ -53,7 +52,7 @@ class ElementalGestureDetector {
         return false;
     }
 
-    private boolean setState(boolean isDown) {
+    private boolean setDown(boolean isDown) {
         if (isDown == this.isDown) {
             return false;
         }
@@ -66,7 +65,8 @@ class ElementalGestureDetector {
  * all-in-one motion listener, to filter/reclassify the gesture
  */
 class GestureListener implements OnGestureListener,
-        OnDoubleTapListener, OnScaleGestureListener, OnTapListener {
+        OnDoubleTapListener, OnScaleGestureListener,
+        PrimitiveTapDetector.OnTapListener {
 
     private Callback mCallback;
 
@@ -201,13 +201,13 @@ public class GesturePipeline {
 
     private GestureDetector mGestureDetector;
     private ScaleGestureDetector mScaleGestureDetector;
-    private ElementalGestureDetector mElementalGestureDetector;
+    private PrimitiveTapDetector mPrimitiveTapDetector;
 
     public GesturePipeline(Context context, Callback callback) {
         mListener = new GestureListener(callback);
         mGestureDetector = new GestureDetector(context, mListener);
         mScaleGestureDetector = new ScaleGestureDetector(context, mListener);
-        mElementalGestureDetector = new ElementalGestureDetector(mListener);
+        mPrimitiveTapDetector = new PrimitiveTapDetector(mListener);
     }
 
     public Callback getCallback() {
@@ -221,7 +221,7 @@ public class GesturePipeline {
         boolean handled = false;
         handled = handled || mGestureDetector.onTouchEvent(event);
         handled = handled || mScaleGestureDetector.onTouchEvent(event);
-        handled = mElementalGestureDetector.onTouchEvent(event) || handled; // must run
+        handled = mPrimitiveTapDetector.onTouchEvent(event) || handled; // must run
         return handled;
     }
 }

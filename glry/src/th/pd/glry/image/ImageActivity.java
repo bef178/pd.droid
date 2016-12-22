@@ -157,14 +157,10 @@ public class ImageActivity extends AbsMediaActivity {
         return super.onKeyEvent(keyCode, event);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return mGesturePipeline.onTouchEvent(event);
-    }
-
     private void setupController() {
 
-        mGesturePipeline = new GesturePipeline(this, new Callback() {
+        mGesturePipeline = new GesturePipeline(this,
+                new GesturePipeline.Callback() {
 
             @Override
             public boolean onDoubleTap() {
@@ -260,7 +256,7 @@ public class ImageActivity extends AbsMediaActivity {
 
             @Override
             public boolean onSingleTapUp() {
-                togglePageHeader();
+                onAction(R.id.actionTogglePageHeader, null);
                 return true;
             }
 
@@ -282,23 +278,24 @@ public class ImageActivity extends AbsMediaActivity {
             }
         });
 
-        findViewById(R.id.btnNext).setOnClickListener(
-                new View.OnClickListener() {
+        findViewById(R.id.controlPanel).setOnTouchListener(
+                new View.OnTouchListener() {
 
                     @Override
-                    public void onClick(View v) {
-                        onAction(R.id.actionNext, null);
+                    public boolean onTouch(View v, MotionEvent event) {
+                        return mGesturePipeline.onTouchEvent(event);
                     }
                 });
 
-        findViewById(R.id.btnPrev).setOnClickListener(
-                new View.OnClickListener() {
+        View.OnClickListener onClick = new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        onAction(R.id.actionPrev, null);
-                    }
-                });
+            @Override
+            public void onClick(View v) {
+                onAction(v.getId(), null);
+            }
+        };
+        findViewById(R.id.actionNext).setOnClickListener(onClick);
+        findViewById(R.id.actionPrev).setOnClickListener(onClick);
     }
 
     private void setupModel(Uri uri) {

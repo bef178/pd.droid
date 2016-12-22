@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <item name="actionTogglePageHeader" type="id"/>
   <item name="actionNext" type="id"/>
   <item name="actionPrev" type="id"/>
 

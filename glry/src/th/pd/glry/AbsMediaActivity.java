@@ -41,6 +41,11 @@ public abstract class AbsMediaActivity extends Activity implements
 
     @Override
     public boolean onAction(int actionId, Object extra) {
+        switch (actionId) {
+            case R.id.actionTogglePageHeader:
+                togglePageHeader();
+                return true;
+        }
         return false;
     }
 
@@ -167,7 +172,7 @@ public abstract class AbsMediaActivity extends Activity implements
         }
     }
 
-    protected void togglePageHeader() {
+    private void togglePageHeader() {
         if (mPageHeaderController.isFinallyVisible()) {
             mPageHeaderController.hideWithAnim();
         } else {
